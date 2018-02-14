@@ -1,0 +1,7 @@
+---
+- hosts: webservers
+  remote_user: poa
+  become: true
+  tasks:
+  - name: ensure apache is at the latest version
+    apt: name=apache2 update_cache=yes state=latest
