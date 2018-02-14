@@ -1,6 +1,6 @@
-[webservers:vars]
+[bootnode:vars]
 ansible_ssh_private_key_file=~/.ssh/id_poa-test
 ansible_user=poa
 
-[webservers]
+[bootnode]
 ${node_address}
