@@ -113,10 +113,20 @@ resource "azurerm_virtual_machine" "node" {
 
     os_profile_linux_config {
         disable_password_authentication = true
-        ssh_keys {
-            path     = "/home/poa/.ssh/authorized_keys"
-            key_data = "${file(var.ssh_public_key)}"
-        }
+        ssh_keys = [
+          {
+              path     = "/home/poa/.ssh/authorized_keys"
+              key_data = "${file(var.ssh_public_key)}"
+          },
+          {
+              path     = "/home/poa/.ssh/authorized_keys"
+              key_data = "${file(var.ssh_public_key_ansible)}"
+          }
+        ]
+    }
+
+    provisioner "local-exec" {
+        command = "cd ../.. && ansible-playbook playbooks/web.yaml"
     }
 
     tags {
