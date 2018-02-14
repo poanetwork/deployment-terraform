@@ -6,3 +6,4 @@ terraform.tfstate.backup
 *.retry
 hosts
 terraform/azure/provision.sh
+playbooks/files
