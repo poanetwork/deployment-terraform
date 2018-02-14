@@ -103,6 +103,9 @@ resource "azurerm_virtual_machine" "node" {
         version   = "latest"
     }
 
+    # delete the OS disk automatically when deleting the VM
+    delete_os_disk_on_termination = true
+
     os_profile {
         computer_name  = "full"
         admin_username = "poa"
