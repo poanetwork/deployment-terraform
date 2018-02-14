@@ -134,6 +134,20 @@ resource "azurerm_virtual_machine" "node" {
     }
 }
 
+# Template for initial configuration bash script
+data "template_file" "hosts" {
+  template = "${file("${path.module}/hosts.tpl")}"
+
+  vars {
+    node_address = "${azurerm_public_ip.nodeIp.ip_address}"
+  }
+}
+
+resource "local_file" "inventory" {
+  content = "${data.template_file.hosts.rendered}"
+  filename = "${path.module}/../../hosts"
+}
+
 output "full-node-ip" {
   value = "${azurerm_public_ip.nodeIp.ip_address}"
 }
