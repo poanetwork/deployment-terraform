@@ -31,7 +31,7 @@ resource "azurerm_public_ip" "nodeIp" {
     name                         = "nodeIp"
     location                     = "${var.region}"
     resource_group_name          = "${data.azurerm_resource_group.test.name}"
-    public_ip_address_allocation = "dynamic"
+    public_ip_address_allocation = "static"
 
     tags {
         environment = "Terraform Demo"
