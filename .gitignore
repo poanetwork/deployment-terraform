@@ -2,3 +2,7 @@
 **/.terraform
 terraform.tfstate
 terraform.tfstate.backup
+.terraform.tfstate.lock.info
+*.retry
+hosts
+terraform/azure/provision.sh
