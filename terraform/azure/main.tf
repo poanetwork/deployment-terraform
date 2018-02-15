@@ -8,7 +8,7 @@ data "azurerm_resource_group" "test" {
 
 # Create virtual network
 resource "azurerm_virtual_network" "default" {
-    name                = "default"
+    name                = "${var.prefix}-default"
     address_space       = ["10.0.0.0/16"]
     location            = "${var.region}"
     resource_group_name = "${data.azurerm_resource_group.test.name}"
@@ -20,7 +20,7 @@ resource "azurerm_virtual_network" "default" {
 
 # Create subnet
 resource "azurerm_subnet" "default" {
-    name                 = "default"
+    name                 = "${var.prefix}-default"
     resource_group_name  = "${data.azurerm_resource_group.test.name}"
     virtual_network_name = "${azurerm_virtual_network.default.name}"
     address_prefix       = "10.0.1.0/24"
@@ -28,7 +28,7 @@ resource "azurerm_subnet" "default" {
 
 # Create public IP
 resource "azurerm_public_ip" "nodeIp" {
-    name                         = "nodeIp"
+    name                         = "${var.prefix}-nodeIp"
     location                     = "${var.region}"
     resource_group_name          = "${data.azurerm_resource_group.test.name}"
     public_ip_address_allocation = "static"
@@ -39,8 +39,8 @@ resource "azurerm_public_ip" "nodeIp" {
 }
 
 # Create Network Security Group and rule
-resource "azurerm_network_security_group" "ssh" {
-    name                = "ssh"
+resource "azurerm_network_security_group" "bootnode" {
+    name                = "${var.prefix}-bootnode"
     location            = "${var.region}"
     resource_group_name = "${data.azurerm_resource_group.test.name}"
 
@@ -63,13 +63,13 @@ resource "azurerm_network_security_group" "ssh" {
 
 # Create network interface
 resource "azurerm_network_interface" "nodeNIC" {
-    name                      = "nodeNIC"
+    name                      = "${var.prefix}-nodeNIC"
     location                  = "${var.region}"
     resource_group_name       = "${data.azurerm_resource_group.test.name}"
-    network_security_group_id = "${azurerm_network_security_group.ssh.id}"
+    network_security_group_id = "${azurerm_network_security_group.bootnode.id}"
 
     ip_configuration {
-        name                          = "default"
+        name                          = "${var.prefix}-default"
         subnet_id                     = "${azurerm_subnet.default.id}"
         private_ip_address_allocation = "dynamic"
         public_ip_address_id          = "${azurerm_public_ip.nodeIp.id}"
@@ -96,8 +96,9 @@ resource "local_file" "inventory" {
 }
 
 # Create virtual machine
-resource "azurerm_virtual_machine" "node" {
-    name                  = "full-node"
+resource "azurerm_virtual_machine" "bootnode" {
+    count = 0
+    name                  = "${var.prefix}-bootnode"
     location              = "${var.region}"
     resource_group_name   = "${data.azurerm_resource_group.test.name}"
     network_interface_ids = ["${azurerm_network_interface.nodeNIC.id}"]
@@ -106,7 +107,7 @@ resource "azurerm_virtual_machine" "node" {
     depends_on = ["local_file.inventory"]
 
     storage_os_disk {
-        name              = "default"
+        name              = "${var.prefix}-default"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Standard_LRS"
@@ -123,7 +124,7 @@ resource "azurerm_virtual_machine" "node" {
     delete_os_disk_on_termination = true
 
     os_profile {
-        computer_name  = "full"
+        computer_name  = "bootnode"
         admin_username = "poa"
     }
 
@@ -150,6 +151,6 @@ resource "azurerm_virtual_machine" "node" {
     }
 }
 
-output "full-node-ip" {
+output "bootnode-ip" {
   value = "${azurerm_public_ip.nodeIp.ip_address}"
 }
