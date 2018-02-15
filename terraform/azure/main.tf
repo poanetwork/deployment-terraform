@@ -149,13 +149,13 @@ resource "local_file" "inventory" {
 
 # Create virtual machine
 resource "azurerm_virtual_machine" "bootnode" {
-    count = 0
+    count = 1
     name                  = "${var.prefix}-bootnode"
     location              = "${var.region}"
     resource_group_name   = "${data.azurerm_resource_group.test.name}"
     network_interface_ids = ["${azurerm_network_interface.nodeNIC.id}"]
-    # 1 vCPU, 1 Gb of RAM
-    vm_size               = "Standard_B1s"
+    # 1 vCPU, 3.5 Gb of RAM
+    vm_size               = "Standard_DS1_v2"
     depends_on = ["local_file.inventory"]
 
     storage_os_disk {
@@ -195,7 +195,7 @@ resource "azurerm_virtual_machine" "bootnode" {
     }
 
     provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/web.yaml"
+        command = "cd ../.. && ansible-playbook playbooks/site.yml"
     }
 
     tags {
