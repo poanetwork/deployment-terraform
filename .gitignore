@@ -6,5 +6,6 @@ terraform.tfstate.backup
 *.retry
 hosts
 terraform/azure/provision.sh
-playbooks/files
+playbooks/files/*.pub
+playbooks/group_vars/all
 terraform.tfvars

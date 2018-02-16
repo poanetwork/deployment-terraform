@@ -28,3 +28,13 @@ resource "local_file" "group_vars" {
   content = "${data.template_file.group_vars.rendered}"
   filename = "${path.module}/../../playbooks/group_vars/all"
 }
+
+resource "local_file" "admin" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${path.module}/../../playbooks/files/admin.pub"
+}
+
+resource "local_file" "bootnode" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${path.module}/../../playbooks/files/ssh_bootnode.pub"
+}
