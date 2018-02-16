@@ -1,0 +1,4 @@
+node_fullname = "poa-tf"
+node_admin_email = "user@example.com"
+netstat_server_url = ""
+netstat_server_secret = ""
