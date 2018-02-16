@@ -44,7 +44,7 @@ resource "azurerm_virtual_machine" "bootnode" {
         name              = "${var.prefix}-default"
         caching           = "ReadWrite"
         create_option     = "FromImage"
-        managed_disk_type = "Standard_LRS"
+        managed_disk_type = "Premium_LRS"
     }
 
     storage_image_reference {
