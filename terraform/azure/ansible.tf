@@ -29,9 +29,9 @@ resource "local_file" "group_vars" {
   filename = "${path.module}/../../playbooks/group_vars/all"
 }
 
-resource "local_file" "admin" {
+resource "local_file" "admins" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/admin.pub"
+  filename = "${path.module}/../../playbooks/files/admins.pub"
 }
 
 resource "local_file" "bootnode" {

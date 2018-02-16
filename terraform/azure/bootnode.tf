@@ -38,7 +38,7 @@ resource "azurerm_virtual_machine" "bootnode" {
     network_interface_ids = ["${azurerm_network_interface.nodeNIC.id}"]
     # 1 vCPU, 3.5 Gb of RAM
     vm_size               = "Standard_DS1_v2"
-    depends_on = ["local_file.inventory"]
+    depends_on = ["local_file.inventory", "local_file.admins", "local_file.bootnode"]
 
     storage_os_disk {
         name              = "${var.prefix}-default"
