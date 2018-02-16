@@ -17,3 +17,11 @@ variable region {
 variable prefix {
   default = "tf"
 }
+
+variable node_fullname {}
+
+variable node_admin_email {}
+
+variable netstat_server_url {}
+
+variable netstat_server_secret {}

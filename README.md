@@ -28,12 +28,22 @@ Verify you have access to the account
 az account list
 ```
 
+## Configure
+
+Start from configuration example:
+
+```
+cd terraform/azure
+mv terraform.tfvars.example terraform.tfvars
+```
+
+Edit the `terraform.tfvars` file to set up node parameters.
+
 ## Deploy
 
 Download Azure Terraform plugin
 
 ```
-cd azure
 terraform init
 ```
 
@@ -57,4 +67,4 @@ When the infrastructure is no longer needed run
 terraform destroy
 ```
 
-This will delete created resources from your account. 
+This will delete created resources from your account.

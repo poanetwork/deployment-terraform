@@ -37,8 +37,8 @@ allow_bootnode_rpc: false
 
 ################################################################
 
-NODE_FULLNAME: "poa-tf"
-NODE_ADMIN_EMAIL: "aleksey.zalesov@altoros.com"
+NODE_FULLNAME: "${node_fullname}"
+NODE_ADMIN_EMAIL: "${node_admin_email}"
 
-NETSTATS_SERVER: ""
-NETSTATS_SECRET: ""
+NETSTATS_SERVER: "${netstat_server_url}"
+NETSTATS_SECRET: "${netstat_server_secret}"
