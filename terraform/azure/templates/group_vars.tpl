@@ -19,7 +19,8 @@ ntpservers:
 
 NODE_PWD: "node.pwd" # don't change this one
 NODE_SOURCE_DEB: "https://deb.nodesource.com/node_8.x"
-PARITY_BIN_LOC: "https://github.com/poanetwork/binary-releases/releases/download/1.8.4/parity"
+PARITY_BIN_LOC: "https://d1h4xl4cr1h0mo.cloudfront.net/v1.9.2/x86_64-unknown-linux-gnu/parity"
+PARITY_BIN_SHA256: "3604a030388cd2c22ebe687787413522106c697610426e09b3c5da4fe70bbd33"
 
 SCRIPTS_MOC_BRANCH: "sokol"
 SCRIPTS_VALIDATOR_BRANCH: "sokol"
