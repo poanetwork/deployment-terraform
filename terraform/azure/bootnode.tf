@@ -37,7 +37,7 @@ resource "azurerm_virtual_machine" "bootnode" {
     resource_group_name   = "${data.azurerm_resource_group.test.name}"
     network_interface_ids = ["${azurerm_network_interface.nodeNIC.id}"]
     # 1 vCPU, 3.5 Gb of RAM
-    vm_size               = "Standard_DS1_v2"
+    vm_size               = "${var.machine_type}"
     depends_on = ["local_file.inventory", "local_file.admins", "local_file.bootnode"]
 
     storage_os_disk {

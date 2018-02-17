@@ -23,6 +23,11 @@ variable prefix {
   default = "tf"
 }
 
+# Machine size for bootnode
+variable machine_type {
+  default = "Standard_DS1_v2"
+}
+
 variable node_fullname {}
 
 variable node_admin_email {}
