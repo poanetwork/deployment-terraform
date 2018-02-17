@@ -68,3 +68,14 @@ terraform destroy
 ```
 
 This will delete created resources from your account.
+
+## Managing multiple deployments
+
+In case you want to deploy several environments use separate state files. By default Terraform saves state to the file `terraform.tfstate`. You can change this behaviour with option `-state=path`. To manage multiple deployments use different pathes for the state files.
+
+Example:
+
+```
+terraform apply -state=prod.tfstate
+terraform apply -state=dev.tfstate
+```
