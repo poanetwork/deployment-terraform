@@ -8,6 +8,11 @@ variable ssh_public_key_ansible {
   default = "~/.ssh/id_poa-test.pub"
 }
 
+# Ansible private key
+variable ssh_private_key_ansible {
+  default = "~/.ssh/id_poa-test"
+}
+
 # The region where to create resources
 variable region {
   default = "West US 2"
