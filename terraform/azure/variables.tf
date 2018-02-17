@@ -13,6 +13,11 @@ variable region {
   default = "West US 2"
 }
 
+# Resource group name
+variable resource_group_name {
+  default = "test-terraform"
+}
+
 # Prefix allows you to make structured names for the resources
 variable prefix {
   default = "tf"
