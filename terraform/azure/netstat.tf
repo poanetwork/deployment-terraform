@@ -76,6 +76,10 @@ resource "azurerm_virtual_machine" "netstat" {
         ]
     }
 
+    provisioner "local-exec" {
+        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='netstat/*'"
+    }
+
     tags {
         environment = "Terraform Demo"
     }
