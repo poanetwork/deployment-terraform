@@ -4,3 +4,6 @@ ansible_user=poa
 
 [bootnode]
 bootnode/0 ansible_host=${node_address}
+
+[netstat]
+netstat/0 ansible_host=${netstat_address}

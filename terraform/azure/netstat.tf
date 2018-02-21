@@ -38,6 +38,7 @@ resource "azurerm_virtual_machine" "netstat" {
     network_interface_ids = ["${azurerm_network_interface.netstatNIC.id}"]
     # 1 vCPU, 3.5 Gb of RAM
     vm_size               = "${var.machine_type}"
+    depends_on = ["local_file.inventory"]
 
     storage_os_disk {
         name              = "${var.prefix}-netstat"
