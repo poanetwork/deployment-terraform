@@ -2,7 +2,7 @@
 resource "azurerm_public_ip" "netstatIp" {
     name                         = "${var.prefix}-netstatIp"
     location                     = "${var.region}"
-    resource_group_name          = "${data.azurerm_resource_group.test.name}"
+    resource_group_name          = "${azurerm_resource_group.test.name}"
     public_ip_address_allocation = "static"
 
     tags {
@@ -14,7 +14,7 @@ resource "azurerm_public_ip" "netstatIp" {
 resource "azurerm_network_interface" "netstatNIC" {
     name                      = "${var.prefix}-netstatNIC"
     location                  = "${var.region}"
-    resource_group_name       = "${data.azurerm_resource_group.test.name}"
+    resource_group_name       = "${azurerm_resource_group.test.name}"
     network_security_group_id = "${azurerm_network_security_group.netstat.id}"
 
     ip_configuration {
@@ -34,7 +34,7 @@ resource "azurerm_virtual_machine" "netstat" {
     count = 1
     name                  = "${var.prefix}-netstat"
     location              = "${var.region}"
-    resource_group_name   = "${data.azurerm_resource_group.test.name}"
+    resource_group_name   = "${azurerm_resource_group.test.name}"
     network_interface_ids = ["${azurerm_network_interface.netstatNIC.id}"]
     # 1 vCPU, 3.5 Gb of RAM
     vm_size               = "${var.machine_type}"
