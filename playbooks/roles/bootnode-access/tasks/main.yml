@@ -1,4 +1,3 @@
 ---
 - name: Setup ufw firewall
   import_tasks: ufw.yml
-  when: not ansible_bios_version | search("amazon")
