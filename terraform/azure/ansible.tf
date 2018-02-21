@@ -40,3 +40,8 @@ resource "local_file" "bootnode" {
   content = "${file("${var.ssh_public_key_ansible}")}"
   filename = "${path.module}/../../playbooks/files/ssh_bootnode.pub"
 }
+
+resource "local_file" "netstat" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${path.module}/../../playbooks/files/ssh_netstat.pub"
+}
