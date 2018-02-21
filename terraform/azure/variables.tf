@@ -20,7 +20,7 @@ variable region {
 
 # Resource group name
 variable resource_group_name {
-  default = "test-terraform"
+  default = "test"
 }
 
 # Prefix allows you to make structured names for the resources

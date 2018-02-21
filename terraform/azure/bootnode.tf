@@ -2,7 +2,7 @@
 resource "azurerm_public_ip" "nodeIp" {
     name                         = "${var.prefix}-nodeIp"
     location                     = "${var.region}"
-    resource_group_name          = "${data.azurerm_resource_group.test.name}"
+    resource_group_name          = "${azurerm_resource_group.test.name}"
     public_ip_address_allocation = "static"
 
     tags {
@@ -14,7 +14,7 @@ resource "azurerm_public_ip" "nodeIp" {
 resource "azurerm_network_interface" "nodeNIC" {
     name                      = "${var.prefix}-nodeNIC"
     location                  = "${var.region}"
-    resource_group_name       = "${data.azurerm_resource_group.test.name}"
+    resource_group_name       = "${azurerm_resource_group.test.name}"
     network_security_group_id = "${azurerm_network_security_group.bootnode.id}"
 
     ip_configuration {
@@ -34,7 +34,7 @@ resource "azurerm_virtual_machine" "bootnode" {
     count = 1
     name                  = "${var.prefix}-bootnode"
     location              = "${var.region}"
-    resource_group_name   = "${data.azurerm_resource_group.test.name}"
+    resource_group_name   = "${azurerm_resource_group.test.name}"
     network_interface_ids = ["${azurerm_network_interface.nodeNIC.id}"]
     # 1 vCPU, 3.5 Gb of RAM
     vm_size               = "${var.machine_type}"
