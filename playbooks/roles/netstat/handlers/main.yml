@@ -1,0 +1,3 @@
+---
+- name: restart poa-dashboard
+  service: name=poa-dashboard state=restarted
