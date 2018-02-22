@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "moc" {
     }
 
     provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='moc/*''"
+        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='moc/*'"
     }
 
     tags {
