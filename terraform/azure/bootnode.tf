@@ -18,8 +18,8 @@ resource "azurerm_network_interface" "nodeNIC" {
     network_security_group_id = "${azurerm_network_security_group.bootnode.id}"
 
     ip_configuration {
-        name                          = "${var.prefix}-default"
-        subnet_id                     = "${azurerm_subnet.default.id}"
+        name                          = "${var.prefix}-ip-bootnode"
+        subnet_id                     = "${azurerm_subnet.poa.id}"
         private_ip_address_allocation = "dynamic"
         public_ip_address_id          = "${azurerm_public_ip.nodeIp.id}"
     }
@@ -41,7 +41,7 @@ resource "azurerm_virtual_machine" "bootnode" {
     depends_on = ["local_file.inventory", "local_file.admins", "local_file.bootnode"]
 
     storage_os_disk {
-        name              = "${var.prefix}-default"
+        name              = "${var.prefix}-bootnode-disk"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
