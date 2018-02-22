@@ -4,6 +4,7 @@ data "template_file" "hosts" {
 
   vars {
     node_address = "${azurerm_public_ip.nodeIp.ip_address}"
+    moc_address = "${azurerm_public_ip.mocIp.ip_address}"
     private_key = "${var.ssh_private_key_ansible}"
   }
 }
