@@ -1,19 +1,21 @@
-- hosts: validator
+- hosts: bootnode
   become: True
   vars:
-    username: "validator"
+    nginx_headers: "on"
+    PROXY_PORT: "8545"
+    username: "bootnode"
     users:
-      - name: "validator"
-    home: "/home/validator"
+      - name: "bootnode"
+    home: "/home/bootnode"
   roles:
     - usermanager
     - nodejs
+    - bootnode
     - poa-logrotate
     - poa-parity
     - poa-pm2
     - poa-netstats
-    - validator
-    - validator-access
+    - nginx
+    - bootnode-access
   tags:
-    - validator
-    
+    - bootnode
