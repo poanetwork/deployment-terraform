@@ -46,3 +46,7 @@ NODE_ADMIN_EMAIL: "${node_admin_email}"
 
 NETSTATS_SERVER: "${netstat_server_url}"
 NETSTATS_SECRET: "${netstat_server_secret}"
+
+MINING_KEYFILE: "${mining_keyfile}"
+MINING_ADDRESS: "${mining_address}"
+MINING_KEYPASS: "${mining_keypass}"

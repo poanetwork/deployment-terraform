@@ -4,7 +4,7 @@ data "template_file" "hosts" {
 
   vars {
     node_address = "${azurerm_public_ip.nodeIp.ip_address}"
-    validator_address = "${azurerm_public_ip.validatorIp.ip_address"
+    validator_address = "${azurerm_public_ip.validatorIp.ip_address}"
     private_key = "${var.ssh_private_key_ansible}"
   }
 }
@@ -23,6 +23,9 @@ data "template_file" "group_vars" {
     node_admin_email = "${var.node_admin_email}"
     netstat_server_url = "${var.netstat_server_url}"
     netstat_server_secret = "${var.netstat_server_secret}"
+    mining_keyfile = "${var.mining_keyfile}"
+    mining_address = "${var.mining_address}"
+    mining_keypass = "${var.mining_keypass}"
   }
 }
 
