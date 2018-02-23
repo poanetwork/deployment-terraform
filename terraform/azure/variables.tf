@@ -40,3 +40,7 @@ variable node_admin_email {}
 variable netstat_server_url {}
 
 variable netstat_server_secret {}
+
+variable moc_keypass {}
+
+variable moc_keyfile {}
