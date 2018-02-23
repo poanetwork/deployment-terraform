@@ -4,6 +4,7 @@ data "template_file" "hosts" {
 
   vars {
     node_address = "${azurerm_public_ip.nodeIp.ip_address}"
+    validator_address = "${azurerm_public_ip.validatorIp.ip_address}"
     netstat_address = "${azurerm_public_ip.netstatIp.ip_address}"
     moc_address = "${azurerm_public_ip.mocIp.ip_address}"
     explorer_address = "${azurerm_public_ip.explorerIp.ip_address}"
@@ -25,6 +26,9 @@ data "template_file" "group_vars" {
     node_admin_email = "${var.node_admin_email}"
     netstat_server_url = "${var.netstat_server_url}"
     netstat_server_secret = "${var.netstat_server_secret}"
+    mining_keyfile = "${var.mining_keyfile}"
+    mining_address = "${var.mining_address}"
+    mining_keypass = "${var.mining_keypass}"
   }
 }
 
@@ -41,6 +45,11 @@ resource "local_file" "admins" {
 resource "local_file" "bootnode" {
   content = "${file("${var.ssh_public_key_ansible}")}"
   filename = "${path.module}/../../playbooks/files/ssh_bootnode.pub"
+}
+
+resource "local_file" "validator" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${path.module}/../../playbooks/files/ssh_validator.pub"
 }
 
 resource "local_file" "netstat" {
