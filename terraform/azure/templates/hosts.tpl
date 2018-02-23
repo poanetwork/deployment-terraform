@@ -1,4 +1,4 @@
-[bootnode:vars]
+[all:vars]
 ansible_ssh_private_key_file=${private_key}
 ansible_user=poa
 
