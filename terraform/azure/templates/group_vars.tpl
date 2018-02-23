@@ -36,6 +36,9 @@ allow_bootnode_ssh: true
 allow_bootnode_p2p: true
 allow_bootnode_rpc: false
 
+allow_validator_ssh: true
+allow_validator_p2p: true
+
 ################################################################
 
 NODE_FULLNAME: "${node_fullname}"
