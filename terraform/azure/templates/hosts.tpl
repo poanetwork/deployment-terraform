@@ -4,3 +4,6 @@ ansible_user=poa
 
 [bootnode]
 bootnode/0 ansible_host=${node_address}
+
+[validator]
+validator/0 ansible_host={validator_address}

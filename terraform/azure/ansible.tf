@@ -4,6 +4,7 @@ data "template_file" "hosts" {
 
   vars {
     node_address = "${azurerm_public_ip.nodeIp.ip_address}"
+    validator_address = "${azurerm_public_ip.validatorIp.ip_address"
     private_key = "${var.ssh_private_key_ansible}"
   }
 }
@@ -38,4 +39,9 @@ resource "local_file" "admins" {
 resource "local_file" "bootnode" {
   content = "${file("${var.ssh_public_key_ansible}")}"
   filename = "${path.module}/../../playbooks/files/ssh_bootnode.pub"
+}
+
+resource "local_file" "validator" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${path.module}/../../playbooks/files/ssh_validator.pub"
 }
