@@ -6,44 +6,5 @@
     - preconf
   tags: preconf
 
-- hosts: bootnode
-  become: True
-  vars:
-    nginx_headers: "on"
-    PROXY_PORT: "8545"
-    username: "bootnode"
-    users:
-      - name: "bootnode"
-    home: "/home/bootnode"
-  roles:
-    - usermanager
-    - nodejs
-    - bootnode
-    - poa-logrotate
-    - poa-parity
-    - poa-pm2
-    - poa-netstats
-    - nginx
-    - bootnode-access
-  tags:
-    - bootnode
-
-- hosts: netstat
-  become: True
-  vars:
-    nginx_headers: "off"
-    PROXY_PORT: "3000"
-    NETSTATS_SERVER: "http://localhost:3000"
-    username: "netstat"
-    users:
-      - name: "netstat"
-    home: "/home/netstat"
-  roles:
-    - usermanager
-    - nodejs
-    - poa-logrotate
-    - netstat
-    - nginx
-    - netstat-access
-  tags:
-    - netstat
+- import_playbook: bootnode.yml
+- import_playbook: netstat.yml
