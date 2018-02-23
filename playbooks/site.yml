@@ -29,6 +29,7 @@
     - bootnode
 
 - hosts: validator
+  become: True
   vars:
     username: "validator"
     users:
