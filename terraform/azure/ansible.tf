@@ -5,6 +5,8 @@ data "template_file" "hosts" {
   vars {
     node_address = "${azurerm_public_ip.nodeIp.ip_address}"
     netstat_address = "${azurerm_public_ip.netstatIp.ip_address}"
+    moc_address = "${azurerm_public_ip.mocIp.ip_address}"
+    explorer_address = "${azurerm_public_ip.explorerIp.ip_address}"
     private_key = "${var.ssh_private_key_ansible}"
   }
 }
@@ -44,4 +46,14 @@ resource "local_file" "bootnode" {
 resource "local_file" "netstat" {
   content = "${file("${var.ssh_public_key_ansible}")}"
   filename = "${path.module}/../../playbooks/files/ssh_netstat.pub"
+}
+
+resource "local_file" "moc" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${path.module}/../../playbooks/files/ssh_moc.pub"
+}
+
+resource "local_file" "explorer" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${path.module}/../../playbooks/files/ssh_explorer.pub"
 }

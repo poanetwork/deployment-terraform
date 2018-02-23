@@ -1,0 +1,3 @@
+---
+- name: restart poa-chain-explorer
+  service: name=poa-chain-explorer state=restarted

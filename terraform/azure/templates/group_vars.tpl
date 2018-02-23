@@ -39,6 +39,13 @@ allow_bootnode_rpc: false
 allow_netstat_ssh: true
 allow_netstat_http: true
 
+allow_moc_ssh: true
+allow_moc_p2p: true
+
+allow_explorer_ssh: true
+allow_explorer_p2p: true
+allow_explorer_http: true
+
 ################################################################
 
 NODE_FULLNAME: "${node_fullname}"
@@ -46,3 +53,6 @@ NODE_ADMIN_EMAIL: "${node_admin_email}"
 
 NETSTATS_SERVER: "${netstat_server_url}"
 NETSTATS_SECRET: "${netstat_server_secret}"
+
+MOC_KEYPASS: "${moc_keypass}"
+MOC_KEYFILE: "${moc_keyfiles}"

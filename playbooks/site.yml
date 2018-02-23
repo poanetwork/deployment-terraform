@@ -8,3 +8,4 @@
 
 - import_playbook: bootnode.yml
 - import_playbook: netstat.yml
+- import_playbook: explorer.yml
