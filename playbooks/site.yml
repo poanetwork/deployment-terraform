@@ -6,43 +6,5 @@
     - preconf
   tags: preconf
 
-- hosts: bootnode
-  become: True
-  vars:
-    nginx_headers: "on"
-    PROXY_PORT: "8545"
-    username: "bootnode"
-    users:
-      - name: "bootnode"
-    home: "/home/bootnode"
-  roles:
-    - usermanager
-    - nodejs
-    - bootnode
-    - poa-logrotate
-    - poa-parity
-    - poa-pm2
-    - poa-netstats
-    - nginx
-    - bootnode-access
-  tags:
-    - bootnode
-
-- hosts: validator
-  become: True
-  vars:
-    username: "validator"
-    users:
-      - name: "validator"
-    home: "/home/validator"
-  roles:
-    - usermanager
-    - nodejs
-    - poa-logrotate
-    - poa-parity
-    - poa-pm2
-    - poa-netstats
-    - validator
-    - validator-access
-  tags:
-    - validator
+- import_playbook: bootnode.yml
+- import_playbook: validator.yml
