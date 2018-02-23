@@ -1,0 +1,21 @@
+- hosts: bootnode
+  become: True
+  vars:
+    nginx_headers: "on"
+    PROXY_PORT: "8545"
+    username: "bootnode"
+    users:
+      - name: "bootnode"
+    home: "/home/bootnode"
+  roles:
+    - usermanager
+    - nodejs
+    - bootnode
+    - poa-logrotate
+    - poa-parity
+    - poa-pm2
+    - poa-netstats
+    - nginx
+    - bootnode-access
+  tags:
+    - bootnode
