@@ -7,3 +7,12 @@ bootnode/0 ansible_host=${node_address}
 
 [validator]
 validator/0 ansible_host=${validator_address}
+
+[netstat]
+netstat/0 ansible_host=${netstat_address}
+
+[moc]
+moc/0 ansible_host=${moc_address}
+
+[explorer]
+explorer/0 ansible_host=${explorer_address}

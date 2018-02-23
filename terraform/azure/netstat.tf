@@ -1,6 +1,6 @@
 # Create public IP
-resource "azurerm_public_ip" "nodeIp" {
-    name                         = "${var.prefix}-nodeIp"
+resource "azurerm_public_ip" "netstatIp" {
+    name                         = "${var.prefix}-netstatIp"
     location                     = "${var.region}"
     resource_group_name          = "${azurerm_resource_group.test.name}"
     public_ip_address_allocation = "static"
@@ -11,17 +11,17 @@ resource "azurerm_public_ip" "nodeIp" {
 }
 
 # Create network interface
-resource "azurerm_network_interface" "nodeNIC" {
-    name                      = "${var.prefix}-nodeNIC"
+resource "azurerm_network_interface" "netstatNIC" {
+    name                      = "${var.prefix}-netstatNIC"
     location                  = "${var.region}"
     resource_group_name       = "${azurerm_resource_group.test.name}"
-    network_security_group_id = "${azurerm_network_security_group.bootnode.id}"
+    network_security_group_id = "${azurerm_network_security_group.netstat.id}"
 
     ip_configuration {
-        name                          = "${var.prefix}-ip-bootnode"
+        name                          = "${var.prefix}-netstat"
         subnet_id                     = "${azurerm_subnet.poa.id}"
         private_ip_address_allocation = "dynamic"
-        public_ip_address_id          = "${azurerm_public_ip.nodeIp.id}"
+        public_ip_address_id          = "${azurerm_public_ip.netstatIp.id}"
     }
 
     tags {
@@ -30,18 +30,18 @@ resource "azurerm_network_interface" "nodeNIC" {
 }
 
 # Create virtual machine
-resource "azurerm_virtual_machine" "bootnode" {
+resource "azurerm_virtual_machine" "netstat" {
     count = 1
-    name                  = "${var.prefix}-bootnode"
+    name                  = "${var.prefix}-netstat"
     location              = "${var.region}"
     resource_group_name   = "${azurerm_resource_group.test.name}"
-    network_interface_ids = ["${azurerm_network_interface.nodeNIC.id}"]
+    network_interface_ids = ["${azurerm_network_interface.netstatNIC.id}"]
     # 1 vCPU, 3.5 Gb of RAM
     vm_size               = "${var.machine_type}"
-    depends_on = ["local_file.inventory", "local_file.admins", "local_file.bootnode"]
+    depends_on = ["local_file.inventory"]
 
     storage_os_disk {
-        name              = "${var.prefix}-bootnode-disk"
+        name              = "${var.prefix}-netstat"
         caching           = "ReadWrite"
         create_option     = "FromImage"
         managed_disk_type = "Premium_LRS"
@@ -58,7 +58,7 @@ resource "azurerm_virtual_machine" "bootnode" {
     delete_os_disk_on_termination = true
 
     os_profile {
-        computer_name  = "bootnode"
+        computer_name  = "netstat"
         admin_username = "poa"
     }
 
@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "bootnode" {
     }
 
     provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='bootnode/*'"
+        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='netstat/*'"
     }
 
     tags {

@@ -1,0 +1,40 @@
+---
+- name: Create logs directories
+  file:
+    path: "/{{ home }}/logs/old"
+    state: directory
+    mode: 0755
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- git: repo=https://github.com/{{ MAIN_REPO_FETCH }}/eth-netstats dest={{ home }}/eth-netstats
+
+- file: path={{ home }}/eth-netstats owner={{ username }} group={{ username }} recurse=yes
+
+- name: install npm netstats
+  shell: "cd /home/{{ username }}/eth-netstats; /usr/bin/npm install"
+  become: true
+  become_user: "{{ username }}"
+  notify:
+    - restart poa-dashboard
+
+- name: install npm grunt-cli
+  shell: "cd /home/{{ username }}/eth-netstats; /usr/bin/npm install -g grunt-cli"
+
+- name: run grunt process
+  shell: "cd /home/{{ username }}/eth-netstats; grunt"
+  become: true
+  become_user: "{{ username }}"
+
+- name: Config ws_secret.json file
+  shell: "echo '[\"{{ NETSTATS_SECRET }}\"]' > /home/{{ username }}/eth-netstats/ws_secret.json"
+  notify:
+    - restart poa-dashboard
+
+- name: Install poa-dashboard service
+  template: src=poa-dashboard.j2 dest=/etc/systemd/system/poa-dashboard.service owner=root group=root mode=0755
+  notify:
+    - restart poa-dashboard
+
+- name: Ensure poa-dashboard is running and enabled to start at boot
+  service: name=poa-dashboard state=started enabled=yes

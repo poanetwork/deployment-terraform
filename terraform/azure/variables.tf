@@ -46,3 +46,7 @@ variable mining_keyfile {}
 variable mining_address {}
 
 variable mining_keypass {}
+
+variable moc_keypass {}
+
+variable moc_keyfile {}

@@ -39,6 +39,16 @@ allow_bootnode_rpc: false
 allow_validator_ssh: true
 allow_validator_p2p: true
 
+allow_netstat_ssh: true
+allow_netstat_http: true
+
+allow_moc_ssh: true
+allow_moc_p2p: true
+
+allow_explorer_ssh: true
+allow_explorer_p2p: true
+allow_explorer_http: true
+
 ################################################################
 
 NODE_FULLNAME: "${node_fullname}"
@@ -50,3 +60,6 @@ NETSTATS_SECRET: "${netstat_server_secret}"
 MINING_KEYFILE: "${mining_keyfile}"
 MINING_ADDRESS: "${mining_address}"
 MINING_KEYPASS: "${mining_keypass}"
+
+MOC_KEYPASS: "${moc_keypass}"
+MOC_KEYFILE: "${moc_keyfiles}"
