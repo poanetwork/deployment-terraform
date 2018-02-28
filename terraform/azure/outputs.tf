@@ -1,5 +1,5 @@
 output "bootnode-ip" {
-  value = "${azurerm_public_ip.nodeIp.ip_address}"
+  value = "${module.bootnode.boot_node_ip}"
 }
 
 output "validator-ip" {

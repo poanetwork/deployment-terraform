@@ -3,7 +3,7 @@ data "template_file" "hosts" {
   template = "${file("${path.module}/templates/hosts.tpl")}"
 
   vars {
-    node_address = "${azurerm_public_ip.nodeIp.ip_address}"
+    node_address = "${module.bootnode.boot_node_ip}"
     validator_address = "${azurerm_public_ip.validatorIp.ip_address}"
     netstat_address = "${module.netstat.netstat_node_ip}"
     moc_address = "${azurerm_public_ip.mocIp.ip_address}"
@@ -13,7 +13,6 @@ data "template_file" "hosts" {
 }
 
 resource "local_file" "inventory" {
-  depends_on = ["azurerm_public_ip.nodeIp"]
   content = "${data.template_file.hosts.rendered}"
   filename = "${path.module}/../../deployment-playbooks/hosts"
 }
