@@ -1,0 +1,4 @@
+[submodule "deployment-playbooks"]
+	path = deployment-playbooks
+	url = https://github.com/poanetwork/deployment-playbooks
+	branch = terraform-experiment
