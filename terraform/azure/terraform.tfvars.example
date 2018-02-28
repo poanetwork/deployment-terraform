@@ -1,5 +1,6 @@
 node_fullname = "poa-tf"
 node_admin_email = "user@example.com"
+playbook_path = "/home/username/deployment-terraform/deployment-playbooks"
 netstat_server_url = ""
 netstat_server_secret = ""
 mining_keyfile = ""

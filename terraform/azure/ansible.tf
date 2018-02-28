@@ -5,7 +5,7 @@ data "template_file" "hosts" {
   vars {
     node_address = "${azurerm_public_ip.nodeIp.ip_address}"
     validator_address = "${azurerm_public_ip.validatorIp.ip_address}"
-    netstat_address = "${azurerm_public_ip.netstatIp.ip_address}"
+    netstat_address = "${module.netstat.netstat_node_ip}"
     moc_address = "${azurerm_public_ip.mocIp.ip_address}"
     explorer_address = "${azurerm_public_ip.explorerIp.ip_address}"
     private_key = "${var.ssh_private_key_ansible}"
@@ -15,7 +15,7 @@ data "template_file" "hosts" {
 resource "local_file" "inventory" {
   depends_on = ["azurerm_public_ip.nodeIp"]
   content = "${data.template_file.hosts.rendered}"
-  filename = "${path.module}/../../hosts"
+  filename = "${path.module}/../../deployment-playbooks/hosts"
 }
 
 data "template_file" "group_vars" {

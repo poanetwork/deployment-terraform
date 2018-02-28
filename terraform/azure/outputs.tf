@@ -7,7 +7,7 @@ output "validator-ip" {
 }
 
 output "netstat-ip" {
-  value = "${azurerm_public_ip.netstatIp.ip_address}"
+  value = "${module.netstat.netstat_node_ip}"
 }
 
 output "moc-ip" {

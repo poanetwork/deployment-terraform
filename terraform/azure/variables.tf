@@ -50,3 +50,6 @@ variable mining_keypass {}
 variable moc_keypass {}
 
 variable moc_keyfile {}
+
+# Playbooks folder: the path to start Ansible provisioner
+variable playbook_path { }
