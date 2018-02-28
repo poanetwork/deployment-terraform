@@ -1,3 +1,0 @@
----
-- name: restart poa-pm2
-  service: name=poa-pm2 state=restarted
