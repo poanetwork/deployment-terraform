@@ -36,3 +36,8 @@ variable playbook_path { }
 variable env_tag {
   default = "Terraform Demo"
 }
+
+# Server count
+variable servers {
+  default = 1
+}

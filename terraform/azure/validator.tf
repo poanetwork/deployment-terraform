@@ -31,7 +31,7 @@ resource "azurerm_network_interface" "validatorNIC" {
 
 # Create virtual machine
 resource "azurerm_virtual_machine" "validator" {
-    count = 1
+    count = 0
     name                  = "${var.prefix}-validator"
     location              = "${var.region}"
     resource_group_name   = "${azurerm_resource_group.test.name}"

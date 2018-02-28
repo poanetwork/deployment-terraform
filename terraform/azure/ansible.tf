@@ -3,9 +3,9 @@ data "template_file" "hosts" {
   template = "${file("${path.module}/templates/hosts.tpl")}"
 
   vars {
-    node_address = "${module.bootnode.boot_node_ip}"
+    node_address = "${module.poa.boot_node_ip}"
     validator_address = "${azurerm_public_ip.validatorIp.ip_address}"
-    netstat_address = "${module.netstat.netstat_node_ip}"
+    netstat_address = "${module.poa.netstat_node_ip}"
     moc_address = "${azurerm_public_ip.mocIp.ip_address}"
     explorer_address = "${azurerm_public_ip.explorerIp.ip_address}"
     private_key = "${var.ssh_private_key_ansible}"
