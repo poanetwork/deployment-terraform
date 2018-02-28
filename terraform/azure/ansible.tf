@@ -36,27 +36,27 @@ data "template_file" "group_vars" {
 
 resource "local_file" "group_vars" {
   content = "${data.template_file.group_vars.rendered}"
-  filename = "${path.module}/../../playbooks/group_vars/all"
+  filename = "${path.module}/../../deployment-playbooks/group_vars/all"
 }
 
 resource "local_file" "admins" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/admins.pub"
+  filename = "${path.module}/../../deployment-playbooks/files/admins.pub"
 }
 
 resource "local_file" "bootnode" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/ssh_bootnode.pub"
+  filename = "${path.module}/../../deployment-playbooks/files/ssh_bootnode.pub"
 }
 
 resource "local_file" "validator" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/ssh_validator.pub"
+  filename = "${path.module}/../../deployment-playbooks/files/ssh_validator.pub"
 }
 
 resource "local_file" "netstat" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/ssh_netstat.pub"
+  filename = "${path.module}/../../deployment-playbooks/files/ssh_netstat.pub"
 }
 
 resource "local_file" "moc" {

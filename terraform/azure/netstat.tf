@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "netstat" {
     }
 
     provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='netstat/*'"
+        command = "cd ../.. && ansible-playbook deployment-playbooks/netstat.yml"
     }
 
     tags {

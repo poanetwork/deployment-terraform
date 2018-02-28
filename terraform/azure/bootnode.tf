@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "bootnode" {
     }
 
     provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='bootnode/*'"
+        command = "cd ../.. && ansible-playbook deployment-playbooks/bootnode.yml"
     }
 
     tags {

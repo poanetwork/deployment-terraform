@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "validator" {
     }
 
     provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='validator/*'"
+        command = "cd ../.. && ansible-playbook deployment-playbooks/validator.yml"
     }
 
     tags {
