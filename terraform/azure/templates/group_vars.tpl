@@ -62,4 +62,4 @@ MINING_ADDRESS: "${mining_address}"
 MINING_KEYPASS: "${mining_keypass}"
 
 MOC_KEYPASS: "${moc_keypass}"
-MOC_KEYFILE: "${moc_keyfiles}"
+MOC_KEYFILE: "${moc_keyfile}"

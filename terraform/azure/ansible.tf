@@ -26,6 +26,8 @@ data "template_file" "group_vars" {
     node_admin_email = "${var.node_admin_email}"
     netstat_server_url = "${var.netstat_server_url}"
     netstat_server_secret = "${var.netstat_server_secret}"
+    moc_keypass = "${var.moc_keypass}"
+    moc_keyfile = "${var.moc_keyfile}"
     mining_keyfile = "${var.mining_keyfile}"
     mining_address = "${var.mining_address}"
     mining_keypass = "${var.mining_keypass}"
