@@ -31,7 +31,7 @@ resource "azurerm_network_interface" "mocNIC" {
 
 # Create virtual machine
 resource "azurerm_virtual_machine" "moc" {
-    count = 1
+    count = 0
     name                  = "${var.prefix}-moc"
     location              = "${var.region}"
     resource_group_name   = "${azurerm_resource_group.test.name}"
@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "moc" {
     }
 
     provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='moc/*'"
+        command = "cd ../.. && ansible-playbook deployment-playbooks/moc.yml"
     }
 
     tags {

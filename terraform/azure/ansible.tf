@@ -3,9 +3,9 @@ data "template_file" "hosts" {
   template = "${file("${path.module}/templates/hosts.tpl")}"
 
   vars {
-    node_address = "${azurerm_public_ip.nodeIp.ip_address}"
+    node_address = "${module.poa.boot_node_ip}"
     validator_address = "${azurerm_public_ip.validatorIp.ip_address}"
-    netstat_address = "${azurerm_public_ip.netstatIp.ip_address}"
+    netstat_address = "${module.poa.netstat_node_ip}"
     moc_address = "${azurerm_public_ip.mocIp.ip_address}"
     explorer_address = "${azurerm_public_ip.explorerIp.ip_address}"
     private_key = "${var.ssh_private_key_ansible}"
@@ -13,9 +13,8 @@ data "template_file" "hosts" {
 }
 
 resource "local_file" "inventory" {
-  depends_on = ["azurerm_public_ip.nodeIp"]
   content = "${data.template_file.hosts.rendered}"
-  filename = "${path.module}/../../hosts"
+  filename = "${path.module}/../../deployment-playbooks/hosts"
 }
 
 data "template_file" "group_vars" {
@@ -36,27 +35,27 @@ data "template_file" "group_vars" {
 
 resource "local_file" "group_vars" {
   content = "${data.template_file.group_vars.rendered}"
-  filename = "${path.module}/../../playbooks/group_vars/all"
+  filename = "${path.module}/../../deployment-playbooks/group_vars/all"
 }
 
 resource "local_file" "admins" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/admins.pub"
+  filename = "${path.module}/../../deployment-playbooks/files/admins.pub"
 }
 
 resource "local_file" "bootnode" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/ssh_bootnode.pub"
+  filename = "${path.module}/../../deployment-playbooks/files/ssh_bootnode.pub"
 }
 
 resource "local_file" "validator" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/ssh_validator.pub"
+  filename = "${path.module}/../../deployment-playbooks/files/ssh_validator.pub"
 }
 
 resource "local_file" "netstat" {
   content = "${file("${var.ssh_public_key_ansible}")}"
-  filename = "${path.module}/../../playbooks/files/ssh_netstat.pub"
+  filename = "${path.module}/../../deployment-playbooks/files/ssh_netstat.pub"
 }
 
 resource "local_file" "moc" {

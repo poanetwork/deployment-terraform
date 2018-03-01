@@ -1,19 +1,7 @@
 output "bootnode-ip" {
-  value = "${azurerm_public_ip.nodeIp.ip_address}"
-}
-
-output "validator-ip" {
-  value = "${azurerm_public_ip.validatorIp.ip_address}"
+  value = "${module.poa.boot_node_ip}"
 }
 
 output "netstat-ip" {
-  value = "${azurerm_public_ip.netstatIp.ip_address}"
-}
-
-output "moc-ip" {
-  value = "${azurerm_public_ip.mocIp.ip_address}"
-}
-
-output "explorer-ip" {
-  value = "${azurerm_public_ip.explorerIp.ip_address}"
+  value = "${module.poa.netstat_node_ip}"
 }

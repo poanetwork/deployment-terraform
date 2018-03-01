@@ -77,7 +77,7 @@ resource "azurerm_virtual_machine" "explorer" {
     }
 
     provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='explorer/*'"
+        command = "cd ../.. && ansible-playbook deployment-playbooks/explorer.yml"
     }
 
     tags {
