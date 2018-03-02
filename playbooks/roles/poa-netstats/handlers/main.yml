@@ -1,3 +1,0 @@
----
-- name: restart poa-netstats
-  service: name=poa-netstats state=restarted

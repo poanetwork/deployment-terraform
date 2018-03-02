@@ -76,10 +76,6 @@ resource "azurerm_virtual_machine" "bootnode" {
         ]
     }
 
-    provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='bootnode/*'"
-    }
-
     tags {
         environment = "Terraform Demo"
     }

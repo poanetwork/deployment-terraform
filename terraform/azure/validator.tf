@@ -76,10 +76,6 @@ resource "azurerm_virtual_machine" "validator" {
         ]
     }
 
-    provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='validator/*'"
-    }
-
     tags {
         environment = "Terraform Demo"
     }

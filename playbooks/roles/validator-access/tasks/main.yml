@@ -1,3 +1,0 @@
----
-- name: Setup ufw firewall
-  import_tasks: ufw.yml

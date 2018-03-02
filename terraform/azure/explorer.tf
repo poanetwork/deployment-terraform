@@ -31,7 +31,7 @@ resource "azurerm_network_interface" "explorerNIC" {
 
 # Create virtual machine
 resource "azurerm_virtual_machine" "explorer" {
-    count = 0
+    count = 1
     name                  = "${var.prefix}-explorer"
     location              = "${var.region}"
     resource_group_name   = "${azurerm_resource_group.test.name}"
@@ -74,10 +74,6 @@ resource "azurerm_virtual_machine" "explorer" {
               key_data = "${file(var.ssh_public_key_ansible)}"
           }
         ]
-    }
-
-    provisioner "local-exec" {
-        command = "cd ../.. && ansible-playbook playbooks/site.yml --limit='explorer/*'"
     }
 
     tags {
