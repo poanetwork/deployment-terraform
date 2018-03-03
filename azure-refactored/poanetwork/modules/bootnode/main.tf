@@ -180,6 +180,7 @@ resource "local_file" "group_vars" {
 }
 
 resource "local_file" "admins" {
+  count = "${var.role == "bootnode" ? 1 : 0}"
   content = "${file("${var.ssh_public_key_ansible}")}"
   filename = "${var.ansible_path}/files/admins.pub"
 }
