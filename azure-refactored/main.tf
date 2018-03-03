@@ -7,8 +7,8 @@ module "common" {
   source = "./poanetwork/modules/common"
 }
 
-module "validator" {
-  source = "./poanetwork/modules/validator"
+module "moc" {
+  source = "./poanetwork/modules/moc"
 
   resource_group_name = "${module.common.resource_group_name}"
   subnet_id = "${module.common.subnet_id}"
