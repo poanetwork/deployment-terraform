@@ -20,8 +20,8 @@ module "validator" {
   config = [
     "allow_validator_ssh: true",
     "allow_validator_p2p: true",
-    "mining_keyfile": "~/.ssh/id_poa-test.pub"
-    "mining_address": "0xABC"
-    "mining_keypass": "secret"
+    "mining_keyfile: ~/.ssh/id_poa-test.pub",
+    "mining_address: 0xABC",
+    "mining_keypass: secret"
   ]
 }
