@@ -15,6 +15,7 @@ module "bootnode" {
 
   network_name = "sokol"
   platform = "centos"
+  role = "bootnode"
 
   node_admin_email = "admin@example.com"
   node_name = "fly"

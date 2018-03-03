@@ -82,3 +82,19 @@ variable ansible_path {
   description = "The directory you cloned `poanetworks/deployment-playbooks` to"
   default = "./deployment-playbooks"
 }
+
+variable role {
+  description = "Role of the node"
+}
+
+variable opened_ports {
+  description = "What ports should be opened on the node?"
+  type = "list"
+  default = [
+    "ssh",
+    "p2p/udp",
+    "p2p/tcp",
+    "rpc",
+    "https"
+  ]
+}
