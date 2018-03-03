@@ -180,7 +180,8 @@ resource "azurerm_virtual_machine" "node" {
     }
 
     tags {
-        environment = "${var.environment_name}"
+        environment = "${var.environment_name}",
+        role = "${var.role}"
     }
 }
 
