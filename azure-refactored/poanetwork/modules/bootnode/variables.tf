@@ -35,3 +35,8 @@ variable ssh_public_key {
   description = "Public SSH key to put on the virtual machine. User will use it to connect."
   default = "~/.ssh/id_rsa.pub"
 }
+
+variable network_name {
+  description = "Name of the network this node is connected to. May be 'core' or 'sokol'"
+  default = "sokol"
+}

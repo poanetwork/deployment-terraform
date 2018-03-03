@@ -102,7 +102,7 @@ resource "azurerm_network_interface" "bootnode" {
 
 # Create virtual machine
 resource "azurerm_virtual_machine" "bootnode" {
-    name                  = "${var.prefix}bootnode-vm"
+    name                  = "${var.prefix}bootnode-vm-${var.network_name}"
     location              = "${var.region}"
     resource_group_name   = "${var.resource_group_name}"
     network_interface_ids = ["${azurerm_network_interface.bootnode.id}"]

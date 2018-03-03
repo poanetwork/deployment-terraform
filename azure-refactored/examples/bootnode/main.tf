@@ -12,4 +12,5 @@ module "bootnode" {
 
   resource_group_name = "${module.common.resource_group_name}"
   subnet_id = "${module.common.subnet_id}"
+  network_name = "sokol"
 }
