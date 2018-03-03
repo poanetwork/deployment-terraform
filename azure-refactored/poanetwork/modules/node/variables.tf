@@ -85,14 +85,14 @@ variable role {
   description = "Role of the node"
 }
 
-variable opened_ports {
+variable opened_ports_by_role {
   description = "What ports should be opened on the node?"
-  type = "list"
-  default = [
-    "ssh",
-    "p2p/udp",
-    "p2p/tcp",
-    "rpc",
-    "https"
-  ]
+  type = "map"
+  default = {
+    "bootnode"  = [ "ssh", "p2p", "rpc", "https" ],
+    "explorer"  = [ "ssh", "p2p", "http-3000", "https" ],
+    "validator" = [ "ssh", "p2p" ],
+    "netstat"   = [ "ssh", "https", "http-3000"],
+    "moc"       = [ "ssh", "p2p" ]
+    }
 }

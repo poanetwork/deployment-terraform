@@ -10,8 +10,12 @@ resource "azurerm_public_ip" "node" {
     }
 }
 
+locals {
+  opened_ports = "${var.opened_ports_by_role[var.role]}"
+}
+
 resource "azurerm_network_security_rule" "SSH" {
-  count = "${contains(var.opened_ports, "ssh") ? 1 : 0}"
+  count = "${contains( local.opened_ports, "ssh") ? 1 : 0 }"
   name                       = "SSH"
   priority                   = 1001
   direction                  = "Inbound"
@@ -25,8 +29,8 @@ resource "azurerm_network_security_rule" "SSH" {
   network_security_group_name = "${azurerm_network_security_group.node.name}"
 }
 
-resource "azurerm_network_security_rule" "HHTPS" {
-  count = "${contains(var.opened_ports, "https") ? 1 : 0}"
+resource "azurerm_network_security_rule" "HTTPS" {
+  count = "${contains(local.opened_ports, "https") ? 1 : 0}"
   name                       = "HTTPS"
   priority                   = 1002
   direction                  = "Inbound"
@@ -41,7 +45,7 @@ resource "azurerm_network_security_rule" "HHTPS" {
 }
 
 resource "azurerm_network_security_rule" "RPC" {
-  count = "${contains(var.opened_ports, "rpc") ? 1 : 0}"
+  count = "${contains(local.opened_ports, "rpc") ? 1 : 0}"
   name                       = "RPC"
   priority                   = 1003
   direction                  = "Inbound"
@@ -56,7 +60,7 @@ resource "azurerm_network_security_rule" "RPC" {
 }
 
 resource "azurerm_network_security_rule" "P2P-TCP" {
-  count = "${contains(var.opened_ports, "p2p/tcp") ? 1 : 0}"
+  count = "${contains(local.opened_ports, "p2p") ? 1 : 0}"
   name                       = "P2P-TCP"
   priority                   = 1004
   direction                  = "Inbound"
@@ -71,7 +75,7 @@ resource "azurerm_network_security_rule" "P2P-TCP" {
 }
 
 resource "azurerm_network_security_rule" "P2P-UDP" {
-  count = "${contains(var.opened_ports, "p2p/udp") ? 1 : 0}"
+  count = "${contains(local.opened_ports, "p2p") ? 1 : 0}"
   name                       = "P2P-UDP"
   priority                   = 1005
   direction                  = "Inbound"
@@ -83,6 +87,21 @@ resource "azurerm_network_security_rule" "P2P-UDP" {
   destination_address_prefix = "*"
   resource_group_name         = "${var.resource_group_name}"
   network_security_group_name = "${azurerm_network_security_group.node.name}"
+}
+
+resource "azurerm_network_security_rule" "HTTP-3000" {
+    count = "${contains(local.opened_ports, "http-3000") ? 1 : 0}"
+    name                       = "HTTP-3000"
+    priority                   = 1006
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "3000"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+    resource_group_name         = "${var.resource_group_name}"
+    network_security_group_name = "${azurerm_network_security_group.node.name}"
 }
 
 # Create Network Security Group and rule
