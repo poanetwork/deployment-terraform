@@ -8,7 +8,7 @@ module "common" {
 }
 
 module "bootnode" {
-  source = "./poanetwork/modules/bootnode"
+  source = "./poanetwork/modules/node"
 
   resource_group_name = "${module.common.resource_group_name}"
   subnet_id = "${module.common.subnet_id}"
