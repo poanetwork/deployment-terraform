@@ -168,3 +168,8 @@ resource "local_file" "admins" {
   content = "${file("${var.ssh_public_key_ansible}")}"
   filename = "${var.ansible_path}/files/admins.pub"
 }
+
+resource "local_file" "bootnode" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${var.ansible_path}/files/ssh_bootnode.pub"
+}
