@@ -173,3 +173,15 @@ resource "local_file" "bootnode" {
   content = "${file("${var.ssh_public_key_ansible}")}"
   filename = "${var.ansible_path}/files/ssh_bootnode.pub"
 }
+
+resource "null_resource" "inventory" {
+
+  triggers {
+    vm = "${azurerm_virtual_machine.bootnode.id}"
+    ip = "${azurerm_public_ip.bootnode.ip_address}"
+  }
+
+  provisioner "local-exec" {
+    command = "echo '[bootnode]\n${azurerm_public_ip.bootnode.ip_address}' >> ${var.ansible_path}/hosts"
+  }
+}
