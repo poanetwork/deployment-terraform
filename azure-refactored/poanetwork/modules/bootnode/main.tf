@@ -1,5 +1,5 @@
 # Create public IP
-resource "azurerm_public_ip" "bootnode" {
+resource "azurerm_public_ip" "node" {
     name                         = "${var.prefix}${var.role}-ip"
     location                     = "${var.region}"
     resource_group_name          = "${var.resource_group_name}"
@@ -22,7 +22,7 @@ resource "azurerm_network_security_rule" "SSH" {
   source_address_prefix      = "*"
   destination_address_prefix = "*"
   resource_group_name         = "${var.resource_group_name}"
-  network_security_group_name = "${azurerm_network_security_group.bootnode.name}"
+  network_security_group_name = "${azurerm_network_security_group.node.name}"
 }
 
 resource "azurerm_network_security_rule" "HHTPS" {
@@ -37,7 +37,7 @@ resource "azurerm_network_security_rule" "HHTPS" {
   source_address_prefix      = "*"
   destination_address_prefix = "*"
   resource_group_name         = "${var.resource_group_name}"
-  network_security_group_name = "${azurerm_network_security_group.bootnode.name}"
+  network_security_group_name = "${azurerm_network_security_group.node.name}"
 }
 
 resource "azurerm_network_security_rule" "RPC" {
@@ -52,7 +52,7 @@ resource "azurerm_network_security_rule" "RPC" {
   source_address_prefix      = "*"
   destination_address_prefix = "*"
   resource_group_name         = "${var.resource_group_name}"
-  network_security_group_name = "${azurerm_network_security_group.bootnode.name}"
+  network_security_group_name = "${azurerm_network_security_group.node.name}"
 }
 
 resource "azurerm_network_security_rule" "P2P-TCP" {
@@ -67,7 +67,7 @@ resource "azurerm_network_security_rule" "P2P-TCP" {
   source_address_prefix      = "*"
   destination_address_prefix = "*"
   resource_group_name         = "${var.resource_group_name}"
-  network_security_group_name = "${azurerm_network_security_group.bootnode.name}"
+  network_security_group_name = "${azurerm_network_security_group.node.name}"
 }
 
 resource "azurerm_network_security_rule" "P2P-UDP" {
@@ -82,11 +82,11 @@ resource "azurerm_network_security_rule" "P2P-UDP" {
   source_address_prefix      = "*"
   destination_address_prefix = "*"
   resource_group_name         = "${var.resource_group_name}"
-  network_security_group_name = "${azurerm_network_security_group.bootnode.name}"
+  network_security_group_name = "${azurerm_network_security_group.node.name}"
 }
 
 # Create Network Security Group and rule
-resource "azurerm_network_security_group" "bootnode" {
+resource "azurerm_network_security_group" "node" {
     name                = "${var.prefix}${var.role}-security-group"
     location            = "${var.region}"
     resource_group_name = "${var.resource_group_name}"
@@ -97,17 +97,17 @@ resource "azurerm_network_security_group" "bootnode" {
 }
 
 # Create network interface
-resource "azurerm_network_interface" "bootnode" {
+resource "azurerm_network_interface" "node" {
     name                      = "${var.prefix}${var.role}-network-card"
     location                  = "${var.region}"
     resource_group_name       = "${var.resource_group_name}"
-    network_security_group_id = "${azurerm_network_security_group.bootnode.id}"
+    network_security_group_id = "${azurerm_network_security_group.node.id}"
 
     ip_configuration {
         name                          = "${var.prefix}${var.role}-ip"
         subnet_id                     = "${var.subnet_id}"
         private_ip_address_allocation = "dynamic"
-        public_ip_address_id          = "${azurerm_public_ip.bootnode.id}"
+        public_ip_address_id          = "${azurerm_public_ip.node.id}"
     }
 
     tags {
@@ -116,11 +116,11 @@ resource "azurerm_network_interface" "bootnode" {
 }
 
 # Create virtual machine
-resource "azurerm_virtual_machine" "bootnode" {
+resource "azurerm_virtual_machine" "node" {
     name                  = "${var.prefix}${var.role}-vm-${var.network_name}"
     location              = "${var.region}"
     resource_group_name   = "${var.resource_group_name}"
-    network_interface_ids = ["${azurerm_network_interface.bootnode.id}"]
+    network_interface_ids = ["${azurerm_network_interface.node.id}"]
     # 1 vCPU, 3.5 Gb of RAM
     vm_size               = "${var.machine_type}"
 
@@ -165,17 +165,8 @@ resource "azurerm_virtual_machine" "bootnode" {
     }
 }
 
-data "template_file" "group_vars" {
-  template = "${file("${path.module}/templates/${var.role}.yml.tpl")}"
-
-  vars {
-    node_fullname = "${var.node_name}"
-    node_admin_email = "${var.node_admin_email}"
-  }
-}
-
 resource "local_file" "group_vars" {
-  content = "${data.template_file.group_vars.rendered}"
+  content = "${join("\n", var.config)}"
   filename = "${var.ansible_path}/group_vars/${var.role}"
 }
 
@@ -185,7 +176,7 @@ resource "local_file" "admins" {
   filename = "${var.ansible_path}/files/admins.pub"
 }
 
-resource "local_file" "bootnode" {
+resource "local_file" "node" {
   content = "${file("${var.ssh_public_key_ansible}")}"
   filename = "${var.ansible_path}/files/ssh_${var.role}.pub"
 }
@@ -193,11 +184,11 @@ resource "local_file" "bootnode" {
 resource "null_resource" "inventory" {
 
   triggers {
-    vm = "${azurerm_virtual_machine.bootnode.id}"
-    ip = "${azurerm_public_ip.bootnode.ip_address}"
+    vm = "${azurerm_virtual_machine.node.id}"
+    ip = "${azurerm_public_ip.node.ip_address}"
   }
 
   provisioner "local-exec" {
-    command = "echo '[${var.role}]\n${azurerm_public_ip.bootnode.ip_address}' >> ${var.ansible_path}/hosts"
+    command = "echo '[${var.role}]\n${azurerm_public_ip.node.ip_address}' >> ${var.ansible_path}/hosts"
   }
 }

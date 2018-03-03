@@ -10,17 +10,18 @@ module "common" {
 module "bootnode" {
   source = "./poanetwork/modules/bootnode"
 
-  # Shared infrastructure
   resource_group_name = "${module.common.resource_group_name}"
   subnet_id = "${module.common.subnet_id}"
 
-  # Network
   network_name = "sokol"
-
-  # Platform the node is running on: centos or ubuntu
   platform = "centos"
+  role = "bootnode"
 
-  # Node specific configuration
-  node_admin_email = "admin@example.com"
-  node_name = "fly"
+  config = [
+    "allow_bootnode_ssh: true",
+    "allow_bootnode_p2p: true",
+    "allow_bootnode_rpc: false",
+    "node_admin_email: admin@example.com",
+    "node_name: fly"
+  ]
 }

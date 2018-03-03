@@ -70,12 +70,10 @@ variable image_version {
   }
 }
 
-variable node_name {
-  description = "Name of the POA Network node"
-}
-
-variable node_admin_email {
-  description = "e-mail of the node administrator"
+variable config {
+  description = "Values that will be supplied as Ansible group variables"
+  type = "list"
+  default = []
 }
 
 variable ansible_path {
