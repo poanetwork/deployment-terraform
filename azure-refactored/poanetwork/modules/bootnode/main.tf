@@ -163,3 +163,8 @@ resource "local_file" "group_vars" {
   content = "${data.template_file.group_vars.rendered}"
   filename = "${var.ansible_path}/group_vars/bootnode"
 }
+
+resource "local_file" "admins" {
+  content = "${file("${var.ssh_public_key_ansible}")}"
+  filename = "${var.ansible_path}/files/admins.pub"
+}
