@@ -40,3 +40,32 @@ variable network_name {
   description = "Name of the network this node is connected to. May be 'core' or 'sokol'"
   default = "sokol"
 }
+
+variable platform {
+  description = "Name of the virtual machine operation system. Currently supports `ubuntu` or `centos`"
+  default = "ubuntu"
+}
+
+variable image_publisher {
+  description = "Name of the company maintaining the image"
+  default = {
+    ubuntu = "Canonical"
+    centos = "OpenLogic"
+  }
+}
+
+variable image_offer {
+  description = "Name of the Azure offer for the image"
+  default = {
+    ubuntu = "UbuntuServer"
+    centos = "CentOS"
+  }
+}
+
+variable image_version {
+  description = "Version of the OS image"
+  default = {
+    ubuntu = "16.04.0-LTS"
+    centos = "7.3"
+  }
+}

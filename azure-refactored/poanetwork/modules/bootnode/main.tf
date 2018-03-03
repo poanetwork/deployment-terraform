@@ -117,9 +117,9 @@ resource "azurerm_virtual_machine" "bootnode" {
     }
 
     storage_image_reference {
-        publisher = "Canonical"
-        offer     = "UbuntuServer"
-        sku       = "16.04.0-LTS"
+        publisher = "${lookup(var.image_publisher, var.platform)}"
+        offer     = "${lookup(var.image_offer, var.platform)}"
+        sku       = "${lookup(var.image_version, var.platform)}"
         version   = "latest"
     }
 
