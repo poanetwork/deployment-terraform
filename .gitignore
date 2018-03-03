@@ -10,3 +10,4 @@ playbooks/files/*.pub
 playbooks/group_vars/all
 terraform.tfvars
 terraform/azure/ansible/*
+**/deployment-playbooks/*

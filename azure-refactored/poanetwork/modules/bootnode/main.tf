@@ -149,3 +149,17 @@ resource "azurerm_virtual_machine" "bootnode" {
         environment = "${var.environment_name}"
     }
 }
+
+data "template_file" "group_vars" {
+  template = "${file("${path.module}/templates/bootnode.yml.tpl")}"
+
+  vars {
+    node_fullname = "${var.node_name}"
+    node_admin_email = "${var.node_admin_email}"
+  }
+}
+
+resource "local_file" "group_vars" {
+  content = "${data.template_file.group_vars.rendered}"
+  filename = "${var.ansible_path}/group_vars/bootnode"
+}

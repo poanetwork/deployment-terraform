@@ -77,3 +77,8 @@ variable node_name {
 variable node_admin_email {
   description = "e-mail of the node administrator"
 }
+
+variable ansible_path {
+  description = "The directory you cloned `poanetworks/deployment-playbooks` to"
+  default = "./deployment-playbooks"
+}
