@@ -69,3 +69,11 @@ variable image_version {
     centos = "7.3"
   }
 }
+
+variable node_name {
+  description = "Name of the POA Network node"
+}
+
+variable node_admin_email {
+  description = "e-mail of the node administrator"
+}
