@@ -11,14 +11,14 @@ module "moc" {
   source = "./poanetwork/modules/node"
 
   resource_group_name = "${module.common.resource_group_name}"
-  subnet_id = "${module.common.subnet_id}"
+  subnet_id           = "${module.common.subnet_id}"
 
   network_name = "sokol"
-  platform = "ubuntu"
-  role = "moc"
+  platform     = "ubuntu"
+  role         = "moc"
 
   config = [
     "moc_keypass: 'secret'",
-    "moc_keyfile: '~/.ssh/id_poa-test.pub'"
+    "moc_keyfile: '~/.ssh/id_poa-test.pub'",
   ]
 }
