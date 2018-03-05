@@ -1,3 +1,0 @@
----
-- name: restart poa-parity
-  service: name=poa-parity state=restarted
