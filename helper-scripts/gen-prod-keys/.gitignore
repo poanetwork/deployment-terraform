@@ -1,0 +1,11 @@
+node_modules
+keystore/*
+!keystore/.gitkeep
+production-keys/*
+!production-keys/.gitkeep
+
+bootnodes.txt
+parity
+parity_data
+spec.json
+node.toml

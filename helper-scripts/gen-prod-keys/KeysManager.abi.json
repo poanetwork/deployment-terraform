@@ -1,0 +1,24 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_miningKey",
+        "type": "address"
+      },
+      {
+        "name": "_votingKey",
+        "type": "address"
+      },
+      {
+        "name": "_payoutKey",
+        "type": "address"
+      }
+    ],
+    "name": "createKeys",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
