@@ -16,7 +16,7 @@ npm install
 
 4. run the script
 ```
-node index.js . <0xADDRESS> <KEYSTORE_PASSWORD> <KEYSMANAGER_CONTRACT_ADDRESS>
+node index.js <KEYSMANAGER_CONTRACT_ADDRESS>
 ```
 * `0xADDRESS` - initial key's address with `0x` prefix
 * `KEYSTORE_PASSWORD` - password for initial key's json keystore file
