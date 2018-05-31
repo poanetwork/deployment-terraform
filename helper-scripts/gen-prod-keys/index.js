@@ -77,7 +77,6 @@ function createKeys(address, privateKey, miningKeyAddress, votingKeyAddress, pay
 
         loginf('gasEstimation:', gasEstimation);
         loginf('calling getTransactionCount');
-        /*
         web3.eth.getTransactionCount(address, (err, nonce) => {
             if (err) throw err;
 
@@ -107,8 +106,7 @@ function createKeys(address, privateKey, miningKeyAddress, votingKeyAddress, pay
             .on('receipt', txReceipt => { loginf('got txReceipt:', txReceipt); callback(null, txReceipt); })
             .on('error', err => callback(err));
         });
-        */
-        setTimeout(callback, 5000);
+        // setTimeout(callback, 5000);
     });
 }
 
