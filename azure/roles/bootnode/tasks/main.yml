@@ -1,0 +1,45 @@
+- debug:
+    var: "{{ item }}"
+  with_items:
+    - NETSTATS_SERVER
+    - NETSTATS_SECRET
+    - NODE_FULLNAME
+
+- include_role:
+    name: '{{ playbook_dir }}/deployment-playbooks/roles/bootnode'
+  vars:
+    username: "bootnode"
+    parity_api: "on"
+  notify:
+    - restart poa-parity   
+    
+- name: Run handlers immediately
+  meta: flush_handlers
+    
+- name: Generate bootnodes.txt
+  block:
+    - name: Get enode
+      uri: 
+          url: http://localhost:8545
+          method: POST
+          body_format: json
+          body: '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}'
+          return_content: yes
+          headers: 
+            Content-Type: application/json
+      register: grep_output
+
+        
+    - name: Adding variable to bootnodes list
+      local_action:
+        module: lineinfile
+        line: "{{ grep_output.json.result }}"
+        path: "{{ playbook_dir }}/{{ NETWORK_NAME }}/bootnodes.txt"
+      
+- name: Send bootnodes.txt to bootnodes 
+  copy:
+    src: "{{ NETWORK_NAME }}/bootnodes.txt"
+    dest: "/home/bootnode/bootnodes.txt"
+    force: true
+  notify:
+    - restart poa-parity    

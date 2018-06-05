@@ -21,11 +21,6 @@ variable subnet_id {
   description = "Subnet ID"
 }
 
-variable ssh_public_key_ansible {
-  description = "Public SSH key to put on the virtual machine. Ansible will use it to connect."
-  default     = "~/.ssh/id_poa-test.pub"
-}
-
 variable machine_type {
   description = "Machine size for running bootnode"
   default     = "Standard_DS1_v2"
@@ -73,12 +68,6 @@ variable image_version {
   }
 }
 
-variable config {
-  description = "Values that will be supplied as Ansible group variables"
-  type        = "list"
-  default     = []
-}
-
 variable ansible_path {
   description = "The directory you cloned `poanetworks/deployment-playbooks` to"
   default     = "./deployment-playbooks"
@@ -86,6 +75,11 @@ variable ansible_path {
 
 variable role {
   description = "Role of the node"
+}
+
+variable node_count {
+  description = "How many nodes to deploy"
+  default     = 1
 }
 
 variable opened_ports_by_role {

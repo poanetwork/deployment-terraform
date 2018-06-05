@@ -1,27 +1,142 @@
 # Configure the Azure Provider
 provider "azurerm" {
-  version = "1.1.2"
+  version = "1.6.0"
 }
 
-module "common" {
-  source = "./modules/common"
+resource "azurerm_resource_group" "poa" {
+  count    = "${var.prepare_resource_group}"
+  
+  name     = "${var.resource_group_name}"
+  location = "${var.region}"
+
+  tags {
+    environment = "${var.environment_name}"
+  }
 }
+
+# Create virtual network
+resource "azurerm_virtual_network" "poa" {
+  name                = "${var.prefix}poa-network"
+  address_space       = ["10.0.0.0/16"]
+  location            = "${var.region}"
+  resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
+
+  tags {
+    environment = "${var.environment_name}"
+  }
+}
+
+# Create subnet
+resource "azurerm_subnet" "poa" {
+  name                 = "${var.prefix}poa-subnet"
+  resource_group_name  = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
+  virtual_network_name = "${azurerm_virtual_network.poa.name}"
+  address_prefix       = "10.0.1.0/24"
+}
+/*
+module "bootnode" {
+
+  source = "./modules/node"
+
+  resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
+  
+  network_name = "${var.network_name}"
+  subnet_id    = "${azurerm_subnet.poa.id}"
+  node_count   = "${var.bootnode_lb_count}"
+  region       = "${var.region}"
+  
+  platform     = "ubuntu"
+  role         = "bootnode"
+  ssh_public_key = "${var.ssh_public_key}"
+
+  "remote_port" {
+    ssh = ["Tcp", "22"]
+  }
+
+  "lb_port" {
+    http = ["80", "Tcp", "80"]
+  }
+  
+}
+*/
+module "bootnode" {
+  source = "./modules/node"
+
+  resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
+  
+  network_name = "${var.network_name}"
+  subnet_id    = "${azurerm_subnet.poa.id}"
+  node_count   = "${var.bootnode_count}"
+  region       = "${var.region}"
+  
+  platform     = "ubuntu"
+  role         = "bootnode"
+  ssh_public_key = "${var.ssh_public_key}"
+  
+}
+
+module "explorer" {
+  source = "./modules/node"
+
+  resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
+
+  network_name = "${var.network_name}"
+  subnet_id    = "${azurerm_subnet.poa.id}"
+  node_count   = 1
+  region       = "${var.region}"  
+
+  platform     = "ubuntu"
+  role         = "explorer"
+  ssh_public_key = "${var.ssh_public_key}"
+  
+}
+
+
+module "moc" {
+  source = "./modules/node"
+
+  resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
+
+  network_name = "${var.network_name}"
+  subnet_id    = "${azurerm_subnet.poa.id}"
+  node_count   = 1
+  region       = "${var.region}" 
+  
+  platform     = "ubuntu"
+  role         = "moc"  
+  ssh_public_key = "${var.ssh_public_key}"
+  
+}
+
+module "netstat" {
+  source = "./modules/node"
+
+  resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
+
+  network_name = "${var.network_name}"
+  subnet_id    = "${azurerm_subnet.poa.id}"
+  node_count   = 1
+  region       = "${var.region}" 
+
+  platform     = "ubuntu"
+  role         = "netstat"  
+  ssh_public_key = "${var.ssh_public_key}"
+
+}
+
 
 module "validator" {
   source = "./modules/node"
 
-  resource_group_name = "${module.common.resource_group_name}"
-  subnet_id           = "${module.common.subnet_id}"
+  resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
 
-  network_name = "sokol"
+  network_name = "${var.network_name}"
+  subnet_id    = "${azurerm_subnet.poa.id}"
+  node_count   = "${var.validator_count}"
+  region       = "${var.region}" 
+  
   platform     = "ubuntu"
-  role         = "validator"
-
-  config = [
-    "allow_validator_ssh: true",
-    "allow_validator_p2p: true",
-    "mining_keyfile: ~/.ssh/id_poa-test.pub",
-    "mining_address: 0xABC",
-    "mining_keypass: secret",
-  ]
+  role         = "validator"  
+  ssh_public_key = "${var.ssh_public_key}"
+  
 }

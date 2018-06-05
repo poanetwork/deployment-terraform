@@ -1,0 +1,138 @@
+- include_role:
+    name: 'deployment-playbooks/roles/moc'
+  vars:
+    username: "moc"
+    MOC_KEYFILE: "{{ lookup('file', NETWORK_NAME+'/moc.json') }}"
+    MOC_KEYPASS: "{{ lookup('file', NETWORK_NAME+'/moc_secret') }}"
+    GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
+
+- name: Become user moc
+  become: true
+  become_user: moc
+  block:
+    - name: Uncomment line at node.toml
+      lineinfile:
+        path: /home/moc/node.toml
+        regexp: '^.*unlock = .*'
+        line: 'unlock = ["{{ MOC_ADDRESS }}"]'
+      notify:
+        - restart poa-parity
+        - restart poa-pm2
+    
+    - name: Run handlers immediately
+      meta: flush_handlers
+    
+      
+    - name: Clone secondary contracts from GitHub
+      git:
+        repo: https://github.com/poanetwork/poa-network-consensus-contracts.git
+        dest: "/home/moc/poa-network-consensus-contracts"
+        force: yes
+
+#   - name: Install required NPM modules
+#     npm:
+#       path: /home/moc/poa-network-consensus-contracts
+#       production: no
+#       state: latest
+
+    - name: Install reqired NPM modules (workaround)
+      command: npm install
+      args:
+        chdir: /home/moc/poa-network-consensus-contracts
+
+    - name:  Deploy contracts
+      shell: "SAVE_TO_FILE=true POA_NETWORK_CONSENSUS_ADDRESS=0x8bf38d4764929064f2d4d3a56520a76ab3df415b MASTER_OF_CEREMONY={{ MOC_ADDRESS }} ./node_modules/.bin/truffle migrate --reset --network sokol"
+      args:
+        chdir: /home/moc/poa-network-consensus-contracts
+        creates: /home/moc/poa-network-consensus-contracts/contracts.json
+ 
+    - name: Copy contracts.json to local machine
+      fetch: 
+        src: "/home/moc/poa-network-consensus-contracts/contracts.json"
+        dest: "{{ playbook_dir }}/{{ NETWORK_NAME }}/"
+        flat: "/"
+
+    - name: Set contracts.json
+      block:     
+        - slurp:
+            src: /home/moc/poa-network-consensus-contracts/contracts.json
+          register:
+            contracts 
+        - set_fact:
+            contracts_json: "{{ contracts['content'] | b64decode }}"
+
+    - name: Check if initial keys were not already generated
+      command: "ls"
+      args: 
+        chdir: /home/moc/poa-scripts-moc/generateInitialKey/output
+      register: initial
+
+    - name: Clean previous keys
+      file:
+        state: absent
+        dest: /home/moc/poa-scripts-moc/generateInitialKey/output/*
+
+    - name: Get initial keys
+      shell: "for i in {1..{{ initial_key_count }}}; do npm start; done"
+      args:
+        chdir: /home/moc/poa-scripts-moc/generateInitialKey
+        executable: /bin/bash
+      when: initial.stdout_lines|length/2 < initial_key_count
+      
+    - name: Copy prod-key generator to the remote host
+      synchronize:
+        src: "{{ playbook_dir }}/../helper-scripts/gen-prod-keys/"
+        dest: "/home/moc/poa-scripts-moc/gen-prod-keys/"
+        mode: push
+        archive: no
+        links: yes
+        perms: yes
+        recursive: yes
+        times: yes
+        checksum: yes
+        
+    - name: Copy initial keys to the gen-prod-keys folder
+      delegate_to: "{{ inventory_hostname }}"
+      synchronize:
+        src: "/home/moc/poa-scripts-moc/generateInitialKey/output/"
+        dest: "/home/moc/poa-scripts-moc/gen-prod-keys/keystore"
+        rsync_opts:
+          - "--chown=myuser:mygroup"
+      when: initial.stdout_lines|length/2 < initial_key_count
+      
+    - name: Check if production keys were not already generated
+      shell: "ls"
+      args: 
+        chdir: "/home/moc/poa-scripts-moc/gen-prod-keys/production-keys/"
+      register: folders
+    
+    - name: Install reqired NPM modules (workaround)
+      shell: "npm install"
+      args:
+        chdir: "/home/moc/poa-scripts-moc/gen-prod-keys/"
+      when: folders.stdout_lines|length < initial_key_convert_count 
+         
+    - name: Execute script
+      command: "node index.js {{ contracts_json.KEYS_MANAGER_ADDRESS }}"
+      args:
+        chdir: "/home/moc/poa-scripts-moc/gen-prod-keys/"
+      when: folders.stdout|length < initial_key_convert_count 
+        
+    - name: Copy production keys to the destination folder
+      synchronize: 
+        src: "/home/moc/poa-scripts-moc/gen-prod-keys/production-keys"
+        dest: "{{ item }}"
+        mode: pull
+      with_items:
+        - "{{ playbook_dir }}/{{ NETWORK_NAME }}/validator-keys/"
+        - "/tmp/"
+      when: folders.stdout|length < initial_key_convert_count 
+
+    - name: Comment line at node.toml
+      lineinfile:
+          path: /home/moc/node.toml
+          regexp: '^.*unlock = .*'
+          line: '#unlock = ["{{ MOC_ADDRESS }}"]'
+      notify:
+        - restart poa-parity
+        - restart poa-pm2

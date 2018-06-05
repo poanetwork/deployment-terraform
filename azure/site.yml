@@ -1,0 +1,103 @@
+- name: Prepare infrastructure
+  hosts: localhost
+  roles:
+    - terraform
+  tags: 
+    - bootnode
+    - moc
+    - validator
+
+- hosts: localhost
+  roles:
+    - local-preconf
+  tags:
+    - bootnode
+    - moc
+    - validator
+   
+- hosts: all
+  gather_facts: False
+  become: True
+  tasks:
+    - name: Install python
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      
+- hosts: all
+  tasks:
+    - name: Setting remote hosts facts
+      set_fact:
+        spec_json: "{{ playbook_dir }}/{{ NETWORK_NAME }}/spec.json"
+        bootnodes_txt: "{{ playbook_dir }}/{{ NETWORK_NAME }}/bootnodes.txt"
+        install_firewall: false
+        MOC_ADDRESS: "{{ lookup('file', NETWORK_NAME+'/moc') }}"
+        NETSTATS_SERVER: "http://{{ groups['netstat']|first }}:3000"
+        NETSTATS_SECRET: "{{ lookup('file', NETWORK_NAME+'/netstat_secret') }}"
+        NODE_FULLNAME: "{{ ansible_hostname }}"
+  tags: 
+    - bootnode
+    - moc
+    - validator
+
+- name: Launch netstat node
+  hosts: netstat
+  become: True
+  tasks: 
+    - include_role:
+        name: 'deployment-playbooks/roles/netstat'
+      vars:
+        username: "netstat"
+    
+- name: Launch explorer node
+  hosts: explorer
+  become: True
+  tasks:
+    - include_role:
+        name: 'deployment-playbooks/roles/explorer'
+      vars:
+        username: "explorer"
+
+#- name: Refresh bootnode tags
+#  hosts: localhost
+#  shell: "{{ terraform_location }} output bootnode-tags | tr -d ,"
+#  register: bootnodetags
+#  args:
+#    chdir: ./poanetwork
+#  tags:
+#    - bootnode
+
+- name: Configure bootnodes
+  hosts: bootnode
+  become: True
+  #serial: 1
+  roles:
+    - bootnode
+  tags:
+    - bootnode
+
+- name: Configure MoC node
+  hosts: moc
+  become: True
+  roles:
+    - moc
+  tags: 
+    - moc
+    - validator
+
+- name: Configure validators node
+  hosts: validator
+  become: True
+  serial: 1
+  roles:
+    - validator
+  tags: 
+    - validator
+    
+- name: Cleanup
+  hosts: localhost
+  tasks:
+    - file:
+        state: absent
+        dest: /tmp/production-keys/
+  
+ 
+        

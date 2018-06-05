@@ -1,0 +1,86 @@
+- name: Basic checks
+  fail:
+    msg: "You can't set initial_key_count to value more than 12"
+  when: initial_key_count>12 or initial_key_count<validator_count or initial_key_convert_count<validator_count or initial_key_count<initial_key_convert_count
+  
+
+- name: Ensure deployment playbooks exists on local server
+  git:
+    repo: https://github.com/ArseniiPetrovich/deployment-playbooks.git
+    dest: ./deployment-playbooks
+    force: true 
+    version: preparations-for-terraform-integration #THIS IS FOR TESTING PURPOSES ONLY
+                  
+- name: Ensure POA contracts exists on local server
+  git:
+    repo: https://github.com/poanetwork/poa-network-consensus-contracts.git
+    dest: ./poa-network-consensus-contracts
+
+- name: Create folder that will contain all configs for created network
+  file:
+    state: directory
+    path: "{{ playbook_dir }}/{{ NETWORK_NAME }}"
+
+- name: Clearing empty bootnodes.txt
+  copy: dest="{{ NETWORK_NAME }}/bootnodes.txt" content='' force=yes
+
+- name: Ensure all necessary apts is installed on local machine
+  package:
+    name: openssl
+    
+- name: Install latest passlib with pip
+  pip: 
+    name: passlib 
+
+- name: Install keythereum
+  npm:
+    name: keythereum
+    global: yes
+    
+- name: Make folder for keeping network output variables
+  file:
+    path: "./{{ NETWORK_NAME }}/validator_keys"
+    state: directory
+
+- name: Autogenerate MOC secret
+  set_fact:
+    MOC_SECRET: "{{ lookup('password', './' + NETWORK_NAME + '/moc_secret chars=digits length=8 encrypt=') }}"
+  when: MOC_SECRET == ""
+    
+- name: Deploying script for generating MOC keypair
+  template:
+    src: key_generator.js.j2
+    dest: ../helper-scripts/key_generator.js
+
+- name: Generate MOC keypair
+  shell: "nodejs ../helper-scripts/key_generator.js | tee ./{{ NETWORK_NAME }}/moc"
+  args:
+    creates: "./{{ NETWORK_NAME }}/moc"
+    
+- name: Set local variable MOC_ADDRESS
+  set_fact:
+    MOC_ADDRESS: "{{ lookup('file', NETWORK_NAME+'/moc') }}"
+  
+- name: Autogenerate netstat secret
+  set_fact:
+    NETSTATS_SECRET: "{{ lookup('password', './' + NETWORK_NAME + '/netstat_secret chars=digits length=8 encrypt=') }}"
+  when: NETSTATS_SECRET == ""
+
+- name: Install NPM packages to generate bytecode 
+  npm:
+    path: ./poa-network-consensus-contracts/scripts/
+    
+- name: Generate bytecode
+  shell: "MASTER_OF_CEREMONY={{ MOC_ADDRESS }} nodejs poa-bytecode.js | tail -n +4 > {{ playbook_dir  }}/{{ NETWORK_NAME }}/bytecode"
+  args:
+    creates: "{{ playbook_dir  }}/{{ NETWORK_NAME }}/bytecode"
+    chdir: ./poa-network-consensus-contracts/scripts
+ 
+- name: Register bytecode variable
+  set_fact:
+    bytecode: "{{ lookup('file', NETWORK_NAME+'/bytecode') }}"   
+ 
+- name: Generate spec.json
+  template:
+    src: spec.json.j2
+    dest: "./{{ NETWORK_NAME }}/spec.json"
