@@ -72,7 +72,7 @@ function getPrivateKey(key) {
 function createKeys(address, privateKey, miningKeyAddress, votingKeyAddress, payoutKeyAddress, callback) {
     loginf('*** createKeys for: ' + address);
     loginf('calling estimateGas');
-    keysManagerContract.methods.createKeys(miningKeyAddress, votingKeyAddress, payoutKeyAddress).estimateGas({ from: address }, (err, gasEstimation) => {
+    keysManagerContract.methods.createKeys(`0x${miningKeyAddress}`, `0x${votingKeyAddress}`, `0x${payoutKeyAddress}`).estimateGas({ from: address }, (err, gasEstimation) => {
         if (err) throw err;
 
         loginf('gasEstimation:', gasEstimation);
