@@ -6,15 +6,16 @@
 
 - name: Ensure deployment playbooks exists on local server
   git:
-    repo: https://github.com/ArseniiPetrovich/deployment-playbooks.git
+    repo: "{{ DEPLOYMENT_PLAYBOOKS }}"
     dest: ./deployment-playbooks
     force: true 
-    version: preparations-for-terraform-integration #THIS IS FOR TESTING PURPOSES ONLY
+    version: preparations-for-terraform-integration 
                   
 - name: Ensure POA contracts exists on local server
   git:
-    repo: https://github.com/poanetwork/poa-network-consensus-contracts.git
+    repo: "{{ POA_CONSENSUS_CONTRACTS }}"
     dest: ./poa-network-consensus-contracts
+    force: yes
 
 - name: Create folder that will contain all configs for created network
   file:
@@ -63,10 +64,16 @@
     NETSTATS_SECRET: "{{ lookup('password', './' + NETWORK_NAME + '/netstat_secret chars=digits length=8 encrypt=') }}"
   when: NETSTATS_SECRET == ""
 
+- name: Install NPM packages globally
+  npm:
+    global: yes
+    name: npm
+    state: latest
+
 - name: Install NPM packages to generate bytecode 
   npm:
     path: ./poa-network-consensus-contracts/scripts/
-    
+ 
 - name: Generate bytecode
   shell: "MASTER_OF_CEREMONY={{ MOC_ADDRESS }} nodejs poa-bytecode.js | tail -n +4 > {{ playbook_dir  }}/{{ NETWORK_NAME }}/bytecode"
   args:

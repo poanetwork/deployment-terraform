@@ -6,7 +6,7 @@ provider "azurerm" {
 resource "azurerm_resource_group" "poa" {
   count    = "${var.prepare_resource_group}"
   
-  name     = "${var.resource_group_name}"
+  name     = "${var.prefix}${var.resource_group_name}"
   location = "${var.region}"
 
   tags {
@@ -40,14 +40,15 @@ module "bootnode-lb" {
 
   resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
   
-  network_name = "${var.network_name}"
-  subnet_id    = "${azurerm_subnet.poa.id}"
-  lb_node_count   = "${var.bootnode_lb_count}"
-  region       = "${var.region}"
+  network_name  = "${var.network_name}"
+  subnet_id     = "${azurerm_subnet.poa.id}"
+  lb_node_count = "${var.bootnode_lb_count}"
+  region        = "${var.region}"
   
-  platform     = "ubuntu"
-  role         = "bootnode-lb"
+  platform       = "ubuntu"
+  role           = "bootnode-lb"
   ssh_public_key = "${var.ssh_public_key}"
+  prefix         = "${var.prefix}"
  
 }
 
@@ -60,6 +61,8 @@ module "bootnode-lb-balancing" {
   lb_node_count = "${var.bootnode_lb_count}"
   region        = "${var.region}"  
   role          = "bootnode-lb"
+  
+  prefix         = "${var.prefix}"
  
 }
 
@@ -73,9 +76,10 @@ module "bootnode" {
   node_count   = "${var.bootnode_count}"
   region       = "${var.region}"
   
-  platform     = "ubuntu"
-  role         = "bootnode"
-  ssh_public_key = "${var.ssh_public_key}"
+  platform       = "ubuntu"
+  role           = "bootnode"
+  ssh_public_key = "${var.ssh_public_key}"  
+  prefix         = "${var.prefix}"
   
 }
 
@@ -89,12 +93,12 @@ module "explorer" {
   node_count   = 1
   region       = "${var.region}"  
 
-  platform     = "ubuntu"
-  role         = "explorer"
+  platform       = "ubuntu"
+  role           = "explorer"
   ssh_public_key = "${var.ssh_public_key}"
+  prefix         = "${var.prefix}"
   
 }
-
 
 module "moc" {
   source = "./modules/node"
@@ -106,9 +110,10 @@ module "moc" {
   node_count   = 1
   region       = "${var.region}" 
   
-  platform     = "ubuntu"
-  role         = "moc"  
+  platform       = "ubuntu"
+  role           = "moc"  
   ssh_public_key = "${var.ssh_public_key}"
+  prefix         = "${var.prefix}"
   
 }
 
@@ -122,9 +127,10 @@ module "netstat" {
   node_count   = 1
   region       = "${var.region}" 
 
-  platform     = "ubuntu"
-  role         = "netstat"  
+  platform       = "ubuntu"
+  role           = "netstat"  
   ssh_public_key = "${var.ssh_public_key}"
+  prefix         = "${var.prefix}"
 
 }
 
@@ -139,8 +145,9 @@ module "validator" {
   node_count   = "${var.validator_count}"
   region       = "${var.region}" 
   
-  platform     = "ubuntu"
-  role         = "validator"  
+  platform       = "ubuntu"
+  role           = "validator"  
   ssh_public_key = "${var.ssh_public_key}"
+  prefix         = "${var.prefix}"
   
 }

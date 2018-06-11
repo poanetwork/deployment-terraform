@@ -1,0 +1,3 @@
+---
+SECONDARY_CONTRACTS_REPO: https://github.com/poanetwork/poa-network-consensus-contracts.git
+PRODUCTION_KEY_GENERATOR_REPO: https://github.com/poanetwork/deployment-terraform.git

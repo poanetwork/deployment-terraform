@@ -27,13 +27,13 @@
           return_content: yes
           headers: 
             Content-Type: application/json
-      register: grep_output
+      register: enode
 
         
     - name: Adding variable to bootnodes list
       local_action:
         module: lineinfile
-        line: "{{ grep_output.json.result }}"
+        line: "{{ enode.json.result }}"
         path: "{{ playbook_dir }}/{{ NETWORK_NAME }}/bootnodes.txt"
       
 - name: Send bootnodes.txt to bootnodes 

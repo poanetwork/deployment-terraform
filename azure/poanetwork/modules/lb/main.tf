@@ -27,6 +27,10 @@ resource "azurerm_lb" "node" {
     name                          = "${var.prefix}${var.role}-lb"
     public_ip_address_id          = "${join("",azurerm_public_ip.node_lb.*.id)}"
   }
+  
+  tags {
+    environment = "${var.environment_name}"
+  }
 }
 
 resource "azurerm_lb_backend_address_pool" "node" {
@@ -40,7 +44,7 @@ resource "azurerm_lb_probe" "node" {
   count               = "${ length(local.opened_ports) * (var.lb_node_count>0? 1 : 0)}"
   resource_group_name = "${var.resource_group_name}"
   loadbalancer_id     = "${azurerm_lb.node.id}"
-  name                = "${element(local.opened_ports, count.index)}"
+  name                = "${var.prefix}${element(local.opened_ports, count.index)}"
   protocol            = "Tcp"
   port                = "${element(var.ports[element(local.opened_ports, count.index)], 2)}"
   interval_in_seconds = "5"
@@ -51,7 +55,7 @@ resource "azurerm_lb_rule" "node" {
   count                          = "${ length(local.opened_ports) * (var.lb_node_count > 0 ? 1 : 0)}"
   resource_group_name            = "${var.resource_group_name}"
   loadbalancer_id                = "${azurerm_lb.node.id}"
-  name                           = "${element(local.opened_ports, count.index)}"
+  name                           = "${var.prefix}${element(local.opened_ports, count.index)}"
   protocol                       = "${element(var.ports[element(local.opened_ports, count.index)], 1)}"
   frontend_port                  = "${element(var.ports[element(local.opened_ports, count.index)], 0)}"
   backend_port                   = "${element(var.ports[element(local.opened_ports, count.index)], 2)}"

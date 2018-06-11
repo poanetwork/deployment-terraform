@@ -1,3 +1,16 @@
+- name: Check if production keys were not already generated
+  local_action:
+    module: find
+    paths: "{{ playbook_dir }}/{{ NETWORK_NAME }}/validator-keys"
+    file_type: directory
+  register: folders
+  
+- name: Clear old MoC installation
+  file:
+    state: absent
+    path: "/home/moc/"
+  when: folders.matched == 0
+
 - include_role:
     name: 'deployment-playbooks/roles/moc'
   vars:
@@ -5,14 +18,6 @@
     MOC_KEYFILE: "{{ lookup('file', NETWORK_NAME+'/moc.json') }}"
     MOC_KEYPASS: "{{ lookup('file', NETWORK_NAME+'/moc_secret') }}"
     GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
-  
-  
-- name: Check if production keys were not already generated
-  local_action:
-    module: find
-    paths: "{{ playbook_dir }}/{{ NETWORK_NAME }}/validator-keys"
-    file_type: directory
-  register: folders
 
 - name: Become user moc
   become: true
@@ -32,13 +37,13 @@
          
     - name: Clone secondary contracts from GitHub
       git:
-        repo: https://github.com/poanetwork/poa-network-consensus-contracts.git
+        repo: "{{ SECONDARY_CONTRACTS_REPO }}"
         dest: "/home/moc/poa-network-consensus-contracts"
         force: yes
     
     - name: Clone production key generator from GitHub
       git:
-        repo: https://github.com/poanetwork/deployment-terraform.git
+        repo: "{{ PRODUCTION_KEY_GENERATOR_REPO }}"
         dest: "/home/moc/deployment-terraform"
         force: yes
 

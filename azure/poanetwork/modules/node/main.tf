@@ -12,7 +12,7 @@ resource "azurerm_public_ip" "node" {
 }
 
 resource "azurerm_availability_set" "node" {
-  name                = "${var.role}AvailabilitySet"
+  name                = "${var.prefix}${var.role}AvailabilitySet"
   count               = "${var.lb_node_count > 0 ? 1 : 0}"
   location            = "${var.region}"
   resource_group_name = "${var.resource_group_name}"
@@ -122,7 +122,6 @@ resource "azurerm_virtual_machine" "node" {
   tags {
     environment = "${var.environment_name}"
     role        = "${var.role}"
-    countable_role = "${var.role}-${count.index}"
   }
 }
 
