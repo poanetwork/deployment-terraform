@@ -74,6 +74,16 @@
     - moc
   tags: 
     - moc
+
+- name: Restart poa-dashboard on netstat
+  hosts: netstat
+  become: True
+  tasks:
+    - name: restart poa-dashboard
+      service:
+        name: poa-dashboard
+        state: restarted
+        enabled: yes
     
 - name: Cleanup
   hosts: localhost
@@ -108,7 +118,7 @@
     - name: Clear /tmp dir
       file:
         state: absent
-        path: /tmp/production-keys/*
+        path: /tmp/production-keys
   
  
         
