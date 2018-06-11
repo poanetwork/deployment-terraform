@@ -18,17 +18,28 @@
 #    binary_path: "{{ terraform_location }}"
 #    project_path: "{{ playbook_dir }}/poanetwork"
 
-- name: Refresh bootnode host addresses
+- name: Refresh bootnodes host addresses
   block:
-    - name : Refresh bootnode host addresses
+    - name : Refresh bootnodes host addresses
       shell: "{{ terraform_location }} output bootnode-ips | tr -d ,"
       register: bootnodeips
       args:
         chdir: ./poanetwork
-    - add_host:
+    - name : Refresh load balanced bootnodes host addresses
+      shell: "{{ terraform_location }} output bootnode-lb-ips | tr -d ,"
+      register: bootnodelbips
+      args:
+        chdir: ./poanetwork
+    - name: Add bootnode hosts
+      add_host:
         name: "{{ item }}"
         groups: bootnode
       with_items: "{{ bootnodeips.stdout_lines }}" 
+    - name: Add balanced bootnode hosts
+      add_host:
+        name: "{{ item }}"
+        groups: bootnode
+      with_items: "{{ bootnodelbips.stdout_lines }}" 
       
 - name: Refresh explorer host addresses
   block:

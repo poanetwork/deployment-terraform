@@ -33,8 +33,8 @@ resource "azurerm_subnet" "poa" {
   virtual_network_name = "${azurerm_virtual_network.poa.name}"
   address_prefix       = "10.0.1.0/24"
 }
-/*
-module "bootnode" {
+
+module "bootnode-lb" {
 
   source = "./modules/node"
 
@@ -42,23 +42,27 @@ module "bootnode" {
   
   network_name = "${var.network_name}"
   subnet_id    = "${azurerm_subnet.poa.id}"
-  node_count   = "${var.bootnode_lb_count}"
+  lb_node_count   = "${var.bootnode_lb_count}"
   region       = "${var.region}"
   
   platform     = "ubuntu"
-  role         = "bootnode"
+  role         = "bootnode-lb"
   ssh_public_key = "${var.ssh_public_key}"
-
-  "remote_port" {
-    ssh = ["Tcp", "22"]
-  }
-
-  "lb_port" {
-    http = ["80", "Tcp", "80"]
-  }
-  
+ 
 }
-*/
+
+module "bootnode-lb-balancing" {
+
+  source = "./modules/lb"
+
+  resource_group_name = "${azurerm_resource_group.poa.count > 0 ? element(concat(azurerm_resource_group.poa.*.name, list("")), 0) : var.resource_group_name}"
+  
+  lb_node_count = "${var.bootnode_lb_count}"
+  region        = "${var.region}"  
+  role          = "bootnode-lb"
+ 
+}
+
 module "bootnode" {
   source = "./modules/node"
 

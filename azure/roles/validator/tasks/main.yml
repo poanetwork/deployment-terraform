@@ -1,13 +1,13 @@
 - name: gather list of addresses
-  local_action: "shell ls /tmp/production-keys/ | sed '1q;d' | sed -e 's/^validator-//'"
+  local_action: "shell ls /tmp/production-keys/* | egrep .*mining_.*.json | sed '1q;d' | sed -e 's/^mining_//' -e 's/.json//'"
   register: addresses
     
 - name: gather list of keyfiles
-  local_action: "shell ls /tmp/production-keys/*/mining-*.json | sed '1q;d'"
+  local_action: "shell find /tmp/production-keys/ | egrep .*mining_.*.json | sed '1q;d'"
   register: keyfiles
   
 - name: gather list of keys
-  local_action: "shell ls /tmp/production-keys/*/mining-*.key | sed '1q;d'"
+  local_action: "shell find /tmp/production-keys/ | egrep .*mining_.*.key | sed '1q;d'"
   register: keys
 
 - include_role:
@@ -20,4 +20,4 @@
     MINING_KEYFILE: "{{ lookup ('file', keyfiles.stdout) }}"
     
 - name: iterate
-  local_action: "file state=absent dest=/tmp/production-keys/validator-{{ addresses }}"
+  local_action: "file state=absent dest=/tmp/production-keys/validator-{{ addresses.stdout }}"

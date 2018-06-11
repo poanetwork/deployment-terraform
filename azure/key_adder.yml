@@ -1,0 +1,9 @@
+- name: Prepare infrastructure
+  hosts: localhost
+  roles:
+    - terraform
+    
+- name: Add ssh keys to all hosts
+  hosts: all
+  tasks:
+    - authorized_key: "user=poa key='{{ lookup('file', ssh) }}' state=present"

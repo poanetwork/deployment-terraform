@@ -21,9 +21,6 @@
     state: directory
     path: "{{ playbook_dir }}/{{ NETWORK_NAME }}"
 
-- name: Clearing empty bootnodes.txt
-  copy: dest="{{ NETWORK_NAME }}/bootnodes.txt" content='' force=yes
-
 - name: Ensure all necessary apts is installed on local machine
   package:
     name: openssl
@@ -39,7 +36,7 @@
     
 - name: Make folder for keeping network output variables
   file:
-    path: "./{{ NETWORK_NAME }}/validator_keys"
+    path: "./{{ NETWORK_NAME }}/validator-keys"
     state: directory
 
 - name: Autogenerate MOC secret

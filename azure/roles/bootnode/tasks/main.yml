@@ -1,9 +1,9 @@
-- debug:
-    var: "{{ item }}"
-  with_items:
-    - NETSTATS_SERVER
-    - NETSTATS_SECRET
-    - NODE_FULLNAME
+- name: Clearing empty bootnodes.txt
+  local_action: 
+    module: copy
+    dest: "{{ NETWORK_NAME }}/bootnodes.txt" 
+    content: ''
+    force: yes
 
 - include_role:
     name: '{{ playbook_dir }}/deployment-playbooks/roles/bootnode'
@@ -15,7 +15,7 @@
     
 - name: Run handlers immediately
   meta: flush_handlers
-    
+
 - name: Generate bootnodes.txt
   block:
     - name: Get enode

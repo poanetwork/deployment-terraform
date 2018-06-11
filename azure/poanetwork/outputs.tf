@@ -3,9 +3,9 @@ output "bootnode-ips" {
   value       = "${module.bootnode.ips}"
 }
 
-output "bootnode-tags" {
+output "bootnode-lb-ips" {
   description = "Public IP address of the validator virtual machine"
-  value       = "${module.bootnode.tags}"
+  value       = "${module.bootnode-lb.ips}"
 }
 
 output "explorer-ips" {
@@ -13,19 +13,9 @@ output "explorer-ips" {
   value       = "${module.explorer.ips}"
 }
 
-output "explorer-tags" {
-  description = "Public IP address of the validator virtual machine"
-  value       = "${module.explorer.tags}"
-}
-
 output "moc-ips" {
   description = "Public IP address of the validator virtual machine"
   value       = "${module.moc.ips}"
-}
-
-output "moc-tags" {
-  description = "Public IP address of the validator virtual machine"
-  value       = "${module.moc.tags}"
 }
 
 output "netstat-ips" {
@@ -33,17 +23,7 @@ output "netstat-ips" {
   value       = "${module.netstat.ips}"
 }
 
-output "netstat-tags" {
-  description = "Public IP address of the validator virtual machine"
-  value       = "${module.netstat.tags}"
-}
-
 output "validator-ips" {
   description = "Public IP address of the validator virtual machine"
   value       = "${module.validator.ips}"
-}
-
-output "validator-tags" {
-  description = "Public IP address of the validator virtual machine"
-  value       = "${module.validator.tags}"
 }

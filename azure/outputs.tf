@@ -13,9 +13,9 @@ output "moc-ips" {
   value       = "${module.poa.moc-ips}"
 }
 
-output "netstats-ips" {
+output "netstat-ips" {
   description = "Public IP address of the validator virtual machine"
-  value       = "${module.poa.netstats-ips}"
+  value       = "${module.poa.netstat-ips}"
 }
 
 output "validator-ips" {

@@ -79,7 +79,12 @@ variable role {
 
 variable node_count {
   description = "How many nodes to deploy"
-  default     = 1
+  default     = 0
+}
+
+variable lb_node_count {
+  description = "How many balanced nodes to deploy (for bootnodes)"
+  default     = 0
 }
 
 variable opened_ports_by_role {
@@ -87,10 +92,25 @@ variable opened_ports_by_role {
   type        = "map"
 
   default = {
-    "bootnode"  = ["ssh", "p2p", "rpc", "https"]
-    "explorer"  = ["ssh", "p2p", "http-3000", "https"]
-    "validator" = ["ssh", "p2p"]
-    "netstat"   = ["ssh", "https", "http-3000"]
-    "moc"       = ["ssh", "p2p"]
+    "bootnode-lb"  = ["ssh", "p2p", "p2p-udp", "rpc", "https"]
+    "bootnode"     = ["ssh", "p2p", "p2p-udp", "rpc", "https"]
+    "explorer"     = ["ssh", "p2p", "p2p-udp", "http-3000", "https"]
+    "validator"    = ["ssh", "p2p", "p2p-udp"]
+    "netstat"      = ["ssh", "https", "http-3000"]
+    "moc"          = ["ssh", "p2p", "p2p-udp"]
+  }
+}
+
+variable ports {
+  description = "Ports LB mapping"
+  type        = "map"
+
+  default = {
+    ssh = ["22", "Tcp", "22"]
+    https = ["443", "Tcp", "443"]
+    rpc = ["8545", "Tcp", "8545"]
+    p2p = ["30303", "Tcp", "30303"]
+    p2p-udp = ["30303", "Udp", "30303"]
+    http-3000 = ["3000", "Tcp", "3000"]
   }
 }

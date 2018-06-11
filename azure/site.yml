@@ -7,7 +7,8 @@
     - moc
     - validator
 
-- hosts: localhost
+- name: Generate network variables
+  hosts: localhost
   roles:
     - local-preconf
   tags:
@@ -15,7 +16,8 @@
     - moc
     - validator
    
-- hosts: all
+- name: preconf - install python
+  hosts: all
   gather_facts: False
   become: True
   tasks:
@@ -46,7 +48,17 @@
         name: 'deployment-playbooks/roles/netstat'
       vars:
         username: "netstat"
-    
+ 
+
+- name: Configure bootnodes
+  hosts: bootnode
+  become: True
+  #serial: 1
+  roles:
+    - bootnode
+  tags:
+    - bootnode 
+ 
 - name: Launch explorer node
   hosts: explorer
   become: True
@@ -56,24 +68,6 @@
       vars:
         username: "explorer"
 
-#- name: Refresh bootnode tags
-#  hosts: localhost
-#  shell: "{{ terraform_location }} output bootnode-tags | tr -d ,"
-#  register: bootnodetags
-#  args:
-#    chdir: ./poanetwork
-#  tags:
-#    - bootnode
-
-- name: Configure bootnodes
-  hosts: bootnode
-  become: True
-  #serial: 1
-  roles:
-    - bootnode
-  tags:
-    - bootnode
-
 - name: Configure MoC node
   hosts: moc
   become: True
@@ -81,6 +75,15 @@
     - moc
   tags: 
     - moc
+
+- name: Prepare prod keys for deployment
+  hosts: localhost
+  tasks:
+    - synchronize: 
+        src: "{{ playbook_dir }}/{{ NETWORK_NAME }}/validator-keys/"
+        dest: "/tmp/production-keys/"
+        mode: pull
+  tags:
     - validator
 
 - name: Configure validators node
