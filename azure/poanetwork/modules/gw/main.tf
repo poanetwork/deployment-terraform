@@ -43,6 +43,11 @@ resource "azurerm_application_gateway" "node" {
     name = "https"
     port = "443"
   }
+  
+  frontend_port {
+    name = "http"
+    port = "80"
+  }
 
   frontend_ip_configuration {
     name                          = "default"
@@ -56,8 +61,18 @@ resource "azurerm_application_gateway" "node" {
   }
 
   probe {
-    name                = "default"
+    name                = "default-https"
     protocol            = "Https"
+    path                = "/api/health"
+    interval            = 5
+    host                = "127.0.0.1"
+    timeout             = 4
+    unhealthy_threshold = 3
+  }
+  
+ probe {
+    name                = "default-http"
+    protocol            = "Http"
     path                = "/api/health"
     interval            = 5
     host                = "127.0.0.1"
@@ -71,11 +86,28 @@ resource "azurerm_application_gateway" "node" {
     port                  = "443"
     protocol              = "Https"
     request_timeout       = 5
-    probe_name            = "default"
+    probe_name            = "default-https"
 
     authentication_certificate {
       name = "node"
     }
+  }
+  
+  backend_http_settings {
+    name                  = "http"
+    cookie_based_affinity = "Disabled"
+    port                  = "80"
+    protocol              = "Http"
+    request_timeout       = 5
+    probe_name            = "default-http"
+  }
+
+  http_listener {
+    name                           = "http"
+    frontend_ip_configuration_name = "default"
+    frontend_port_name             = "http"
+    protocol                       = "Http"
+    ssl_certificate_name           = "default"
   }
 
   http_listener {
@@ -87,9 +119,17 @@ resource "azurerm_application_gateway" "node" {
   }
 
   request_routing_rule {
-    name                       = "default"
+    name                       = "default-https"
     rule_type                  = "Basic"
     http_listener_name         = "https"
+    backend_address_pool_name  = "${var.prefix}instances"
+    backend_http_settings_name = "https"
+  }
+  
+  request_routing_rule {
+    name                       = "default-http"
+    rule_type                  = "Basic"
+    http_listener_name         = "http"
     backend_address_pool_name  = "${var.prefix}instances"
     backend_http_settings_name = "https"
   }
