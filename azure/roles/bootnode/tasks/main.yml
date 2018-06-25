@@ -4,12 +4,27 @@
     dest: "{{ NETWORK_NAME }}/bootnodes.txt" 
     content: ''
     force: yes
+    
+- name: Ensures certificate directory exists
+  file: path=/etc/nginx/ssl/ state=directory
+  when: bootnode_balanced_count>0
 
+- name: Place cert at bootnode
+  copy:
+    src: "./{{ NETWORK_NAME }}/{{ item }}"
+    dest: "/etc/nginx/ssl/{{ item }}"
+  with_items:
+    - server.key
+    - server.crt
+  when: bootnode_balanced_count>0
+ 
 - include_role:
     name: '{{ playbook_dir }}/deployment-playbooks/roles/bootnode'
   vars:
     username: "bootnode"
     parity_api: "on"
+    bootnode_dapps: "on"
+    PROXY_PORT: 8545
   notify:
     - restart poa-parity   
     
@@ -43,3 +58,10 @@
     force: true
   notify:
     - restart poa-parity    
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+    

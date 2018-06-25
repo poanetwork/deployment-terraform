@@ -8,8 +8,24 @@ variable prefix {
   default     = "tf-"
 }
 
+variable ssl_cert {
+  description = "SSL certificate to be used by Azure Gateway"
+}
+
+variable nodes_cert {
+  description = "A certificate, that will be used by nodes"
+}
+
+variable password {
+  description = "A password used when creating ssl_cert"
+}
+
 variable resource_group_name {
   description = "Resource group name. All created resources reside within this resource group"
+}
+
+variable subnet_id {
+  description = "Subnet ID"
 }
 
 variable lb_node_count {
@@ -22,28 +38,12 @@ variable environment_name {
   default     = "Terraform Demo"
 }
 
+variable balanced_ips {
+  description = "A list of ips, that is used by backend balanced nodes"
+  type        = "list"
+  default     = []
+}
+
 variable role {
   description = "Role of the node"
-}
-
-variable opened_ports_by_role {
-  description = "What ports should be opened on the node?"
-  type        = "map"
-
-  default = {
-    "bootnode-lb"  = ["p2p", "p2p-udp", "rpc", "https"]
-  }
-}
-
-variable ports {
-  description = "Ports LB mapping"
-  type        = "map"
-
-  default = {
-    https = ["443", "Tcp", "443"]
-    rpc = ["8545", "Tcp", "8545"]
-    p2p = ["30303", "Tcp", "30303"]
-    p2p-udp = ["30303", "Udp", "30303"]
-    http-3000 = ["3000", "Tcp", "3000"]
-  }
 }

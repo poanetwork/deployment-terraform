@@ -3,15 +3,15 @@
   register: validator
 
 - name: gather list of addresses
-  local_action: "shell ls /tmp/production-keys/* | egrep .*mining_.*.json | sed '1q;d' | sed -e 's/^mining_//' -e 's/.json//'"
+  local_action: "shell ls /tmp/production-keys/{{ validator.stdout }} | egrep .*mining_.*.json | sed '1q;d' | sed -e 's/^mining_//' -e 's/.json//'"
   register: addresses
     
 - name: gather list of keyfiles
-  local_action: "shell find /tmp/production-keys/ | egrep .*mining_.*.json | sed '1q;d'"
+  local_action: "shell find /tmp/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.json | sed '1q;d'"
   register: keyfiles
   
 - name: gather list of keys
-  local_action: "shell find /tmp/production-keys/ | egrep .*mining_.*.key | sed '1q;d'"
+  local_action: "shell find /tmp/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.key | sed '1q;d'"
   register: keys
 
 - include_role:
@@ -22,6 +22,21 @@
     MINING_ADDRESS: "{{ addresses.stdout }}"
     MINING_KEYPASS: "{{ lookup ('file', keys.stdout) }}"
     MINING_KEYFILE: "{{ lookup ('file', keyfiles.stdout) }}"
+
+- set_fact:
+    contracts_json: "{{ lookup ('file', NETWORK_NAME+'/contracts.json') }}"  
+  
+- name: Adjust RewardTransfer configs
+  lineinfile:
+    path: /home/validator/poa-scripts-validator/config.json
+    regexp: '^.*\"addr\"\: .*'
+    line: '        "addr": "{{ contracts_json.KEYS_MANAGER_ADDRESS }}",'
+    
+- name: make sure npm transferRewardToPayoutKey modules installed
+  npm:
+    path: "/home/validator/poa-scripts-validator/transferRewardToPayoutKey"
+  become: true
+  become_user: "validator"
     
 - name: iterate
   local_action: "file state=absent path=/tmp/production-keys/{{ validator.stdout }}"

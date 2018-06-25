@@ -67,6 +67,7 @@ resource "azurerm_network_interface" "node" {
     subnet_id                     = "${var.subnet_id}"
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = "${element(azurerm_public_ip.node.*.id, count.index)}" 
+#    load_balancer_backend_address_pools_ids = ["${var.azurerm_lb_backend_address_pool_id}"]
   }
 
   tags {

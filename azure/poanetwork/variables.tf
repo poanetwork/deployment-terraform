@@ -30,7 +30,7 @@ variable resource_group_name {
 
 variable prefix {
   description = "Prefix all resources names with this string"
-  default = "tf"
+  default = "tf-"
 }
 
 variable environment_name {
@@ -46,4 +46,16 @@ variable ssh_public_key {
 variable prepare_resource_group {
   description = "Create resource group, virtual network and subnet"
   default     = "1"
+}
+
+variable lb_key {
+  default     = ""
+}
+
+variable lb_crt_path {
+  default     = ""
+}
+
+variable lb_pfx_path {
+  default     = ""
 }

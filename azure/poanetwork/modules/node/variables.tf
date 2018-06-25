@@ -87,6 +87,12 @@ variable lb_node_count {
   default     = 0
 }
 
+variable azurerm_lb_backend_address_pool_id {
+  description = "ID of backend address pool associated"
+  type        = "list"
+  default     = []
+}
+
 variable opened_ports_by_role {
   description = "What ports should be opened on the node?"
   type        = "map"

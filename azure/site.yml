@@ -1,3 +1,12 @@
+- name: Generate network variables
+  hosts: localhost
+  roles:
+    - local-preconf
+  tags:
+    - bootnode
+    - moc
+    - validator
+
 - name: Prepare infrastructure
   hosts: localhost
   roles:
@@ -7,15 +16,6 @@
     - moc
     - validator
 
-- name: Generate network variables
-  hosts: localhost
-  roles:
-    - local-preconf
-  tags:
-    - bootnode
-    - moc
-    - validator
-   
 - name: preconf - install python
   hosts: all
   gather_facts: False
@@ -111,6 +111,16 @@
     - validator
   tags: 
     - validator
+    
+- name: Restart poa-netstats on nodes
+  hosts: bootnode,moc,validator
+  become: True
+  tasks:
+    - name: restart poa-netstats
+      service:
+        name: poa-netstats
+        state: restarted
+        enabled: yes
     
 - name: Cleanup
   hosts: localhost
