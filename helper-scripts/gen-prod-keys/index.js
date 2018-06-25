@@ -69,6 +69,13 @@ function getPrivateKey(key) {
     return Keythereum.recover(key.password, key.keyObj);
 }
 
+function checkInitialKey(address, next) {
+    keysManagerContract.methods.getInitialKey(`0x${address}`).call((err, result) => {
+        if (err) throw err;
+        return next(result.toString());
+    });
+}
+
 function createKeys(address, privateKey, miningKeyAddress, votingKeyAddress, payoutKeyAddress, callback) {
     loginf('*** createKeys for: ' + address);
     loginf('calling estimateGas');
@@ -143,35 +150,48 @@ function processInitialKeyFile(fname, done) {
     var privateKey = getPrivateKey(initialKey);
     loginf('Recovered private key from initial key:', privateKey.toString('hex'));
 
-    var miningKey = generateKey('mining');
-    var votingKey = generateKey('voting');
-    var payoutKey = generateKey('payout');
-    loginf('miningKey:', miningKey);
-    loginf('votingKey:', votingKey);
-    loginf('payoutKey:', payoutKey);
-
-    createKeys(
-        address,
-        privateKey,
-        miningKey.keyObj.address,
-        votingKey.keyObj.address,
-        payoutKey.keyObj.address,
-        (err, txReceipt) => {
-            if (err) throw err;
-
-            var folder = `./production-keys/validator-${address}/`;
-            loginf('Creating keys folder:', folder);
-            mkdirp(folder);
-
-            saveKey(folder, initialKey);
-            saveKey(folder, miningKey);
-            saveKey(folder, votingKey);
-            saveKey(folder, payoutKey);
-
-            loginf('***** done with', fname);
+    checkInitialKey(address, (r) => {
+        // deactivated
+        if (r == '2') {
+            loginf('This initial key is deactivated, skipping');
             return done();
         }
-    );
+        else if (r == '1') {
+            loginf('This initial key is active, converting it to production keys...');
+            var miningKey = generateKey('mining');
+            var votingKey = generateKey('voting');
+            var payoutKey = generateKey('payout');
+            loginf('miningKey:', miningKey);
+            loginf('votingKey:', votingKey);
+            loginf('payoutKey:', payoutKey);
+            createKeys(
+                address,
+                privateKey,
+                miningKey.keyObj.address,
+                votingKey.keyObj.address,
+                payoutKey.keyObj.address,
+                (err, txReceipt) => {
+                    if (err) throw err;
+
+                    var folder = `./production-keys/validator-${address}/`;
+                    loginf('Creating keys folder:', folder);
+                    mkdirp(folder);
+
+                    saveKey(folder, initialKey);
+                    saveKey(folder, miningKey);
+                    saveKey(folder, votingKey);
+                    saveKey(folder, payoutKey);
+
+                    loginf('***** done with', fname);
+                    return done();
+                }
+            );
+        }
+        else {
+            logerr('This initial key is incorrect');
+            throw new Error('Incorrect initial key');
+        }
+    });
 }
 
 // ********** MAIN ********* //
