@@ -129,6 +129,3 @@
       file:
         state: absent
         path: /tmp/production-keys
-  
- 
-        
