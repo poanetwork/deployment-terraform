@@ -1,3 +1,4 @@
 ---
 DEPLOYMENT_PLAYBOOKS: https://github.com/poanetwork/deployment-playbooks.git
+DEPLOYMENT_PLAYBOOKS_BRANCH: master
 POA_CONSENSUS_CONTRACTS: https://github.com/poanetwork/poa-network-consensus-contracts.git

@@ -9,7 +9,7 @@
     repo: "{{ DEPLOYMENT_PLAYBOOKS }}"
     dest: ./deployment-playbooks
     force: true 
-    version: preparations-for-terraform-integration 
+    version: "{{ DEPLOYMENT_PLAYBOOKS_BRANCH }}"
                   
 - name: Ensure POA contracts exists on local server
   git:
@@ -27,10 +27,12 @@
     name: openssl
     
 - name: Install latest passlib with pip
+  become: true
   pip: 
     name: passlib 
 
 - name: Install keythereum
+  become: true
   npm:
     name: keythereum
     global: yes
