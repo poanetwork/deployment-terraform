@@ -1,0 +1,168 @@
+- name: Basic checks
+  fail:
+    msg: "You can't set initial_key_count to value more than 12"
+  when: initial_key_count>12 or initial_key_count<validator_count or initial_key_convert_count<validator_count or initial_key_count<initial_key_convert_count
+  
+- name: Ensure deployment playbooks exists on local server
+  git:
+    repo: "{{ DEPLOYMENT_PLAYBOOKS }}"
+    dest: "~/deployment-playbooks"
+    force: true 
+    version: "{{ DEPLOYMENT_PLAYBOOKS_BRANCH }}"
+                  
+- name: Ensure POA contracts exists on local server
+  git:
+    repo: "{{ POA_CONSENSUS_CONTRACTS }}"
+    dest: "~/poa-network-consensus-contracts"
+    force: yes
+
+- name: Create folder that will contain all configs for created network
+  file:
+    state: directory
+    path: "~/{{ NETWORK_NAME }}"
+
+- name: Ensure all necessary apts is installed on local machine
+  become: yes
+  package:
+    name: "{{ item }}"
+  with_items:
+    - git
+    - "{{ ansible_python_interpreter.split('/')[-1] }}-pip"
+    - npm
+    - nodejs
+    - libssl-dev
+    
+- name: Install latest passlib with pip
+  pip: 
+    name: passlib    
+    extra_args: --user
+    executable: "{{ ansible_pip }}"
+    
+- name: Config store for npm modules
+  shell: "npm config set prefix ~/.npm-packages"
+
+- name: Install NPM packages globally
+  npm:
+    global: yes
+    name: npm
+    state: latest
+    
+- name: Make folder for keeping network output variables
+  file:
+    path: "~/{{ NETWORK_NAME }}/validator-keys"
+    state: directory
+
+- name: Autogenerate MOC secret
+  set_fact:
+    MOC_SECRET: "{{ lookup('password', '~/' + NETWORK_NAME + '/moc_secret chars=digits length=8 encrypt=') }}"
+  when: MOC_SECRET == ""
+
+- name: Download terraform repo
+  git:
+    repo: "{{ DEPLOYMENT_TERRAFORM }}"
+    dest: ~/deployment-terraform
+    force: true  
+
+- name: Install reqired NPM modules (workaround)
+  npm:
+    path: ~/deployment-terraform/helper-scripts/key_generator/ 
+
+- name: Generate MOC keypair
+  shell: "nodejs ~/deployment-terraform/helper-scripts/key_generator/key_generator.js"
+  args:
+    creates: "~/{{ NETWORK_NAME }}/moc"
+    
+- name: Set local variable MOC_ADDRESS
+  set_fact:
+    MOC_ADDRESS: "{{ lookup('file', '~/' + NETWORK_NAME + '/moc') }}"
+  
+- name: Autogenerate netstat secret
+  set_fact:
+    NETSTATS_SECRET: "{{ lookup('password', '~/' + NETWORK_NAME + '/netstat_secret chars=digits length=8 encrypt=') }}"
+  when: NETSTATS_SECRET == ""
+    
+- name: Install reqired NPM modules
+  npm:
+    path: ./poa-network-consensus-contracts/scripts/  
+ 
+- name: Generate bytecode
+  shell: "MASTER_OF_CEREMONY={{ MOC_ADDRESS }} nodejs poa-bytecode.js | tail -n +4 > ~/{{ NETWORK_NAME }}/bytecode"
+  args:
+    creates: "~/{{ NETWORK_NAME }}/bytecode"
+    chdir: ./poa-network-consensus-contracts/scripts
+ 
+- name: Register bytecode variable
+  set_fact:
+    bytecode: "{{ lookup('file', '~/' + NETWORK_NAME+'/bytecode') }}"   
+ 
+- name: Generate spec.json
+  template:
+    src: spec.json.j2
+    dest: "~/{{ NETWORK_NAME }}/spec.json"
+    
+- name: Check GW certificate file
+  stat:
+    path: "~/{{ NETWORK_NAME }}/gwcert.pfx"
+  register: cert_file_check
+  
+- name: Autogenerate cert secret
+  set_fact:
+    CERT_SECRET: "{{ lookup('password', '~/' + NETWORK_NAME + '/cert_secret chars=digits length=8 encrypt=') }}"
+  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
+
+- name: Generate SSL private key
+  openssl_privatekey:
+    path: "~/{{ NETWORK_NAME }}/gwcert.key"
+    passphrase: "{{ lookup('file', '~/' + NETWORK_NAME+'/cert_secret') }}"
+    cipher: aes256
+    size: 4096
+  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
+
+- name: Generate SSL certificate request
+  openssl_csr:
+    path: "~/{{ NETWORK_NAME }}/gwcert.csr"
+    privatekey_path: "~/{{ '~/' + NETWORK_NAME }}/gwcert.key"
+    privatekey_passphrase: "{{ lookup('file', '~/' + NETWORK_NAME+'/cert_secret') }}"
+    common_name: "*.cloudapp.net"
+  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
+
+- name: Generate self-signed SSL certificate for gateway
+  openssl_certificate:
+    path: "~/{{ NETWORK_NAME }}/gwcert.crt"
+    provider: selfsigned
+    privatekey_path: "~/{{ NETWORK_NAME }}/gwcert.key"
+    privatekey_passphrase: "{{ lookup('file', '~/' + NETWORK_NAME + '/cert_secret') }}"
+    csr_path: "~/{{ NETWORK_NAME }}/gwcert.csr"
+  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
+  
+- name: Converting CRT to PFX
+  shell: "openssl pkcs12 -export -inkey gwcert.key -in gwcert.crt -out gwcert.pfx -passin pass:{{ lookup('file', '~/' + NETWORK_NAME + '/cert_secret') }} -passout pass:{{ lookup('file', '~/' + NETWORK_NAME+'/cert_secret') }}"
+  args:
+    chdir: "~/{{ NETWORK_NAME }}/"
+  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
+ 
+- name: Check nodes certificate file
+  stat:
+    path: "~/{{ NETWORK_NAME }}/server.crt"
+  register: nodes_cert_file_check 
+ 
+- name: Generate SSL private key without password for nodes
+  openssl_privatekey:
+    path: "~/{{ NETWORK_NAME }}/server.key"
+    size: 4096
+  when: not nodes_cert_file_check.stat.exists
+
+- name: Generate SSL certificate request
+  openssl_csr:
+    path: "~/{{ NETWORK_NAME }}/server.csr"
+    privatekey_path: "~/{{ NETWORK_NAME }}/server.key"
+    common_name: "{{ ansible_host }}"
+  when: not nodes_cert_file_check.stat.exists
+
+- name: Generate self-signed SSL certificate
+  openssl_certificate:
+    path: "~/{{ NETWORK_NAME }}/server.crt"
+    provider: selfsigned
+    privatekey_path: "~/{{ NETWORK_NAME }}/server.key"
+    csr_path: "~/{{ NETWORK_NAME }}/server.csr"
+  when: not nodes_cert_file_check.stat.exists

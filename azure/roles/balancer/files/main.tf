@@ -1,3 +1,12 @@
+resource "azurerm_subnet" "gw" {
+  name                 = "${var.prefix}poa-subnet-gw"
+  count                = "${var.bootnode_lb_count > 0 ? 1 : 0}"
+  resource_group_name  = "${var.resource_group_name}"
+  virtual_network_name = "${azurerm_virtual_network.poa.name}"
+  address_prefix       = "10.0.2.0/24"
+}
+
+
 # Create public IP for lb
 resource "azurerm_public_ip" "node" {
   count                        = "${var.lb_node_count > 0 ? 1 : 0}"
@@ -25,7 +34,7 @@ resource "azurerm_application_gateway" "node" {
 
   gateway_ip_configuration {
     name      = "${var.prefix}${var.role}-gw"
-    subnet_id = "${var.subnet_id}"
+    subnet_id = "${join("", azurerm_subnet.gw.*.id)}"
   }
 
   ssl_certificate {

@@ -47,15 +47,3 @@ variable prepare_resource_group {
   description = "Create resource group, virtual network and subnet"
   default     = "1"
 }
-
-variable lb_key {
-  default     = ""
-}
-
-variable lb_crt_path {
-  default     = ""
-}
-
-variable lb_pfx_path {
-  default     = ""
-}

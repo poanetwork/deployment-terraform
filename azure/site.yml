@@ -1,12 +1,3 @@
-- name: Generate network variables
-  hosts: localhost
-  roles:
-    - local-preconf
-  tags:
-    - bootnode
-    - moc
-    - validator
-
 - name: Prepare infrastructure
   hosts: localhost
   roles:
@@ -15,6 +6,22 @@
     - bootnode
     - moc
     - validator
+
+- name: Generate network variables
+  hosts: moc
+  roles:
+    - moc-preconf
+  tags:
+    - bootnode
+    - moc
+    - validator
+
+- name: Prepare application gateway
+  hosts: localhost
+  roles:
+    - balancer
+  tags: 
+    - bootnode
 
 - name: preconf - install python
   hosts: all
@@ -94,7 +101,7 @@
         path: /tmp/production-keys/*
 
 - name: Prepare prod keys for deployment
-  hosts: localhost
+  hosts: moc
   tasks:
     - synchronize: 
         src: "{{ playbook_dir }}/{{ NETWORK_NAME }}/validator-keys/"

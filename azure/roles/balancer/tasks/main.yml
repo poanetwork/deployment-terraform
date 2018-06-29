@@ -1,0 +1,15 @@
+- name: Generating variables file
+  template:
+    src: terraform.tfvars.j2
+    dest: roles/balancer/files/terraform.tfvars
+
+#Workaround since terraform module return unexpected error.
+- name: Terraform provisioning
+  shell: "echo yes | {{ terraform_location }} {{ item }}"
+  args:
+    chdir: "roles/balancer/files"
+  with_items:
+    - init
+    - plan
+    - apply
+  when: bootnode_balanced_count>0

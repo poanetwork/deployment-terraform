@@ -1,5 +1,10 @@
-var keythereum = require("keythereum");
+var keythereum = require('keythereum');
 var fs = require('fs');
+
+const MOC_SECRET = process.env.MOC_SECRET;
+const NETWORK_NAME = process.env.NETWORK_NAME;
+
+if (!MOC_SECRET || !NETWORK_NAME) throw new Error('MOC_SECRET and NETWORK_NAME env variables are required');
 
 // optional private key and initialization vector sizes in bytes
 // (if params is not passed to create, keythereum.constants is used by default)
@@ -18,10 +23,10 @@ var options = {
   }
 };
 
-var password = "{{ MOC_SECRET }}";
+var password = MOC_SECRET;
 
 // synchronous
 var keyObject = keythereum.dump(password, dk.privateKey, dk.salt, dk.iv, options);
 
-console.log('0x'+keyObject.address);
-fs.writeFileSync('{{ NETWORK_NAME }}/moc.json', JSON.stringify(keyObject), 'utf8');
+fs.writeFileSync(`${NETWORK_NAME}/moc.json`, JSON.stringify(keyObject), 'utf8');
+fs.writeFileSync(`${NETWORK_NAME}/moc`, `0x${keyObject.address}`, 'utf8');

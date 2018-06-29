@@ -1,22 +1,22 @@
 - name: Generating variables file
   template:
     src: terraform.tfvars.j2
-    dest: poanetwork/terraform.tfvars
+    dest: roles/terraform/files/terraform.tfvars
+    
+- name: Copy ssh key to terraform directory
+  copy: 
+    src: "{{ PUB_KEY_STORE }}"
+    dest: roles/terraform/files/
 
 #Workaround since terraform module return unexpected error.
 - name: Terraform provisioning
   shell: "echo yes | {{ terraform_location }} {{ item }}"
   args:
-    chdir: "poanetwork"
+    chdir: "roles/terraform/files"
   with_items:
     - init
     - plan
     - apply
-
-#- name: Deploy an infrastructure
-#  terraform: 
-#    binary_path: "{{ terraform_location }}"
-#    project_path: "{{ playbook_dir }}/poanetwork"
 
 - name: Refresh bootnodes host addresses
   block:
@@ -24,12 +24,12 @@
       shell: "{{ terraform_location }} output bootnode-ips | tr -d ,"
       register: bootnodeips
       args:
-        chdir: ./poanetwork
+        chdir: roles/terraform/files/
     - name : Refresh load balanced bootnodes host addresses
       shell: "{{ terraform_location }} output bootnode-lb-ips | tr -d ,"
       register: bootnodelbips
       args:
-        chdir: ./poanetwork
+        chdir: roles/terraform/files/
     - name: Add bootnode hosts
       add_host:
         name: "{{ item }}"
@@ -47,7 +47,7 @@
       shell: "{{ terraform_location }} output explorer-ips | tr -d ,"
       register: explorerips  
       args:
-        chdir: ./poanetwork
+        chdir: roles/terraform/files/
     - add_host:
         name: "{{ item }}"
         groups: explorer
@@ -59,7 +59,7 @@
       shell: "{{ terraform_location }} output moc-ips | tr -d ,"
       register: mocips   
       args:
-        chdir: ./poanetwork
+        chdir: roles/terraform/files/
     - add_host:
         name: "{{ item }}"
         groups: moc
@@ -71,7 +71,7 @@
       shell: "{{ terraform_location }} output netstat-ips | tr -d ,"
       register: netstatips 
       args:
-        chdir: ./poanetwork
+        chdir: roles/terraform/files/
     - add_host:
         name: "{{ item }}"
         groups: netstat
@@ -83,7 +83,7 @@
       shell: "{{ terraform_location }} output validator-ips | tr -d ,"
       register: validatorips
       args:
-        chdir: ./poanetwork
+        chdir: roles/terraform/files/
     - add_host:
         name: "{{ item }}"
         groups: validator

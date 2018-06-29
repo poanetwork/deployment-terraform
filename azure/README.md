@@ -19,7 +19,7 @@ Adjust all settings before running the deployment.
 
 ```
 cd playbooks-terraform/azure
-mv group_vars/all.yml.example group_vars/all.yml
+cp group_vars/all.yml.example group_vars/all.yml
 ```
 
 Edit the `all.yml` file to set up node parameters.

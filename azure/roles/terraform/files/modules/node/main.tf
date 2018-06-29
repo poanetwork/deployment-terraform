@@ -40,7 +40,7 @@ resource "azurerm_network_security_group" "node" {
 }
 
 resource "azurerm_network_security_rule" "node" {
-  count                       = "${length(local.opened_ports)}"
+  count                       = "${length(local.opened_ports) * (var.lb_node_count > 0 ? 1 : (var.node_count > 0 ? 1 : 0))}"
   name                        = "${var.prefix}${var.role}-security-group-${element(local.opened_ports, count.index)}"
   priority                    = "100${count.index}"
   direction                   = "Inbound"

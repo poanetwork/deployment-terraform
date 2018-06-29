@@ -1,22 +1,29 @@
 - name: Check if production keys were not already generated
-  local_action:
-    module: find
-    paths: "{{ playbook_dir }}/{{ NETWORK_NAME }}/validator-keys"
+  find:
+    paths: "{{ home }}/{{ NETWORK_NAME }}/validator-keys"
     file_type: directory
   register: folders
   
 - name: Clear old MoC installation
   file:
     state: absent
-    path: "/home/moc/"
+    path: "{{ home }}/"
   when: folders.matched == 0
+  
+- name: Slurp variables
+  slurp:
+    src: "{{ item.src }}"
+  register: "{{ item.name }}"
+  with_items:
+  - { src: "{{ home }}/{{ NETWORK_NAME }}/moc.json", name: 'KEYFILE' }
+  - { src: "{{ home }}/{{ NETWORK_NAME }}/moc_secret", name: 'KEYPASS' }
 
 - include_role:
     name: 'deployment-playbooks/roles/moc'
   vars:
-    username: "moc"
-    MOC_KEYFILE: "{{ lookup('file', NETWORK_NAME+'/moc.json') }}"
-    MOC_KEYPASS: "{{ lookup('file', NETWORK_NAME+'/moc_secret') }}"
+    username: "{{ username }}"
+    MOC_KEYFILE: "{{ KEYFILE['content'] | b64decode }}"
+    MOC_KEYPASS: "{{ KEYPASS['content'] | b64decode }}"
     GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
 
 - name: Become user moc
@@ -47,16 +54,11 @@
         dest: "/home/moc/deployment-terraform"
         force: yes
 
-#   - name: Install required NPM modules
-#     npm:
-#       path: /home/moc/poa-network-consensus-contracts
-#       production: no
-#       state: latest
-
-    - name: Install reqired NPM modules (workaround)
-      command: npm install
-      args:
-        chdir: /home/moc/poa-network-consensus-contracts
+    - name: Install required NPM modules
+      npm:
+        path: /home/moc/poa-network-consensus-contracts
+        production: no
+        state: latest
 
     - name:  Deploy contracts
       shell: "SAVE_TO_FILE=true POA_NETWORK_CONSENSUS_ADDRESS=0x8bf38d4764929064f2d4d3a56520a76ab3df415b MASTER_OF_CEREMONY={{ MOC_ADDRESS }} ./node_modules/.bin/truffle migrate --reset --network sokol"
@@ -64,10 +66,11 @@
         chdir: /home/moc/poa-network-consensus-contracts
         creates: /home/moc/poa-network-consensus-contracts/contracts.json
  
-    - name: Copy contracts.json to local machine
+    - name: Save contracts.json to output folder
+      delegate_to: "{{ inventory_hostname }}"
       synchronize: 
         src: "/home/moc/poa-network-consensus-contracts/contracts.json"
-        dest: "{{ playbook_dir }}/{{ NETWORK_NAME }}/"
+        dest: "{{ home }}/{{ NETWORK_NAME }}/"
         mode: pull
 
     - name: Set contracts.json
@@ -117,9 +120,10 @@
       when: folders.matched < initial_key_convert_count 
         
     - name: Copy production keys to the destination folder
+      delegate_to: "{{ inventory_hostname }}"
       synchronize: 
         src: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/"
-        dest: "{{ playbook_dir }}/{{ NETWORK_NAME }}/validator-keys/"
+        dest: "{{ home }}/{{ NETWORK_NAME }}/validator-keys/"
         mode: pull
       when: folders.matched < initial_key_convert_count 
 
