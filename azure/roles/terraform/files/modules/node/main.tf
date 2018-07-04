@@ -106,7 +106,7 @@ resource "azurerm_virtual_machine" "node" {
 
   os_profile {
     computer_name  = "${var.role}-${var.lb_node_count > 0 ? 0 : count.index}"
-    admin_username = "poa"
+    admin_username = "${var.admin_username}"
   }
 
   os_profile_linux_config {

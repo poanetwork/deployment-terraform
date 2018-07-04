@@ -1,17 +1,25 @@
 - name: gather validator address
-  local_action: "shell ls /tmp/production-keys/ | sed '1q;d'"
+  become: false
+  delegate_to: "localhost"
+  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/ | sed '1q;d'"
   register: validator
 
 - name: gather list of addresses
-  local_action: "shell ls /tmp/production-keys/{{ validator.stdout }} | egrep .*mining_.*.json | sed '1q;d' | sed -e 's/^mining_//' -e 's/.json//'"
+  become: false
+  delegate_to: "localhost"
+  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }} | egrep .*mining_.*.json | sed '1q;d' | sed -e 's/^mining_//' -e 's/.json//'"
   register: addresses
     
 - name: gather list of keyfiles
-  local_action: "shell find /tmp/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.json | sed '1q;d'"
+  become: false
+  delegate_to: "localhost"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.json | sed '1q;d'"
   register: keyfiles
   
 - name: gather list of keys
-  local_action: "shell find /tmp/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.key | sed '1q;d'"
+  become: false
+  delegate_to: "localhost"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.key | sed '1q;d'"
   register: keys
 
 - include_role:
@@ -23,8 +31,16 @@
     MINING_KEYPASS: "{{ lookup ('file', keys.stdout) }}"
     MINING_KEYFILE: "{{ lookup ('file', keyfiles.stdout) }}"
 
-- set_fact:
-    contracts_json: "{{ lookup ('file', NETWORK_NAME+'/contracts.json') }}"  
+- name: Register bytecode variable
+  block:    
+    - name: get contracts.json content
+      delegate_to: "{{ groups['moc']|first }}"
+      slurp:
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/contracts.json"
+      register:
+        contracts_coded
+    - set_fact:
+        contracts_json: "{{ contracts_coded['content'] | b64decode }}"
   
 - name: Adjust RewardTransfer configs
   lineinfile:
@@ -39,4 +55,6 @@
   become_user: "validator"
     
 - name: iterate
-  local_action: "file state=absent path=/tmp/production-keys/{{ validator.stdout }}"
+  delegate_to: "localhost"
+  become: false
+  file: "state=absent path=/tmp/production-keys/{{ validator.stdout }}"

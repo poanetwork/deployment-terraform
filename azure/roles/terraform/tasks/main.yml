@@ -30,16 +30,19 @@
       register: bootnodelbips
       args:
         chdir: roles/terraform/files/
-    - name: Add bootnode hosts
-      add_host:
-        name: "{{ item }}"
-        groups: bootnode
-      with_items: "{{ bootnodeips.stdout_lines }}" 
     - name: Add balanced bootnode hosts
       add_host:
         name: "{{ item }}"
         groups: bootnode
       with_items: "{{ bootnodelbips.stdout_lines }}" 
+    - name: Mark nodes as balanced
+      set_fact:
+        balanced: true
+    - name: Add bootnode hosts
+      add_host:
+        name: "{{ item }}"
+        groups: bootnode
+      with_items: "{{ bootnodeips.stdout_lines }}" 
       
 - name: Refresh explorer host addresses
   block:

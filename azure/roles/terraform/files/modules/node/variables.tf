@@ -68,11 +68,6 @@ variable image_version {
   }
 }
 
-variable ansible_path {
-  description = "The directory you cloned `poanetworks/deployment-playbooks` to"
-  default     = "./deployment-playbooks"
-}
-
 variable role {
   description = "Role of the node"
 }
@@ -119,4 +114,9 @@ variable ports {
     p2p-udp = ["30303", "Udp", "30303"]
     http-3000 = ["3000", "Tcp", "3000"]
   }
+}
+
+variable admin_username {
+  description = "Default user for machine"
+  default     = "poa"
 }

@@ -2,6 +2,7 @@
   template:
     src: terraform.tfvars.j2
     dest: roles/balancer/files/terraform.tfvars
+  when: bootnode_balanced_count>0
 
 #Workaround since terraform module return unexpected error.
 - name: Terraform provisioning

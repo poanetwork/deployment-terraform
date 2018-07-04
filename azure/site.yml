@@ -4,7 +4,9 @@
     - terraform
   tags: 
     - bootnode
+    - explorer
     - moc
+    - netstat
     - validator
 
 - name: Generate network variables
@@ -13,7 +15,9 @@
     - moc-preconf
   tags:
     - bootnode
+    - explorer
     - moc
+    - netstat
     - validator
 
 - name: Prepare application gateway
@@ -22,6 +26,8 @@
     - balancer
   tags: 
     - bootnode
+  vars:
+    key_for_lb: "{{ hostvars[groups['moc']|first]['CERT_SECRET'] }}"
 
 - name: preconf - install python
   hosts: all
@@ -31,20 +37,45 @@
     - name: Install python
       raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
       
+- name: Create temporary directory for configs on local machine
+  hosts: localhost
+  gather_facts: False
+  tasks:
+    - file:
+        state: directory
+        path: "/tmp/{{ NETWORK_NAME }}"
+        
+- name: Save spec.json to tmp folder
+  hosts: moc
+  gather_facts: False
+  tasks:  
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
+        dest: "/tmp/{{ NETWORK_NAME }}/spec.json"
+        mode: pull
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
 - hosts: all
   tasks:
     - name: Setting remote hosts facts
       set_fact:
-        spec_json: "{{ playbook_dir }}/{{ NETWORK_NAME }}/spec.json"
-        bootnodes_txt: "{{ playbook_dir }}/{{ NETWORK_NAME }}/bootnodes.txt"
+        spec_json: "/tmp/{{ NETWORK_NAME }}/spec.json"
+        bootnodes_txt: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
         install_firewall: false
-        MOC_ADDRESS: "{{ lookup('file', NETWORK_NAME+'/moc') }}"
+        MOC_ADDRESS: "{{ hostvars[groups['moc']|first]['MOC_ADDRESS'] }}"
         NETSTATS_SERVER: "http://{{ groups['netstat']|first }}:3000"
-        NETSTATS_SECRET: "{{ lookup('file', NETWORK_NAME+'/netstat_secret') }}"
+        NETSTATS_SECRET: "{{ hostvars[groups['moc']|first]['NETSTATS_SECRET'] }}"
         NODE_FULLNAME: "{{ ansible_hostname }}"
   tags: 
     - bootnode
+    - explorer
     - moc
+    - netstat
     - validator
 
 - name: Launch netstat node
@@ -55,6 +86,8 @@
         name: 'deployment-playbooks/roles/netstat'
       vars:
         username: "netstat"
+  tags:
+    - netstat
  
 - name: Configure bootnodes
   hosts: bootnode
@@ -64,6 +97,16 @@
     - bootnode
   tags:
     - bootnode 
+    
+- name: Send bootnodes.txt to MoC
+  hosts: moc
+  tasks:
+    - copy:
+        src: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bootnodes.txt"
+        force: true
+  tags:
+    - moc
  
 - name: Launch explorer node
   hosts: explorer
@@ -73,6 +116,8 @@
         name: 'deployment-playbooks/roles/explorer'
       vars:
         username: "explorer"
+  tags:
+    - explorer
 
 - name: Configure MoC node
   hosts: moc
@@ -81,31 +126,27 @@
     - moc
   tags: 
     - moc
-
-- name: Restart poa-dashboard on netstat
-  hosts: netstat
-  become: True
-  tasks:
-    - name: restart poa-dashboard
-      service:
-        name: poa-dashboard
-        state: restarted
-        enabled: yes
     
 - name: Cleanup
   hosts: localhost
   tasks:
-    - name: Clear /tmp dir
+    - name: "Clear /tmp/{{ NETWORK_NAME}}/production-keys/ dir"
       file:
         state: absent
-        path: /tmp/production-keys/*
+        path: "/tmp/{{ NETWORK_NAME}}/production-keys/*"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
 
 - name: Prepare prod keys for deployment
   hosts: moc
   tasks:
     - synchronize: 
-        src: "{{ playbook_dir }}/{{ NETWORK_NAME }}/validator-keys/"
-        dest: "/tmp/production-keys/"
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/"
+        dest: "/tmp/{{ NETWORK_NAME}}/production-keys/"
         mode: pull
   tags:
     - validator
@@ -119,6 +160,22 @@
   tags: 
     - validator
     
+- name: Restart poa-dashboard on netstat
+  hosts: netstat
+  become: True
+  tasks:
+    - name: restart poa-dashboard
+      service:
+        name: poa-dashboard
+        state: restarted
+        enabled: yes
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    
 - name: Restart poa-netstats on nodes
   hosts: bootnode,moc,validator
   become: True
@@ -128,11 +185,23 @@
         name: poa-netstats
         state: restarted
         enabled: yes
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
     
 - name: Cleanup
   hosts: localhost
   tasks:
-    - name: Clear /tmp dir
+    - name: "Clear /tmp/{{ NETWORK_NAME }} dir"
       file:
         state: absent
-        path: /tmp/production-keys
+        path: "/tmp/{{ NETWORK_NAME }}"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
