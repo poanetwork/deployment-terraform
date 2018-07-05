@@ -39,6 +39,8 @@ PUB_KEY_STORE: "id_rsa.pub"
 prepare_resource_group: true
 ##Set name of resource group
 #resource_group_name : "test-full-setup"
+##Prefix, that will be used for all resources ("tf-" by default)
+#tf_prefix: "tf-"
 ##Region where resources shall be created
 #region : "East US"
 

@@ -19,6 +19,29 @@
     - moc
     - netstat
     - validator
+    
+- name: Create temporary directory for configs on local machine
+  hosts: localhost
+  gather_facts: False
+  tasks:
+    - file:
+        state: directory
+        path: "/tmp/{{ NETWORK_NAME }}"
+
+- name: Save certs to tmp folder
+  hosts: moc
+  gather_facts: False
+  tasks:  
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/{{ item }}"
+        dest: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
+        mode: pull
+      with_items:
+        - gwcert.pfx
+        - server.crt
+        - server.key
+  tags:
+    - bootnode
 
 - name: Prepare application gateway
   hosts: localhost
@@ -27,7 +50,7 @@
   tags: 
     - bootnode
   vars:
-    key_for_lb: "{{ hostvars[groups['moc']|first]['CERT_SECRET'] }}"
+    key_for_lb: "{{ hostvars[groups['moc']|first]['cert_secret'] }}"
 
 - name: preconf - install python
   hosts: all
@@ -36,14 +59,6 @@
   tasks:
     - name: Install python
       raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
-      
-- name: Create temporary directory for configs on local machine
-  hosts: localhost
-  gather_facts: False
-  tasks:
-    - file:
-        state: directory
-        path: "/tmp/{{ NETWORK_NAME }}"
         
 - name: Save spec.json to tmp folder
   hosts: moc

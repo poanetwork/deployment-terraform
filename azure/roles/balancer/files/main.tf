@@ -1,16 +1,14 @@
 resource "azurerm_subnet" "gw" {
   name                 = "${var.prefix}poa-subnet-gw"
-  count                = "${var.bootnode_lb_count > 0 ? 1 : 0}"
   resource_group_name  = "${var.resource_group_name}"
-  virtual_network_name = "${azurerm_virtual_network.poa.name}"
+  virtual_network_name = "${var.virtual_network}"
   address_prefix       = "10.0.2.0/24"
 }
 
 
 # Create public IP for lb
 resource "azurerm_public_ip" "node" {
-  count                        = "${var.lb_node_count > 0 ? 1 : 0}"
-  name                         = "${var.prefix}${var.role}-ip-lb"
+  name                         = "${var.prefix}lb-ip"
   location                     = "${var.region}"
   resource_group_name          = "${var.resource_group_name}"
   public_ip_address_allocation = "dynamic"
@@ -21,31 +19,30 @@ resource "azurerm_public_ip" "node" {
 }
 
 resource "azurerm_application_gateway" "node" {
-  count               = "${var.lb_node_count > 0 ? 1 : 0}"
-  name                = "${var.prefix}${var.role}-gw"
+  name                = "${var.prefix}lb-gw"
   location            = "${var.region}"
   resource_group_name = "${var.resource_group_name}"
 
   sku {
     name     = "Standard_Small"
     tier     = "Standard"
-    capacity = "${var.lb_node_count}"
+    capacity = "1"
   }
 
   gateway_ip_configuration {
-    name      = "${var.prefix}${var.role}-gw"
-    subnet_id = "${join("", azurerm_subnet.gw.*.id)}"
+    name      = "${var.prefix}lb-gw"
+    subnet_id = "${azurerm_subnet.gw.id}"
   }
 
   ssl_certificate {
     name     = "default"
-    data     = "${ base64encode(var.ssl_cert) }"
+    data     = "${base64encode(file(var.ssl_cert))}"
     password = "${var.password}"
   }
 
   authentication_certificate {
     name = "node"
-    data = "${var.nodes_cert}"
+    data = "${file(var.nodes_cert)}"
   }
 
   frontend_port {
@@ -61,7 +58,7 @@ resource "azurerm_application_gateway" "node" {
   frontend_ip_configuration {
     name                          = "default"
     private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = "${join("",azurerm_public_ip.node.*.id)}"
+    public_ip_address_id          = "${azurerm_public_ip.node.id}"
   }
 
   backend_address_pool {

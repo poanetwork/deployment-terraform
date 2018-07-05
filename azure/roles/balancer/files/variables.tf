@@ -24,10 +24,6 @@ variable resource_group_name {
   description = "Resource group name. All created resources reside within this resource group"
 }
 
-variable subnet_id {
-  description = "Subnet ID"
-}
-
 variable lb_node_count {
   description = "How many balanced nodes to deploy (for bootnodes)"
   default     = 0
@@ -44,6 +40,6 @@ variable balanced_ips {
   default     = []
 }
 
-variable role {
-  description = "Role of the node"
+variable virtual_network {
+  description = "Name of the VPC where balancer should be created"
 }

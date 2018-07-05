@@ -181,7 +181,7 @@
         cert_secret_coded 
     - set_fact:
         cert_secret: "{{ cert_secret_coded['content'] | b64decode | replace('\n', '')  }}"
-  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
+  when: bootnode_balanced_count>0
 
 - name: Generate SSL private key
   openssl_privatekey:

@@ -10,16 +10,6 @@
   file: path=/etc/nginx/ssl/ state=directory
   when: bootnode_balanced_count>0 and balanced is defined
 
-- name: Fetching certs to localhost
-  delegate_to: "{{ groups['moc']|first }}"
-  fetch: 
-    src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/{{ item }}"
-    dest: "/tmp/{{ NETWORK_NAME }}/{{ item }}/"
-    flat: yes
-  with_items:
-    - server.key
-    - server.crt  
-
 - name: Place cert at bootnode
   copy:
     src: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
