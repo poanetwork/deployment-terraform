@@ -27,6 +27,12 @@
     - file:
         state: directory
         path: "/tmp/{{ NETWORK_NAME }}"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
 
 - name: Save certs to tmp folder
   hosts: moc

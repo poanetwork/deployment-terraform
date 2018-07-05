@@ -36,8 +36,11 @@
         groups: bootnode
       with_items: "{{ bootnodelbips.stdout_lines }}" 
     - name: Mark nodes as balanced
+      delegate_to: "{{ item }}"
+      delegate_facts: true
       set_fact:
         balanced: true
+      with_items: "{{ bootnodelbips.stdout_lines }}" 
     - name: Add bootnode hosts
       add_host:
         name: "{{ item }}"

@@ -8,7 +8,7 @@
     
 - name: Ensures certificate directory exists
   file: path=/etc/nginx/ssl/ state=directory
-  when: bootnode_balanced_count>0 and balanced is defined
+  when: bootnode_balanced_count>0 and balanced|default(false)|bool == true
 
 - name: Place cert at bootnode
   copy:
@@ -17,7 +17,7 @@
   with_items:
     - server.key
     - server.crt
-  when: bootnode_balanced_count>0 and balanced is defined
+  when: bootnode_balanced_count>0 and balanced|default(false)|bool == true
  
 - include_role:
     name: '{{ playbook_dir }}/deployment-playbooks/roles/bootnode'
