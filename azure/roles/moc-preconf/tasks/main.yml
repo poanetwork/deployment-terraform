@@ -161,6 +161,13 @@
   template:
     src: spec.json.j2
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
+  when: SPEC_ADDRESS == ""
+  
+- name: Copy spec.json to network folder
+  synchronize:
+    src: "{{ SPEC_ADDRESS }}"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
+  when: SPEC_ADDRESS != ""
     
 - name: Check GW certificate file
   stat:
