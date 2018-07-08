@@ -5,7 +5,7 @@ output "bootnode-ips" {
 
 output "bootnode-lb-ips" {
   description = "Public IP address of the validator virtual machine"
-  value       = "${module.bootnode-lb.ips}"
+  value       = "${module.bootnode.lb_ips}"
 }
 
 output "explorer-ips" {

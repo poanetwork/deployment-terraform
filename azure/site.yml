@@ -59,7 +59,7 @@
     key_for_lb: "{{ hostvars[groups['moc']|first]['cert_secret'] }}"
 
 - name: preconf - install python
-  hosts: all
+  hosts: bootnode,explorer,moc,netstat,validator
   gather_facts: False
   become: True
   tasks:
@@ -81,7 +81,7 @@
     - netstat
     - validator
 
-- hosts: all
+- hosts: bootnode,explorer,moc,netstat,validator
   tasks:
     - name: Setting remote hosts facts
       set_fact:
@@ -219,7 +219,23 @@
     - name: "Clear /tmp/{{ NETWORK_NAME }} dir"
       file:
         state: absent
-        path: "/tmp/{{ NETWORK_NAME }}"
+        path: "{{ item }}"
+      with_items:
+        - "/tmp/{{ NETWORK_NAME }}"
+        - "{{ NETWORK_NAME }}_hosts"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    
+- name: Generating variables file
+  hosts: localhost
+  tasks:
+    - template:
+        src: hosts.j2
+        dest: "{{ NETWORK_NAME }}_hosts"
   tags:
     - bootnode
     - explorer

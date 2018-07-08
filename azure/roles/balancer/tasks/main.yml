@@ -14,3 +14,15 @@
     - plan
     - apply
   when: bootnode_balanced_count>0
+  
+- name: Refresh balancer host addresses
+  block:
+    - name : Refresh balancer host addresses
+      shell: "{{ terraform_location }} output ips | tr -d ,"
+      register: balancerips  
+      args:
+        chdir: roles/balancer/files/
+    - add_host:
+        name: "{{ item }}"
+        groups: balancer
+      with_items: "{{ balancerips.stdout_lines }}" 
