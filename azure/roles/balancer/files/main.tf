@@ -3,14 +3,8 @@ provider "azurerm" {
   version = "1.6.0"
 }
 
-
-data "terraform_remote_state" "azure" {
-    backend = "azurerm"
-    config {
-        storage_account_name = "tfci"
-        container_name       = "tf-ci-state"
-        key                  = "${var.prefix}balancer-terraform.tfstate"
-    }
+terraform {
+    backend "azurerm" {}
 }
 
 resource "azurerm_subnet" "gw" {

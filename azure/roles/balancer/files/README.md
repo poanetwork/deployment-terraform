@@ -11,12 +11,7 @@ Here is the list of docs that will lead you through the process of prerequisites
 
 ## Step 2: Authenticating with Azure
 
-You can authenthicate using your own account or via service principal. Regardless of the auth method chosen you will need to provide scripts with the storage account access key by setting appropriate env variable:
-
-```
-export ARM_ACCESS_KEY = <access_key>
-```
-You can get storage account key by creating a new resource at Azure called "Storage account" and visiting "Access keys" page inside of created resource. 
+You can authenthicate using your own account or via service principal.
 
 ### Authenthicating using Azure CLI
 
@@ -64,16 +59,32 @@ password               = "<password for the .pfx certificate (required)>"
 ```
 Make sure to fill the file above with the actual parameters.
 
+## Optional step (configure backend)
+
+Regardless of the auth method chosen you will need to provide scripts with the storage account access key if you want terraform to save its state to Azure blob storage by setting appropriate env variable:
+
+```
+export ARM_ACCESS_KEY = <access_key>
+```
+You can get storage account key by creating a new resource at Azure called "Storage account" and visiting "Access keys" page inside of created resource.
+Also create a file called `backend.tfvars` with the following content:
+
+```
+storage_account_name = "<storage_account_name>"
+container_name       = "<container_name >"
+key                  = "<filename_to_save_or_search>"
+```
 
 ## Step 5: Deploy
 
 To deploy your infra run
 
 ```
-terraform init
+terraform init <backend_arg>
 terraform plan
 terraform apply
 ```
+Replace <backend_arg> either with `-backend=false` if you want Terraform to store state file locally or `-backend-config=backend.tfvars` to provide terraform with configuration file filled at the previous step. 
 
 ## Clean up
 

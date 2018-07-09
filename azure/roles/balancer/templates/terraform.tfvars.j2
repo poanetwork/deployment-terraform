@@ -1,8 +1,8 @@
 ssl_cert               = "/tmp/{{ NETWORK_NAME }}/gwcert.pfx"
 nodes_cert             = "/tmp/{{ NETWORK_NAME }}/server.crt"
 region                 = "{{ region | default("East US") }}"
-resource_group_name    = "{{ resource_group_name | default("tf-test-full-setup") }}"
-virtual_network        = "{{ tf_prefix | default("tf-") }}poa-network"
-prefix                 = "{{ tf_prefix | default("tf-") }}"
+resource_group_name    = "{{ resource_group_name }}"
+virtual_network        = "{{ tf_prefix }}poa-network"
+prefix                 = "{{ tf_prefix }}"
 password               = "{{ key_for_lb }}"
 balanced_ips           = [{% for node in bootnodelbips.stdout.split('\n') %}"{{ node }}"{{ "," if not loop.last else "" }}{% endfor %}]

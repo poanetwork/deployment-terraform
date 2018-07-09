@@ -12,12 +12,7 @@ Here is the list of docs that will lead you through the process of prerequisites
 
 ## Step 2: Authenticating with Azure
 
-You can authenthicate using your own account or via service principal. Regardless of the auth method chosen you will need to provide scripts with the storage account access key by setting appropriate env variable:
-
-```
-export ARM_ACCESS_KEY = <access_key>
-```
-You can get storage account key by creating a new resource at Azure called "Storage account" and visiting "Access keys" page inside of created resource. 
+You can authenthicate using your own account or via service principal.
 
 ### Authenthicating using Azure CLI
 
@@ -54,14 +49,22 @@ To generate a new key run
 ssh-keygen -t rsa -b 4096 -C "full-node"
 ```
 
-## Deploy
+## Optional step (configure backend)
+
+Regardless of the auth method chosen you will need to provide scripts with the storage account access key if you want terraform to save its state to Azure blob storage by setting appropriate env variable:
+
+```
+export ARM_ACCESS_KEY = <access_key>
+```
+You can get storage account key by creating a new resource at Azure called "Storage account" and visiting "Access keys" page inside of created resource.
+
+## Step 5: Deploy
 
 To deploy your POA network run
 
 ```
 ansible-playbook site.yml --key-file <key_name>
 ```
-
 After deployment script will create a file called `host` with the list of created resources.
 
 # Clean up

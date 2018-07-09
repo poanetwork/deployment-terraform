@@ -3,6 +3,12 @@
     src: terraform.tfvars.j2
     dest: roles/terraform/files/terraform.tfvars
     
+- name: Generating backend file
+  template:
+    src: backend.tfvars.j2
+    dest: roles/terraform/files/backend.tfvars
+  when: backend == "true"
+    
 - name: Copy ssh key to terraform directory
   copy: 
     src: "{{ PUB_KEY_STORE }}"
@@ -14,7 +20,7 @@
   args:
     chdir: "roles/terraform/files"
   with_items:
-    - init
+    - "init {{ '-backend=false' if backend == 'false' else '-backend-config=backend.tfvars' }}"
     - plan
     - apply
 
