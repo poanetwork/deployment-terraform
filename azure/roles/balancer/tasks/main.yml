@@ -7,7 +7,7 @@
 - name: Generating backend file
   template:
     src: backend.tfvars.j2
-    dest: roles/terraform/files/backend.tfvars
+    dest: roles/balancer/files/backend.tfvars
   when: backend == "true"
 
 #Workaround since terraform module return unexpected error.

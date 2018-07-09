@@ -57,6 +57,11 @@ Regardless of the auth method chosen you will need to provide scripts with the s
 export ARM_ACCESS_KEY = <access_key>
 ```
 You can get storage account key by creating a new resource at Azure called "Storage account" and visiting "Access keys" page inside of created resource.
+Also, you need to add the following line to your `all.yml` file to configure Terraform remote state backend properly:
+```
+storage_account: "<account_name>"
+container: "<container_name>"
+```
 
 ## Step 5: Deploy
 
