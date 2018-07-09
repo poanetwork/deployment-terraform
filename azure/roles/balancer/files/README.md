@@ -1,6 +1,6 @@
 # Overview
 
-You can use this instruction to deploy virtual machines without creating POA network itself.
+You can use this instruction to deploy azure application gateway that will be acting like an load balancer over specified nodes.
 
 ## Step 1: Prerequisites
 
@@ -33,36 +33,34 @@ export ARM_CLIENT_SECRET = <password>
 export ARM_TENANT_ID = <tenant>
 ```
 
-## Step 3: Generate SSH keys
+## Step 3: Generate certificates
 
-We recommend using a separate key for ansible deployment. Terraform also puts your personal key `ssh_public_key` on the machine.
-
-To generate a new key run
+To deal with Azure GW you will need two certificates - .pfx to present to the end user and .crt, that will be used by GW to access nodes.
+We can generate CRT file using 
 
 ```
-ssh-keygen -t rsa -b 4096 -C "full-node"
+openssl genrsa -aes128 -passout pass:<password> -out gw.key 2048
+openssl req -new -passin pass:<password> -key gw.key -out gw.csr
+openssl x509 -req -days 36500 -in gw.csr -signkey gw.key -out gw.crt
 ```
-
-Provide path to the key like `~/.ssh/id_poa-test` and no password.
-
-In this case `~/.ssh/id_poa-test` will be your private key (`ssh_private_key_ansible`) and `~/.ssh/id_poa-test.pub` will be the public one (`ssh_public_key_ansible`).
+CRT can be converted to PFX by:
+```
+openssl pkcs12 -export -inkey gw.key -in gw.crt -out gw.pfx -passin pass:<password> -passout pass:<password>
+```
+However, we recommend to use certificates that are signed by well-known certification authority.
 
 ## Step 4: Configure
 
 Create file called `tf.tfvars` with the next content: 
 
 ```
-network_name           = "<network name>"
-environment_name       = "<env name>"
-bootnode_count         = "<bootnode_count>"
-bootnode_lb_count      = "<balanced_bootnode_count>"
-validator_count        = "<validator_count>"
-ssh_public_key         = "<path_to_ssh_public_key>"
-prepare_resource_group = "<1 or 0 (depends on whether you want terraform to prerpare RG for you or not)>"
-region                 = "<region>"
-resource_group_name    = "<only if prepare_resource_group is set to 0>
-admin_username         = "<ubuntu/centos/admin/poa or any other that will be used to connect to VMs that will be deployed by terraform>"
-prefix                 = "<prefix_to_all_terraform_resources>"
+ssl_cert               = "<path to the .pfx certificate that will be used by balancer itself>"
+nodes_cert             = "<path to the .crt certificate that will be used by balancer to access nodes"
+region                 = "<deployment region>"
+resource_group_name    = "<resource_group_name>"
+virtual_network        = "<name of virtual network that will be used by balancer>"
+prefix                 = "<prefix that will be used in the name of the balancer>"
+password               = "<password for the .pfx certificate (required)>"
 ```
 Make sure to fill the file above with the actual parameters.
 
@@ -82,6 +80,6 @@ terraform apply
 When the infrastructure is no longer needed run
 
 ```
-cd playbooks-terraform/azure/roles/terraform/files
+cd playbooks-terraform/azure/roles/balancer/files
 yes | terraform destroy
 ```
