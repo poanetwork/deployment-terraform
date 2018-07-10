@@ -128,6 +128,18 @@
         force: true
   tags:
     - moc
+
+- name: Get bootnodes list
+  hosts: moc
+  tasks:
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bootnodes.txt"
+        dest: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        mode: pull
+  tags:
+    - validator
+    - explorer
+    - moc
  
 - name: Launch explorer node
   hosts: explorer
@@ -166,8 +178,8 @@
   hosts: moc
   tasks:
     - synchronize: 
-        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/"
-        dest: "/tmp/{{ NETWORK_NAME}}/production-keys/"
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/validator-*"
+        dest: "/tmp/{{ NETWORK_NAME }}/production-keys/"
         mode: pull
   tags:
     - validator

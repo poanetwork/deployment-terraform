@@ -20,7 +20,7 @@
   args:
     chdir: "roles/terraform/files"
   with_items:
-    - "init {{ '-backend=false' if backend == 'false' else '-backend-config=backend.tfvars' }}"
+    - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '-backend=false' }}"
     - plan
     - apply
 
