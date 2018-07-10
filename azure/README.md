@@ -62,6 +62,7 @@ Also, you need to add the following line to your `all.yml` file to configure Ter
 storage_account: "<account_name>"
 container: "<container_name>"
 ```
+Make sure to fill <> variables with the correct values.
 
 ## Step 5: Deploy
 

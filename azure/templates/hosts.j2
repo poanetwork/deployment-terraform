@@ -1,26 +1,26 @@
 [bootnode]
 {% for h in groups['bootnode'] %}
-{{ hostvars[h].ansible_ssh_host }}
+{{ hostvars[h].ansible_hostname }}
 {% endfor %}
 
 [moc]
 {% for h in groups['moc'] %}
-{{ hostvars[h].ansible_ssh_host }}
+{{ hostvars[h].ansible_hostname }}
 {% endfor %}
 
 [netstat]
 {% for h in groups['netstat'] %}
-{{ hostvars[h].ansible_ssh_host }}
+{{ hostvars[h].ansible_hostname }}
 {% endfor %}
 
 [validator]
 {% for h in groups['validator'] %}
-{{ hostvars[h].ansible_ssh_host }}
+{{ hostvars[h].ansible_hostname }}
 {% endfor %}
 
 [explorer]
 {% for h in groups['explorer'] %}
-{{ hostvars[h].ansible_ssh_host }}
+{{ hostvars[h].ansible_hostname }}
 {% endfor %}
 
 [poa:children]
@@ -34,10 +34,10 @@ explorer
 
 [ubuntu]
 {% for h in groups['all'] %}
-{% if h not in groups['balancer'] %}{{ hostvars[h].ansible_ssh_host }}{% endif %}
+{% if h not in groups['balancer'] %}{{ hostvars[h].ansible_hostname }}{% endif %}
 {% endfor %}
 
 [lb]
 {% for h in groups['balancer'] %}
-{{ hostvars[h].ansible_ssh_host }}
+{{ hostvars[h].ansible_hostname }}
 {% endfor %}
