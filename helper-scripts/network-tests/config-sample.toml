@@ -10,3 +10,4 @@ simpleTransactionGas = "21000"
 amountToSend = "20000000000"
 consensensusAbiPath = "./contracts/PoaNetworkConsensus.abi.json"
 contractsAddressPath = "./contracts/contracts.json"
+timeoutSeconds = 15
