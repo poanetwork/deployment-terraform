@@ -58,7 +58,7 @@ async function testAll(maxRounds) {
     let decryptedAccount = getDecryptedAccount(accountFromPath, accountFromPassword);
     //will be saved as test result
     let validatorsMissedTxs = [];
-    getValidators(web3)
+    getValidators()
         .then(() => {
             return checkSeriesOfTransactions(decryptedAccount, maxRounds);
         })
@@ -155,7 +155,7 @@ async function checkRound() {
     let blocks = await getBlocksFromLatestRound(validatorsArr.length);
     for (let block of blocks) {
         logger.debug("block: " + JSON.stringify(block));
-        let missedFromBlock = await checkBlock(block, validatorsArr);
+        let missedFromBlock = await checkBlock(block);
         logger.info("missedFromBlock: " + JSON.stringify(missedFromBlock));
         if (missedFromBlock) {
             for (let validator of missedFromBlock) {
@@ -323,7 +323,7 @@ function getDecryptedAccount(path, password) {
  * Obtains validators from the PoaNetworkConsensus contract
  * @returns {Promise.<*>}
  */
-async function getValidators(web3) {
+async function getValidators() {
     logger.debug('getValidators()');
     validatorsArr = await PoaNetworkConsensusContract.methods.getValidators().call();
     if (!validatorsArr || validatorsArr.length < 1) {
