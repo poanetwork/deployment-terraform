@@ -29,9 +29,7 @@ let validatorsLength = 0;
 let currentValidatorIndex;
 
 const logger = winston.createLogger({
-    level: 'info',
-    format:
-        winston.format.printf(info => `${new Date().toLocaleString()} ${info.level}: ${info.message}`),
+    format: winston.format.printf(info => `${new Date().toLocaleString()} ${info.level}: ${info.message}`),
     exitOnError: false,
     transports: [
         new winston.transports.Console({
@@ -76,30 +74,45 @@ async function testAll(maxRounds) {
             }
             let message = '\r\n____________________\r\n Sending txs passed: ' + txsResult.passed + ', \n ValidatorsMissedTxs: '
                 + JSON.stringify(validatorsMissedTxs) + ', \n FailedTxs: ' + JSON.stringify(txsResult.failedTxs) +
-                ", \n Rounds passed: " + txsResult.checkedRounds;
+                ", \n Number of rounds with txs: " + txsResult.checkedRounds;
             if (txsResult.passed) {
                 logger.info(message);
             } else {
                 logger.error("Sending txs failed: " + message);
             }
-            return checkRound();
-        })
-        .then(roundsResult => {
-            let message = "\r\n_____________________\r\n RoundsResult: " + JSON.stringify(roundsResult);
-            if (roundsResult.passed) {
-                logger.info(message);
-            } else {
-                logger.error("Test for missing rounds failed: " + message);
-            }
 
+            // check for validators missed round. Wait some time for including empty blocks to the checks
+            setTimeout(function () {
+                logger.error("call checkRound");
+                checkRound().then(roundsResult => {
+                    logger.error("got roundsResult ");
+                    let message = "\r\n_____________________\r\n RoundsResult: " + JSON.stringify(roundsResult);
+                    if (roundsResult.passed) {
+                        logger.info(message);
+                    } else {
+                        logger.error("Test for missing rounds failed: " + message);
+                    }
+                }).catch(error => {
+                    logger.error("error in checkRound(): " + error);
+                });
+
+
+            }, config.timeoutSeconds * 1000);
         })
         .catch(error => {
             logger.error("error in testAll(): " + error);
         });
 }
 
+/**
+ * Sends series of transactions and checks if they all were mined and all validators mined at least one transaction.
+ * Few rounds are needed in case of empty blocks were created too during sending txs.
+ * @param decryptedAccount
+ * @param maxRounds
+ * @returns {Promise.<{passed: boolean, failedTxs: Array, checkedRounds: number}>}
+ */
 async function checkSeriesOfTransactions(decryptedAccount, maxRounds) {
-    logger.info("checkSeriesOfTransactions(), maxRounds: " + maxRounds);
+    logger.debug("checkSeriesOfTransactions(), maxRounds: " + maxRounds);
     let result = {passed: true, failedTxs: [], checkedRounds: 0};
     for (let round = 0; round < maxRounds; round++) {
         logger.info("round: " + round);
@@ -132,20 +145,24 @@ async function checkSeriesOfTransactions(decryptedAccount, maxRounds) {
     return result;
 }
 
+/**
+ * Gets blocks from the latest round and checks if any validator missed round
+ * @returns {Promise.<{passed: boolean, missedValidators: Array}>}
+ */
 async function checkRound() {
-    logger.info("checkRound()");
+    logger.debug("checkRound()");
     let roundsResult = {passed: true, missedValidators: []};
     let blocks = await getBlocksFromLatestRound(validatorsArr.length);
     for (let block of blocks) {
-        logger.info("block: " + JSON.stringify(block));
+        logger.debug("block: " + JSON.stringify(block));
         let missedFromBlock = await checkBlock(block, validatorsArr);
         logger.info("missedFromBlock: " + JSON.stringify(missedFromBlock));
         if (missedFromBlock) {
-            for (let v of missedFromBlock) {
-                if (roundsResult.missedValidators.indexOf(v) === -1) {
-                    roundsResult.missedValidators.push(v);
+            for (let validator of missedFromBlock) {
+                if (roundsResult.missedValidators.indexOf(validator) === -1) {
+                    roundsResult.missedValidators.push(validator);
                     roundsResult.passed = false;
-                    logger.error("checkRound() received missedValidator: " + v);
+                    logger.error("received missedValidator: " + validator);
                 }
             }
         }
@@ -179,7 +196,7 @@ async function checkBlock(blockHeader) {
         let expectedValidatorIndex = (previousValidatorIndex + blocksPassed) % validatorsLength;
         let expectedValidator = validatorsArr[expectedValidatorIndex];
         let isPassed = expectedValidator === blockHeader.miner;
-        logger.info("expectedValidatorIndex: " + expectedValidatorIndex + "expectedValidator: " + expectedValidator + ", actual: " + blockHeader.miner + ", passed: " + isPassed);
+        logger.info("expectedValidatorIndex: " + expectedValidatorIndex + ", expectedValidator: " + expectedValidator + ", actual: " + blockHeader.miner + ", passed: " + isPassed);
         if (!isPassed) {
             let ind = expectedValidatorIndex;
             // more then one validator could miss round in one time
@@ -202,15 +219,15 @@ async function checkBlock(blockHeader) {
 }
 
 async function checkTxReceipt(receipt) {
-    logger.info("checkTxReceipt()");
+    logger.debug("checkTxReceipt()");
     let result = {passed: true, blockNumber: "", transactionHash: "", errorMessage: ""};
     logger.info("transactionHash: " + receipt.transactionHash);
-    if (receipt.transactionHash === undefined || receipt.transactionHash === null|| receipt.transactionHash.length === 0) {
+    if (receipt.transactionHash === undefined || receipt.transactionHash === null || receipt.transactionHash.length === 0) {
         result.passed = false;
-        result.errorMessage = "No transaction hash is the receipt " ;
+        result.errorMessage = "No transaction hash is the receipt ";
         logger.error("No transaction hash is the receipt, receipt.transactionHash: " + receipt.transactionHash);
     }
-    if (receipt.blockNumber === undefined || receipt.blockNumber === null|| receipt.blockNumber.length === 0) {
+    if (receipt.blockNumber === undefined || receipt.blockNumber === null || receipt.blockNumber.length === 0) {
         result.passed = false;
         result.errorMessage = "No blockNumber is the receipt";
         logger.error("No blockNumber is the receipt, receipt.blockNumber: " + receipt.blockNumber)
@@ -222,7 +239,7 @@ async function checkTxReceipt(receipt) {
 }
 
 async function sendRawTx(decryptedAccount, to, value, gas, gasPrice) {
-    logger.info("sendRawTx()");
+    logger.debug("sendRawTx()");
     const privateKeyHex = Buffer.from(decryptedAccount.privateKey.replace('0x', ''), 'hex');
     const nonce = await web3.eth.getTransactionCount(decryptedAccount.address);
     logger.info("nonce: " + nonce);
@@ -248,10 +265,9 @@ async function sendRawTx(decryptedAccount, to, value, gas, gasPrice) {
  * @returns {Promise.<void>}
  */
 async function checkWhoMinedTxs(receipt) {
-    logger.info("checkWhoMinedTxs ");
+    logger.debug("checkWhoMinedTxs() ");
     lastBlock = receipt.blockNumber;
     const block = await web3.eth.getBlock(lastBlock);
-    logger.info("block: " + JSON.stringify(block));
     logger.info("blockNumber: " + lastBlock + ", validator: " + block.miner);
     if (!validatorsMinedTxSet.has(block.miner)) {
         validatorsMinedTxSet.add(block.miner);
@@ -273,7 +289,7 @@ async function checkWhoMinedTxs(receipt) {
  * @returns {Array}
  */
 async function getBlocksFromLatestRound(numberOfValidators) {
-    logger.info("getBlocksFromLatestRound(), numberOfValidators: " + numberOfValidators);
+    logger.debug("getBlocksFromLatestRound(), numberOfValidators: " + numberOfValidators);
     const lastBlock = await web3.eth.getBlock('latest');
     const firstNum = lastBlock.number - numberOfValidators + 1;
     let blocks = [];
@@ -281,12 +297,12 @@ async function getBlocksFromLatestRound(numberOfValidators) {
         blocks[i] = await web3.eth.getBlock(firstNum + i);
         logger.info(i + "th: number: " + blocks[i].number + ", validator: " + blocks[i].miner);
     }
-    logger.info("getBlocksFromLatestRound blocks.length: " + blocks.length);
+    logger.info("blocks.length: " + blocks.length);
     return blocks;
 }
 
 function getKeystore(path) {
-    logger.info("getKeystore()");
+    logger.debug("getKeystore()");
     let keyStore;
     try {
         keyStore = fs.readFileSync(path);
@@ -297,7 +313,7 @@ function getKeystore(path) {
 }
 
 function getDecryptedAccount(path, password) {
-    logger.info("getDecryptedAccount(), path: " + path);
+    logger.debug("getDecryptedAccount(), path: " + path);
     const decryptedAccount = web3.eth.accounts.decrypt(JSON.parse(getKeystore(path)), password);
     logger.info('decryptedAccount.address: ' + decryptedAccount.address);
     return decryptedAccount;
@@ -308,7 +324,7 @@ function getDecryptedAccount(path, password) {
  * @returns {Promise.<*>}
  */
 async function getValidators(web3) {
-    logger.info('getValidators()');
+    logger.debug('getValidators()');
     validatorsArr = await PoaNetworkConsensusContract.methods.getValidators().call();
     if (!validatorsArr || validatorsArr.length < 1) {
         logger.error("Received invalid number of validators, array: " + validatorsArr);
