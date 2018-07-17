@@ -1,0 +1,12 @@
+#  settings
+url = "..url"
+keyStorePath = "path\...moc.json"
+addressFrom = "0x..."
+passwordFrom = "password"
+addressTo = "0x.."
+maxRounds = 3
+gasPrice = "1000000000"
+simpleTransactionGas = "21000"
+amountToSend = "20000000000"
+consensensusAbiPath = "./contracts/PoaNetworkConsensus.abi.json"
+contractsAddressPath = "./contracts/contracts.json"
