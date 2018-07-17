@@ -83,9 +83,9 @@ async function testAll(maxRounds) {
 
             // check for validators missed round. Wait some time for including empty blocks to the checks
             setTimeout(function () {
-                logger.error("call checkRound");
+                logger.debug("call checkRound");
                 checkRound().then(roundsResult => {
-                    logger.error("got roundsResult ");
+                    logger.debug("got roundsResult ");
                     let message = "\r\n_____________________\r\n RoundsResult: " + JSON.stringify(roundsResult);
                     if (roundsResult.passed) {
                         logger.info(message);
@@ -122,7 +122,6 @@ async function checkSeriesOfTransactions(decryptedAccount, maxRounds) {
             await sendRawTx(decryptedAccount, accountToAddress, config.amountToSend, config.simpleTransactionGas, config.gasPrice)
                 .then(async txReceipt => {
                     logger.info("txReceipt: " + JSON.stringify(txReceipt));
-                    await checkWhoMinedTxs(txReceipt);
                     return checkTxReceipt(txReceipt);
                 }).then(async transactionResult => {
                     if (!transactionResult.passed) {
@@ -235,6 +234,7 @@ async function checkTxReceipt(receipt) {
     result.transactionHash = receipt.transactionHash;
     result.blockNumber = receipt.blockNumber;
     logger.info("checkTxReceipt result: " + JSON.stringify(result));
+    await checkWhoMinedTxs(receipt);
     return result;
 }
 
