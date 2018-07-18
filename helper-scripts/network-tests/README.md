@@ -22,7 +22,7 @@ and filled with valid settings (as path to the keystore file, password, rpc endp
 1.Clone the repository
 
 ```sh
-git clone https://github.com/Natalya11444/deployment-terraform.git
+git clone https://github.com/poanetwork/deployment-terraform.git
 cd ./deployment-terraform/helper-scripts/network-tests
 ```
 
