@@ -1,7 +1,6 @@
 #  settings
 url = "..url"
-keyStorePath = "path\...moc.json"
-addressFrom = "0x..."
+keyStorePath = "path/...moc.json"
 passwordFrom = "password"
 addressTo = "0x.."
 maxRounds = 3

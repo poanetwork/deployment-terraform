@@ -95,8 +95,6 @@ async function testAll(maxRounds) {
                 }).catch(error => {
                     logger.error("error in checkRound(): " + error);
                 });
-
-
             }, config.timeoutSeconds * 1000);
         })
         .catch(error => {
