@@ -1,8 +1,10 @@
 #  settings
+# mandatory
 url = "..url"
 keyStorePath = "path/...moc.json"
 passwordFrom = "password"
 addressTo = "0x.."
+# defaults
 maxRounds = 3
 gasPrice = "1000000000"
 simpleTransactionGas = "21000"
