@@ -51,10 +51,11 @@ ssh-keygen -t rsa -b 4096 -C "full-node"
 
 ## Optional step (configure backend)
 
-Regardless of the auth method chosen you will need to provide scripts with the storage account access key if you want terraform to save its state to Azure blob storage by setting appropriate env variable:
+Regardless of the auth method chosen you will need to provide scripts with the storage account access key and a subscription ID if you want terraform to save its state to Azure blob storage by setting appropriate env variable:
 
 ```
 export ARM_ACCESS_KEY = <access_key>
+export ARM_SUBSCRIPTION_ID = <subscription ID>
 ```
 You can get storage account key by creating a new resource at Azure called "Storage account" and visiting "Access keys" page inside of created resource.
 Also, you need to add the following line to your `all.yml` file to configure Terraform remote state backend properly:
