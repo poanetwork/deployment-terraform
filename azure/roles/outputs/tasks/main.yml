@@ -7,12 +7,6 @@
     - template:
         src: hosts.j2
         dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/hosts"
-  tags:
-    - bootnode
-    - explorer
-    - moc
-    - netstat
-    - validator
 
 - name: Fetch variables file from moc
   tasks:
@@ -20,9 +14,3 @@
         src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/hosts" 
         dest: "outputs/{{ NETWORK_NAME }}/hosts"
         flat: yes
-  tags:                                                                                                                                 
-    - bootnode                                                                                                                          
-    - explorer                                                                                                                          
-    - moc                                                                                                                               
-    - netstat                                                                                                                           
-    - validator
