@@ -61,10 +61,11 @@ Make sure to fill the file above with the actual parameters.
 
 ## Optional step (configure backend)
 
-Regardless of the auth method chosen you will need to provide scripts with the storage account access key if you want terraform to save its state to Azure blob storage by setting appropriate env variable:
+Regardless of the auth method chosen you will need to provide scripts with the storage account access key and a subscription ID if you want terraform to save its state to Azure blob storage by setting appropriate env variable:
 
 ```
 export ARM_ACCESS_KEY = <access_key>
+export ARM_SUBSCRIPTION_ID = <subscription ID>
 ```
 You can get storage account key by creating a new resource at Azure called "Storage account" and visiting "Access keys" page inside of created resource.
 Also create a file called `backend.tfvars` with the following content:
