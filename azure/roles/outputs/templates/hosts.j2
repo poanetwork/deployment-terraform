@@ -34,7 +34,9 @@ explorer
 
 [ubuntu]
 {% for h in groups['all'] %}
-{% if h not in groups['balancer'] %}{{ hostvars[h].inventory_hostname }}{% endif %}
+{% if h not in groups['balancer'] %}
+{{ hostvars[h].inventory_hostname }}
+{% endif %}
 {% endfor %}
 
 [lb]
