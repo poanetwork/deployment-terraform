@@ -10,7 +10,7 @@
   file:
     state: absent
     dest: roles/terraform/files/remote-backend-selector.tf 
-  when: backend == "false"
+  when: backend != "true" or backend is undefined
   tags:
     - remote_backend   
 
