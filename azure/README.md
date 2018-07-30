@@ -74,7 +74,7 @@ ansible-playbook site.yml --key-file <key_name>
 ```
 After deployment script will create a file called `host` with the list of created resources.
 
-To make remote/local backend switch properly `-e backend=true(false)` ansible-playbook CLI option is necessary.
+To make remote backend switch properly `-e backend=true` ansible-playbook CLI option is necessary.
 
 # Clean up
 
