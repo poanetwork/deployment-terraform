@@ -32,7 +32,7 @@
   args:
     chdir: "roles/balancer/files"
   with_items:
-    - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '-backend=false' }}"
+    - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '' }}"
     - plan
     - apply
   when: bootnode_balanced_count>0
