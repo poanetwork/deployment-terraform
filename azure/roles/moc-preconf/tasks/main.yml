@@ -120,6 +120,12 @@
     creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/netstat_secret"
   when: NETSTATS_SECRET == ""
   
+- name: Save netstat secret to outputs
+  copy:
+    content: "{{ NETSTATS_SECRET }}"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/netstat_secret"
+  when: NETSTATS_SECRET != ""
+  
 - name: Set local variable NETSTATS_SECRET
   block:     
     - slurp:
@@ -128,6 +134,7 @@
         NETSTATS_SECRET_coded
     - set_fact:
          NETSTATS_SECRET: "{{ NETSTATS_SECRET_coded['content'] | b64decode }}"
+  when: NETSTATS_SECRET == ""
     
 - name: Install reqired NPM modules
   shell: npm install
