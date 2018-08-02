@@ -3,10 +3,6 @@ provider "azurerm" {
   version = "1.6.0"
 }
 
-terraform {
-    backend "azurerm" {}
-}
-
 resource "azurerm_resource_group" "poa" {
   count    = "${var.prepare_resource_group}"
   

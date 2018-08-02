@@ -3,10 +3,6 @@ provider "azurerm" {
   version = "1.6.0"
 }
 
-terraform {
-    backend "azurerm" {}
-}
-
 resource "azurerm_subnet" "gw" {
   name                 = "${var.prefix}poa-subnet-gw"
   resource_group_name  = "${var.resource_group_name}"
