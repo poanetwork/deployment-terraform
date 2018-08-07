@@ -1,0 +1,58 @@
+# Check prerequsites
+# node should be installed on the host, where  tests are going to be run. 
+# Playbook will fail if node not working
+
+- name: Install node (ubuntu)
+  become: yes
+  import_tasks: ubuntu.yml
+  when: ansible_os_family == "Debian"
+
+- name: Install node (centos)
+  become: yes
+  import_tasks: centos.yml
+  when: ansible_os_family == "RedHat"
+
+- name: Check if node working
+  command: "which node"
+  ignore_errors: True
+  register: node_working 
+
+- fail:
+    msg: "Node is not working, please check if it's installed properly, and correct roles are executed"
+  when: node_working.failed
+  
+- name: Generate config for tests
+  become: yes
+  import_tasks: configurator.yml
+  
+# Get tests repo
+- name: Clone tests repository
+  git:
+    repo: "{{ tests_repo_source_git }}"
+    dest: "{{ tests_repo_dest }}"
+    force: yes
+    version: "{{ tests_repo_source_git_branch }}"
+
+# Get config
+- name: Get tests config
+  synchronize:
+    src: "{{ configurator_script_path }}/config.toml"
+    dest: "{{ tests_repo_dest }}/network-tests/config.toml"
+
+# Get contracts.json
+- name: Get contracts.json tests config
+  synchronize:
+    src: "{{ contracts_tests_config_remote_path }}"
+    dest: "{{ tests_repo_dest }}/network-tests/contracts/contracts.json"
+
+# Run tests
+- name: Install dependencies
+  npm:
+    path: "{{ tests_repo_dest }}"
+  args:
+    chdir: "{{ tests_repo_dest }}"
+
+- name:  Run tests with node
+  command: "node {{ tests_repo_dest }}/tests.js"
+  args:
+    chdir: "{{ tests_repo_dest }}"

@@ -1,0 +1,48 @@
+# Gets configs from moc and generates config files for tests
+
+- name: Create directory for tests config
+  file: 
+    path: "{{ tests_config_dir_path }}"
+    state: directory
+
+- name: Get variables files from MOC node
+  become: true
+  synchronize:
+    src: "{{ item }}"
+    dest:  "{{ tests_config_dir_path }}"
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
+  with_items:
+    - "{{ moc_key_path }}"
+    - "{{ node_pwd_path }}"
+    - "{{ contracts_json_path }}"
+    - "{{ spec_json_path }}"
+    - "{{ moc_path }}"
+
+- name: Get tests and helpers repo
+  git: 
+    repo: "{{ tests_repo_source_git }}"
+    dest: "{{ tests_repo_dest }}"
+    force: yes                                                                                                                          
+    version: "{{ tests_repo_source_git_branch }}"     
+
+# Configuration scripts will generate configs, sutable for tests framework from
+# the data, taken from MOC node and this role parametes. 
+
+- name: Install configurator dependencies
+  npm:                                                                                                                                  
+    path: "{{ configurator_script_path }}"
+
+- name: Run configurator script 
+  shell: "node {{ configurator_script_path }}/configurator.js"
+  args:
+    chdir: "{{ configurator_script_path }}"
+  environment:
+    TOML_PATH: "{{ tests_path }}/config-sample.toml" 
+    NODE_PWD: "{{ tests_config_dir_path }}/node.pwd"
+    MOC_KEY: "{{ tests_config_dir_path }}/moc.key"
+    CONTRACTS_JSON_PATH: "{{ tests_config_dir_path }}/contracts.json"
+    SPEC_JSON_PATH: "{{ tests_config_dir_path }}/spec.json"
+    MOC_ADDRESS_FILE_PATH: "{{ tests_config_dir_path }}/moc" 
+
+# Smoke tests, contracts.json and config.toml should exists and
+# be not empty

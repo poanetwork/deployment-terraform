@@ -23,15 +23,15 @@ const SPEC_JSON_PATH = process.env.SPEC_JSON_PATH;
 const TESTS_TOML_PATH = process.env.TOML_PATH;
 
 // outputs
-if (process.env['OUTPUT_CONFIG_PATH']) {
-    var OUTPUT_CONFIG_PATH = process.env['OUTPUT_CONFIG_PATH']
+if (process.env.OUTPUT_CONFIG_PATH) {
+    var OUTPUT_CONFIG_PATH = process.env.OUTPUT_CONFIG_PATH
 }
 else {
     var OUTPUT_CONFIG_PATH = 'config.toml'
 }
 
 if (!TESTS_TOML_PATH || !NODE_PWD_PATH || !MOC_KEY_PATH) {
-    console.error('Env variables that need to be set: TESTS_TOML_PATH and NODE_PWD_PATH and MOC_KEY_PATH');
+    console.error('Env variables that need to be set: TOML_PATH and NODE_PWD and MOC_KEY');
     process.exit(1);
 }
 
