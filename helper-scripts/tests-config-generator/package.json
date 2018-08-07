@@ -1,0 +1,13 @@
+{
+  "name": "tests-config-generator",
+  "version": "0.0.1",
+  "description": "",
+  "main": "configurator.js",
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "json2toml": "^1.0.6",
+    "str": "^0.0.1",
+    "toml": "^2.3.3"
+  }
+}
