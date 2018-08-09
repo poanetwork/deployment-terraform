@@ -6,5 +6,8 @@
 - name: Fetch variables file from moc
   fetch:
     src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/hosts" 
-    dest: "outputs/{{ NETWORK_NAME }}/hosts"
+    dest: "{{ item }}"
     flat: yes
+  with_items:
+    - "outputs/{{ NETWORK_NAME }}/hosts"
+    - "outputs/latest_deploy_hosts"
