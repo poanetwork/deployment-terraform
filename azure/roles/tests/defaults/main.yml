@@ -5,7 +5,7 @@ tests_repo_source_git: "https://github.com/poanetwork/deployment-terraform.git"
 tests_repo_source_git_branch: "master"
 
 # Path for cloning repo.  
-tests_repo_dest: "/home/{{ ansible_user }}/tests/"
+tests_repo_dest: "/home/{{ ansible_user }}/tests"
 
 # Playbook gets tests contracts file from this location
 contracts_tests_config_remote_path:
@@ -21,7 +21,7 @@ tests_config_dir_path: "/home/{{ ansible_user }}/tests_configs"
 moc_key_path: "/home/moc/parity_data/keys/{{ NETWORK_NAME }}/moc.key"
 node_pwd_path: "/home/moc/node.pwd"
 contracts_json_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/contracts.json"
-spec_json_path: "/home/poa/poa-network-consensus-contracts/scripts/parity_setup/spec.json"
+spec_json_path: "/home/moc/spec.json"
 moc_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc"
 
 # Path to the script, which can generate toml config for tests framework

@@ -1,6 +1,5 @@
 - name: Run tests
   hosts: moc
-  become: True
   roles:
     - tests
   tags: 

@@ -22,7 +22,6 @@
   when: node_working.failed
   
 - name: Generate config for tests
-  become: yes
   import_tasks: configurator.yml
   
 # Get tests repo
@@ -35,24 +34,25 @@
 
 # Get config
 - name: Get tests config
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   synchronize:
     src: "{{ configurator_script_path }}/config.toml"
-    dest: "{{ tests_repo_dest }}/network-tests/config.toml"
+    dest: "{{ tests_repo_dest }}/helper-scripts/network-tests/config.toml"
 
 # Get contracts.json
 - name: Get contracts.json tests config
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   synchronize:
-    src: "{{ contracts_tests_config_remote_path }}"
-    dest: "{{ tests_repo_dest }}/network-tests/contracts/contracts.json"
+    src: "{{ tests_config_dir_path }}/contracts.json"
+    dest: "{{ tests_repo_dest }}/helper-scripts/network-tests/contracts/contracts.json"
 
-# Run tests
-- name: Install dependencies
-  npm:
-    path: "{{ tests_repo_dest }}"
+#Run tests
+- name: Install reqired NPM modules
+  shell: npm install
   args:
-    chdir: "{{ tests_repo_dest }}"
+    chdir: "{{ tests_repo_dest }}/helper-scripts/network-tests/"  
 
 - name:  Run tests with node
-  command: "node {{ tests_repo_dest }}/tests.js"
+  command: "node {{ tests_repo_dest }}/helper-scripts/network-tests/tests.js"
   args:
-    chdir: "{{ tests_repo_dest }}"
+    chdir: "{{ tests_repo_dest }}/helper-scripts/network-tests/"
