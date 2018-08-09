@@ -51,7 +51,8 @@ testAll(config.maxRounds)
         logger.info("Checked ");
     })
     .catch(err => {
-        logger.error("Error in testAll(): " + err);
+        logger.error("Error2 in testAll(): " + err);
+        throw new Error("Error2 in testAll(): " + err);
     });
 
 async function testAll(maxRounds) {
@@ -79,6 +80,7 @@ async function testAll(maxRounds) {
                 logger.info(message);
             } else {
                 logger.error("Sending txs failed: " + message);
+                throw new Error("Sending txs failed: " + message);
             }
 
             // check for validators missed round. Wait some time for including empty blocks to the checks
@@ -91,14 +93,17 @@ async function testAll(maxRounds) {
                         logger.info(message);
                     } else {
                         logger.error("Test for missing rounds failed: " + message);
+                        throw new Error("Test for missing rounds failed: " + message);
                     }
                 }).catch(error => {
                     logger.error("error in checkRound(): " + error);
+                    throw new Error("error in checkRound(): " + error);
                 });
             }, config.timeoutSeconds * 1000);
         })
         .catch(error => {
             logger.error("error in testAll(): " + error);
+            throw new Error("error in testAll(): " + error);
         });
 }
 
