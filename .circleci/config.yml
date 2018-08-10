@@ -87,7 +87,10 @@ workflows:
       - test:
           requires:
             - build
-      - destroy:
+      - approve_destroy:
           type: approval
           requires:
             - build
+      - destroy:
+          requires:
+            - approve_destroy
