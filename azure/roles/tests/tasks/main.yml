@@ -52,7 +52,9 @@
   args:
     chdir: "{{ tests_repo_dest }}/helper-scripts/network-tests/"  
 
-- name:  Run tests with node
+- name: Run tests with node
   command: "node {{ tests_repo_dest }}/helper-scripts/network-tests/tests.js"
   args:
     chdir: "{{ tests_repo_dest }}/helper-scripts/network-tests/"
+  register: tests
+  failed_when: tests.rc != 0
