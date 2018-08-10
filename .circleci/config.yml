@@ -77,7 +77,7 @@ jobs:
           
       - run:
           name: destroy infra
-          command: bash -c "ansible-playbook destroy.yml -e 'key_for_lb=0' -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' $destroy_attr"
+          command: bash -c "ansible-playbook destroy.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' $destroy_attr"
 
 workflows:
   version: 2
