@@ -4,8 +4,8 @@
     dest: "{{ item.dest }}"
   when: backend == "true"
   with_items:
-    - { src: playbook_dir ~ '/roles/terraform/templates/remote-backend-selector.j2', dest: 'roles/terraform/files/remote-backend-selector.tf' }
-    - { src: playbook_dir ~ '/roles/balancer/templates/remote-backend-selector.j2', dest: 'roles/balancer/files/remote-backend-selector.tf' }
+    - { src: '{{ playbook_dir }}/roles/terraform/templates/remote-backend-selector.j2', dest: 'roles/terraform/files/remote-backend-selector.tf' }
+    - { src: '{{ playbook_dir }}/roles/balancer/templates/remote-backend-selector.j2', dest: 'roles/balancer/files/remote-backend-selector.tf' }
   tags:
     - remote_backend
 
@@ -25,8 +25,8 @@
     src: "{{ item.src }}"
     dest: "{{ item.dest }}"
   with_items:
-    - { src: playbook_dir ~ '/roles/terraform/templates/terraform.tfvars.j2', dest: 'roles/terraform/files/terraform.tfvars' }
-    - { src: playbook_dir ~ '/roles/balancer/templates/terraform.tfvars.j2', dest: 'roles/balancer/files/terraform.tfvars' }
+    - { src: '{{ playbook_dir }}/roles/terraform/templates/terraform.tfvars.j2', dest: 'roles/terraform/files/terraform.tfvars' }
+    - { src: '{{ playbook_dir }}/roles/balancer/templates/terraform.tfvars.j2', dest: 'roles/balancer/files/terraform.tfvars' }
     
 - name: Generating backend file
   template:
@@ -34,8 +34,8 @@
     dest: "{{ item.dest }}"
   when: backend == "true"
   with_items:
-    - { src: playbook_dir ~ '/roles/terraform/templates/backend.tfvars.j2', dest: 'roles/terraform/files/backend.tfvars' }
-    - { src: playbook_dir ~ '/roles/balancer/templates/backend.tfvars.j2', dest: 'roles/balancer/files/backend.tfvars' }
+    - { src: '{{ playbook_dir }}/roles/terraform/templates/backend.tfvars.j2', dest: 'roles/terraform/files/backend.tfvars' }
+    - { src: '{{ playbook_dir }}/roles/balancer/templates/backend.tfvars.j2', dest: 'roles/balancer/files/backend.tfvars' }
     
 - name: Copy ssh key to terraform directory
   copy: 
