@@ -1,7 +1,7 @@
 - name: Fetch output folder from moc
   hosts: moc
   tasks:
-    synchronize:
+    - synchronize:
         src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}" 
         dest: "{{ destination | default ('/tmp/' ~ NETWORK_NAME) }}"
         mode: pull
