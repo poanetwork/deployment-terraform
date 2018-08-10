@@ -1,4 +1,9 @@
-- name: Generating stubs for certificates
+- name: Create temporary directory
+  file:
+    state: directory
+    path: "/tmp/{{ NETWORK_NAME }}"
+
+- name: Generate stubs for certificates
   copy:
     dest: "{{ item }}"
     content: ""
