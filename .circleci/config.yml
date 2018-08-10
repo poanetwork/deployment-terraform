@@ -76,8 +76,8 @@ jobs:
           command: echo $pub_key > ~/deployment-terraform/azure/id_rsa.pub
           
       - run:
-          name: destroy
-          command: bash -c "ansible-playbook destroy.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' $destroy_attr"
+          name: destroy infra
+          command: bash -c "ansible-playbook destroy.yml -e 'key_for_lb=0' -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' $destroy_attr"
 
 workflows:
   version: 2
