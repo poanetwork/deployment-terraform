@@ -28,7 +28,7 @@
     - { src: '{{ playbook_dir }}/roles/terraform/templates/terraform.tfvars.j2', dest: 'roles/terraform/files/terraform.tfvars' }
     - { src: '{{ playbook_dir }}/roles/balancer/templates/terraform.tfvars.j2', dest: 'roles/balancer/files/terraform.tfvars' }
   vars:
-    bootnodelbips: "127.0.0.1"
+    bootnodelbips: "{ stdout: '127.0.0.1' }"
     
 - name: Generating backend file
   template:
