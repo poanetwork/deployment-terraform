@@ -1,26 +1,26 @@
 [bootnode]
 {% for h in groups['bootnode'] %}
-{{ hostvars[h].inventory_hostname }}
+{{ h }}
 {% endfor %}
 
 [moc]
 {% for h in groups['moc'] %}
-{{ hostvars[h].inventory_hostname }}
+{{ h }}
 {% endfor %}
 
 [netstat]
 {% for h in groups['netstat'] %}
-{{ hostvars[h].inventory_hostname }}
+{{ h }}
 {% endfor %}
 
 [validator]
 {% for h in groups['validator'] %}
-{{ hostvars[h].inventory_hostname }}
+{{ h }}
 {% endfor %}
 
 [explorer]
 {% for h in groups['explorer'] %}
-{{ hostvars[h].inventory_hostname }}
+{{ h }}
 {% endfor %}
 
 [poa:children]
@@ -35,11 +35,11 @@ explorer
 [ubuntu]
 {% for h in groups['all'] %}
 {% if h not in groups['balancer'] %}
-{{ hostvars[h].inventory_hostname }}
+{{ h }}
 {% endif %}
 {% endfor %}
 
 [lb]
 {% for h in groups['balancer'] %}
-{{ hostvars[h].inventory_hostname }}
+{{ h }}
 {% endfor %}
