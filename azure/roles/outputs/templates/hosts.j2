@@ -1,7 +1,9 @@
-{% for group_name, group in groups %}{% raw %}[{% endraw %}{{ group_name }}{% raw %}]{% endraw %}
-{% for host in group %}
+{% for group in groups %}{% raw %}[{% endraw %}{{ group }}{% raw %}]{% endraw %}
+
+{% for host in groups[group] %}
 {{ host }}
 {% endfor %}
+
 {% endfor %}
 [poa:children]
 bootnode
