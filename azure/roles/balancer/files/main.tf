@@ -145,3 +145,8 @@ resource "azurerm_application_gateway" "node" {
     backend_http_settings_name = "https"
   }
 }
+
+data "azurerm_public_ip" "node" {
+  name                = "${azurerm_public_ip.node.name}"
+  resource_group_name = "${var.resource_group_name}"
+  depends_on          = ["azurerm_application_gateway.node"]

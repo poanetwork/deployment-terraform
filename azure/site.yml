@@ -8,6 +8,14 @@
     - moc
     - netstat
     - validator
+    
+- name: preconf - install python
+  hosts: bootnode,explorer,moc,netstat,validator
+  gather_facts: False
+  become: True
+  tasks:
+    - name: Install python
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
 
 - name: Generate network variables
   hosts: moc
@@ -57,14 +65,6 @@
     - bootnode
   vars:
     key_for_lb: "{{ hostvars[groups['moc']|first]['cert_secret'] }}"
-
-- name: preconf - install python
-  hosts: bootnode,explorer,moc,netstat,validator
-  gather_facts: False
-  become: True
-  tasks:
-    - name: Install python
-      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
         
 - name: Save spec.json to tmp folder
   hosts: moc

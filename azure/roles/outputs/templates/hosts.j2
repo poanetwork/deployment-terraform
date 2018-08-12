@@ -1,45 +1,24 @@
-[bootnode]
-{% for h in groups['bootnode'] %}
-{{ h }}
+{% for group_name, group in groups %}{% raw %}[{% endraw %}{{ group_name }}{% raw %}]{% endraw %}
+{% for host in group %}
+{{ host }}
 {% endfor %}
-
-[moc]
-{% for h in groups['moc'] %}
-{{ h }}
 {% endfor %}
-
-[netstat]
-{% for h in groups['netstat'] %}
-{{ h }}
-{% endfor %}
-
-[validator]
-{% for h in groups['validator'] %}
-{{ h }}
-{% endfor %}
-
-[explorer]
-{% for h in groups['explorer'] %}
-{{ h }}
-{% endfor %}
-
 [poa:children]
 bootnode
 moc
 netstat
 validator
 explorer
-
+ 
 [centos]
-
+ 
 [ubuntu]
 {% for h in groups['all'] %}
+{% if groups['balancer'] is defined %}
 {% if h not in groups['balancer'] %}
 {{ h }}
 {% endif %}
-{% endfor %}
-
-[lb]
-{% for h in groups['balancer'] %}
+{% else %}
 {{ h }}
-{% endfor %}
+{% endif %}
+{% endfor %} 
