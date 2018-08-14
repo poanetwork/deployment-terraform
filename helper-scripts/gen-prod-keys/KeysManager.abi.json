@@ -1,0 +1,43 @@
+[
+  {
+    "constant": false,
+    "inputs": [
+      {
+        "name": "_miningKey",
+        "type": "address"
+      },
+      {
+        "name": "_votingKey",
+        "type": "address"
+      },
+      {
+        "name": "_payoutKey",
+        "type": "address"
+      }
+    ],
+    "name": "createKeys",
+    "outputs": [],
+    "payable": false,
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "constant": true,
+    "inputs": [
+      {
+        "name": "_initialKey",
+        "type": "address"
+      }
+    ],
+    "name": "getInitialKey",
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "payable": false,
+    "stateMutability": "view",
+    "type": "function"
+  }
+]
