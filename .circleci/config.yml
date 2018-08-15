@@ -60,7 +60,7 @@ jobs:
           
       - run:
           name: Save artifacts
-          command: bash -c "cp outputs/{{ NETWORK_NAME }}/network-tests /tmp/artifacts -R"  
+          command: bash -c "rm -R /tmp/artifacts && mkdir -p /tmp/artifacts && cp outputs/{{ NETWORK_NAME }}/network-tests /tmp/artifacts -R"  
   
       - store_artifacts:
           path: /tmp/artifacts
