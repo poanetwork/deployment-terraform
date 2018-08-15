@@ -58,3 +58,12 @@
     chdir: "{{ tests_repo_dest }}/helper-scripts/network-tests/"
   register: tests
   failed_when: tests.rc != 0
+  
+- name: Fetch output from moc
+  fetch:
+    src: "{{ item }}" 
+    dest: "outputs/{{ NETWORK_NAME }}/network-tests"
+    flat: yes
+  with_items:
+    - "/home/{{ ansible_user }}/tests/helper-scripts/network-tests/error.log"
+    - "/home/{{ ansible_user }}/tests/helper-scripts/network-tests/combined.log"

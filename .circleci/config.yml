@@ -57,6 +57,13 @@ jobs:
       - run:
           name: check network
           command: bash -c "ansible-playbook tests.yml -i /tmp/hosts/latest_deploy_hosts -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' $tests_attr"
+          
+      - run:
+          name: Save artifacts
+          command: bash -c "ansible-playbook -i /tmp/hosts/latest_deploy_hosts download_outputs.yml -e 'destination=/tmp/artifacts' -e 'terraform_location=/usr/local/bin/terraform' $tests_attr"  
+  
+      - store_artifacts:
+          path: /tmp/artifacts
 
   destroy:
     docker:
