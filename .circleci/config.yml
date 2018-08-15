@@ -60,7 +60,7 @@ jobs:
           
       - run:
           name: Save artifacts
-          command: bash -c "ansible-playbook -i /tmp/hosts/latest_deploy_hosts download_outputs.yml -e 'destination=/tmp/artifacts' -e 'terraform_location=/usr/local/bin/terraform' $tests_attr"  
+          command: bash -c "cp outputs/{{ NETWORK_NAME }}/network-tests /tmp/artifacts -R"  
   
       - store_artifacts:
           path: /tmp/artifacts
