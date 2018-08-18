@@ -62,7 +62,7 @@
   tasks:  
     - synchronize: 
         src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.pfx"
-        dest: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
+        dest: "/tmp/{{ NETWORK_NAME }}/gwcert.pfx"
         mode: pull
       when: bootnode_balanced_count>0
   tags:
