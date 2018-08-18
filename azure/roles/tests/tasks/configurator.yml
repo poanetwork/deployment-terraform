@@ -48,7 +48,7 @@
     CONTRACTS_JSON_PATH: "{{ tests_config_dir_path }}/contracts.json"
     SPEC_JSON_PATH: "{{ tests_config_dir_path }}/spec.json"
     MOC_ADDRESS_FILE_PATH: "{{ tests_config_dir_path }}/moc" 
-    EXTERNAL_URL: "http://{{ hostvars[groups['balancer']|first]['inventory_hostname'] if groups['balancer'] | length > 0 else hostvars[groups['bootnode']|first]['inventory_hostname'] }}/"
+    EXTERNAL_URL: "http://{{ groups['balancer']|first if groups['balancer'] is defined else groups['bootnode']|first }}/"
 
 # Smoke tests, contracts.json and config.toml should exists and
 # be not empty
