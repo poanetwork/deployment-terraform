@@ -46,13 +46,17 @@ const logger = winston.createLogger({
     ]
 });
 
+function errExit(msg) {
+    logger.error(msg);
+    setTimeout(() => { throw new Error(msg); }, 0);
+}
+
 testAll(config.maxRounds)
     .then(result => {
         logger.info("Checked ");
     })
     .catch(err => {
-        logger.error("Error2 in testAll(): " + err);
-        throw new Error("Error2 in testAll(): " + err);
+        errExit("Error2 in testAll(): " + err);
     });
 
 async function testAll(maxRounds) {
@@ -79,8 +83,7 @@ async function testAll(maxRounds) {
             if (txsResult.passed) {
                 logger.info(message);
             } else {
-                logger.error("Sending txs failed: " + message);
-                throw new Error("Sending txs failed: " + message);
+                errExit("Sending txs failed: " + message);
             }
 
             // check for validators missed round. Wait some time for including empty blocks to the checks
@@ -92,18 +95,15 @@ async function testAll(maxRounds) {
                     if (roundsResult.passed) {
                         logger.info(message);
                     } else {
-                        logger.error("Test for missing rounds failed: " + message);
-                        throw new Error("Test for missing rounds failed: " + message);
+                        errExit("Test for missing rounds failed: " + message);
                     }
                 }).catch(error => {
-                    logger.error("error in checkRound(): " + error);
-                    throw new Error("error in checkRound(): " + error);
+                    errExit("error in checkRound(): " + error);
                 });
             }, config.timeoutSeconds * 1000);
         })
         .catch(error => {
-            logger.error("error in testAll(): " + error);
-            throw new Error("error in testAll(): " + error);
+            errExit("error in testAll(): " + error);
         });
 }
 
@@ -129,12 +129,10 @@ async function checkSeriesOfTransactions(decryptedAccount, maxRounds) {
                 }).then(async transactionResult => {
                     if (!transactionResult.passed) {
                         result.passed = false;
-                        logger.error("Transaction failed, error: " + transactionResult.errorMessage);
-                        result.failedTxs.push(transactionResult);
+                        errExit("Transaction failed, error: " + transactionResult.errorMessage);
                     }
                 }).catch(error => {
-                    logger.error("Error in checkSeriesOfTransactions(): " + error);
-                    result.passed = false;
+                    errExit("Error in checkSeriesOfTransactions(): " + error);
                 })
         }
         logger.info("validatorsSet size: " + validatorsMinedTxSet.size);
@@ -187,6 +185,7 @@ async function checkBlock(blockHeader) {
         logger.warn("didn't get expected block, blocksPassed: " + blocksPassed);
     }
     logger.info("blocksPassed: " + blocksPassed + ", lastBlock: " + lastBlock + ", previousBlockNumber: " + previousBlockNumber);
+    blockHeader.miner = web3.utils.toChecksumAddress(blockHeader.miner);
     currentValidatorIndex = validatorsArr.indexOf(blockHeader.miner);
     let missedValidators = [];
     if (previousBlockNumber === -1  // in the begin of the test
@@ -329,8 +328,7 @@ async function getValidators() {
     logger.debug('getValidators()');
     validatorsArr = await PoaNetworkConsensusContract.methods.getValidators().call();
     if (!validatorsArr || validatorsArr.length < 1) {
-        logger.error("Received invalid number of validators, array: " + validatorsArr);
-        throw new Error("Invalid number of validators, array: " + validatorsArr);
+        errExit("Received invalid number of validators, array: " + validatorsArr);
     }
     logger.info('got validators, validatorsArr.length: ' + validatorsArr.length + ", validatorsArr: " + validatorsArr);
     return validatorsArr;

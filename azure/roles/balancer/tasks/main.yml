@@ -48,3 +48,4 @@
         name: "{{ item }}"
         groups: balancer
       with_items: "{{ balancerips.stdout_lines }}" 
+  when: bootnode_balanced_count>0

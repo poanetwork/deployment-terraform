@@ -51,9 +51,20 @@
         dest: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
         mode: pull
       with_items:
-        - gwcert.pfx
         - server.crt
         - server.key
+  tags:
+    - bootnode
+    
+- name: Save gwcert to tmp folder
+  hosts: moc
+  gather_facts: False
+  tasks:  
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.pfx"
+        dest: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
+        mode: pull
+      when: bootnode_balanced_count>0
   tags:
     - bootnode
 

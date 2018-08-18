@@ -1,7 +1,7 @@
 # Gets configs from moc and generates config files for tests
 - fail:
     msg: "To run tests specify either lb or bootnode IP at hosts file"
-  when: groups['balancer']|first is undefined and groups['bootnode']|first is undefined
+  when: groups['balancer'] is undefined and groups['bootnode'] is undefined
 
 - name: Create directory for tests config
   file: 
