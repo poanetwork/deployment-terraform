@@ -62,7 +62,7 @@
 - name: Fetch output from network tests machine
   fetch:
     src: "{{ item }}" 
-    dest: "outputs/{{ NETWORK_NAME }}/network-tests"
+    dest: "outputs/{{ NETWORK_NAME }}/network-tests/"
     flat: yes
   with_items:
     - "/home/{{ ansible_user }}/tests/helper-scripts/network-tests/error.log"
