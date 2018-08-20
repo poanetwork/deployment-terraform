@@ -1,0 +1,68 @@
+- name: Clearing bootnodes.txt 
+  become: false
+  delegate_to: localhost
+  copy:
+    dest: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt" 
+    content: ''
+    force: yes
+    
+- name: Ensures certificate directory exists
+  file: path=/etc/nginx/ssl/ state=directory
+  when: bootnode_balanced_count>0 and balanced|default(false)|bool == true
+
+- name: Place cert at bootnode
+  copy:
+    src: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
+    dest: "/etc/nginx/ssl/{{ item }}"
+  with_items:
+    - server.key
+    - server.crt
+  when: bootnode_balanced_count>0 and balanced|default(false)|bool == true
+ 
+- include_role:
+    name: '{{ playbook_dir }}/deployment-playbooks/roles/bootnode'
+  vars:
+    username: "bootnode"
+    parity_api: "on"
+    bootnode_dapps: "on"
+    PROXY_PORT: 8545
+  notify:
+    - restart poa-parity   
+    
+- name: Run handlers immediately
+  meta: flush_handlers
+
+- name: Generate bootnodes.txt
+  block:
+    - name: Get enode
+      uri: 
+          url: http://localhost:8545
+          method: POST
+          body_format: json
+          body: '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}'
+          return_content: yes
+          headers: 
+            Content-Type: application/json
+      register: enode
+       
+    - name: Adding variable to bootnodes list
+      become: false
+      delegate_to: "localhost"
+      lineinfile:
+        line: "{{ enode.json.result }}"
+        path: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+      
+- name: Send bootnodes.txt to bootnodes
+  copy:
+    src: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+    dest: "/home/bootnode/bootnodes.txt"
+    force: true
+  notify:
+    - restart poa-parity    
+
+- name: Restart nginx
+  service:
+    name: nginx
+    state: restarted
+    enabled: yes
+    

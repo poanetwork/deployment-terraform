@@ -1,0 +1,23 @@
+- name: Fetch build output folder from moc
+  hosts: moc
+  tasks:
+    - synchronize:
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}" 
+        dest: "{{ destination | default ('/tmp/' ~ NETWORK_NAME) }}"
+        mode: pull
+  tags:
+    - build
+    
+- name: Fetch test output files from moc
+  hosts: moc
+  tasks:
+    - synchronize:
+        src: "{{ item }}" 
+        dest: "{{ destination | default ('/tmp/' ~ NETWORK_NAME) }}"
+        mode: pull
+      with_items:
+        - "/home/{{ ansible_user }}/tests/helper-scripts/network-tests/error.log"
+        - "/home/{{ ansible_user }}/tests/helper-scripts/network-tests/combined.log"
+  tags:
+    - tests
+    

@@ -1,0 +1,266 @@
+- name: Prepare infrastructure
+  hosts: localhost
+  roles:
+    - terraform
+  tags: 
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    
+- name: preconf - install python
+  hosts: bootnode,explorer,moc,netstat,validator
+  gather_facts: False
+  become: True
+  tasks:
+    - name: Install python
+      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+
+- name: Generate network variables
+  hosts: moc
+  roles:
+    - moc-preconf
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    
+- name: Create temporary directory for configs on local machine
+  hosts: localhost
+  gather_facts: False
+  tasks:
+    - file:
+        state: directory
+        path: "/tmp/{{ NETWORK_NAME }}"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- name: Save certs to tmp folder
+  hosts: moc
+  gather_facts: False
+  tasks:  
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/{{ item }}"
+        dest: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
+        mode: pull
+      with_items:
+        - server.crt
+        - server.key
+  tags:
+    - bootnode
+    
+- name: Save gwcert to tmp folder
+  hosts: moc
+  gather_facts: False
+  tasks:  
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.pfx"
+        dest: "/tmp/{{ NETWORK_NAME }}/gwcert.pfx"
+        mode: pull
+      when: bootnode_balanced_count>0
+  tags:
+    - bootnode
+
+- name: Prepare application gateway
+  hosts: localhost
+  roles:
+    - balancer
+  tags: 
+    - bootnode
+  vars:
+    key_for_lb: "{{ hostvars[groups['moc']|first]['cert_secret'] }}"
+        
+- name: Save spec.json to tmp folder
+  hosts: moc
+  gather_facts: False
+  tasks:  
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
+        dest: "/tmp/{{ NETWORK_NAME }}/spec.json"
+        mode: pull
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- hosts: bootnode,explorer,moc,netstat,validator
+  tasks:
+    - name: Setting remote hosts facts
+      set_fact:
+        spec_json: "/tmp/{{ NETWORK_NAME }}/spec.json"
+        bootnodes_txt: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        install_firewall: false
+        MOC_ADDRESS: "{{ hostvars[groups['moc']|first]['MOC_ADDRESS'] }}"
+        NETSTATS_SERVER: "http://{{ groups['netstat']|first }}:3000"
+        NETSTATS_SECRET: "{{ hostvars[groups['moc']|first]['NETSTATS_SECRET'] }}"
+        NODE_FULLNAME: "{{ ansible_hostname }}"
+  tags: 
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- name: Launch netstat node
+  hosts: netstat
+  become: True
+  tasks: 
+    - include_role:
+        name: 'deployment-playbooks/roles/netstat'
+      vars:
+        username: "netstat"
+  tags:
+    - netstat
+ 
+- name: Configure bootnodes
+  hosts: bootnode
+  become: True
+  #serial: 1
+  roles:
+    - bootnode
+  tags:
+    - bootnode 
+    
+- name: Send bootnodes.txt to MoC
+  hosts: moc
+  tasks:
+    - copy:
+        src: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bootnodes.txt"
+        force: true
+  tags:
+    - moc
+
+- name: Get bootnodes list
+  hosts: moc
+  tasks:
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bootnodes.txt"
+        dest: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        mode: pull
+  tags:
+    - validator
+    - explorer
+    - moc
+ 
+- name: Launch explorer node
+  hosts: explorer
+  become: True
+  tasks:
+    - include_role:
+        name: 'deployment-playbooks/roles/explorer'
+      vars:
+        username: "explorer"
+  tags:
+    - explorer
+
+- name: Configure MoC node
+  hosts: moc
+  become: True
+  roles:
+    - moc
+  tags: 
+    - moc
+    
+- name: Cleanup
+  hosts: localhost
+  tasks:
+    - name: "Clear /tmp/{{ NETWORK_NAME}}/production-keys/ dir"
+      file:
+        state: absent
+        path: "/tmp/{{ NETWORK_NAME}}/production-keys/*"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- name: Prepare prod keys for deployment
+  hosts: moc
+  tasks:
+    - synchronize: 
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/validator-*"
+        dest: "/tmp/{{ NETWORK_NAME }}/production-keys/"
+        mode: pull
+  tags:
+    - validator
+
+- name: Configure validators node
+  hosts: validator
+  become: True
+  serial: 1
+  roles:
+    - validator
+  tags: 
+    - validator
+    
+- name: Restart poa-dashboard on netstat
+  hosts: netstat
+  become: True
+  tasks:
+    - name: restart poa-dashboard
+      service:
+        name: poa-dashboard
+        state: restarted
+        enabled: yes
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    
+- name: Restart poa-netstats on nodes
+  hosts: bootnode,moc,validator
+  become: True
+  tasks:
+    - name: restart poa-netstats
+      service:
+        name: poa-netstats
+        state: restarted
+        enabled: yes
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    
+- name: Cleanup
+  hosts: localhost,moc
+  tasks:
+    - name: "Clear /tmp/{{ NETWORK_NAME }} dir"
+      file:
+        state: absent
+        path: "{{ item }}"
+      with_items:
+        - "/tmp/{{ NETWORK_NAME }}"
+        - "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/hosts"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- name: Generating outputs
+  hosts: moc
+  roles:                                                                                                                                
+    - outputs                                                                                                                        
+  tags:                                                                                                                                 
+    - outputs
+    - bootnode                                                                                                                          
+    - explorer                                                                                                                          
+    - moc                                                                                                                               
+    - netstat                                                                                                                           
+    - validator        

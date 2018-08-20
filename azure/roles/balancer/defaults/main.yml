@@ -1,0 +1,6 @@
+storage_account: tfci
+container: tf-ci-state
+terraform_location: /usr/bin/terraform
+tf_prefix: tf-
+resource_group_name: tf-test-full-setup
+backend: false

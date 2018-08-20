@@ -1,0 +1,7 @@
+- name: Run tests
+  hosts: moc
+  roles:
+    - tests
+  tags: 
+    - tests
+    

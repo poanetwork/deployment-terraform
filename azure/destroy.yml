@@ -1,0 +1,4 @@
+- name: Prepare infrastructure
+  hosts: localhost
+  roles:
+    - destroy

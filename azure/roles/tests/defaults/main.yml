@@ -1,0 +1,37 @@
+### Tests runner params
+# Git path to the repo (url and branch) , where tests sources are.
+# defaulted to deployment teraaform path
+tests_repo_source_git: "https://github.com/poanetwork/deployment-terraform.git"
+tests_repo_source_git_branch: "master"
+
+# Path for cloning repo.  
+tests_repo_dest: "/home/{{ ansible_user }}/tests"
+
+# Playbook gets tests contracts file from this location
+contracts_tests_config_remote_path:
+
+### Tests configurator parms
+
+# path to directory with configs for tests
+tests_config_dir_path: "/home/{{ ansible_user }}/tests_configs"
+
+# We expect some config files to be generated on moc node. 
+# Here are paths to this files.
+
+moc_key_path: "/home/moc/parity_data/keys/{{ NETWORK_NAME }}/moc.key"
+node_pwd_path: "/home/moc/node.pwd"
+contracts_json_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/contracts.json"
+spec_json_path: "/home/moc/spec.json"
+moc_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc"
+
+# Path to the script, which can generate toml config for tests framework
+configurator_script_path: "{{ tests_repo_dest }}/helper-scripts/tests-config-generator"
+
+# Path to the directory with tests code
+tests_dir_path: "{{ tests_repo_dest }}/helper-scripts/network-tests"
+
+# For nodejs installation
+epel_key_url: "https://rpm.nodesource.com/pub/el/NODESOURCE-GPG-SIGNING-KEY-EL"
+node_source_deb: "https://deb.nodesource.com/node_8.x"
+node_source_rpm: "https://rpm.nodesource.com/pub_8.x/el/{{ ansible_distribution_major_version }}/{{ ansible_architecture }}/nodesource-release-el{{ ansible_distribution_major_version }}-1.noarch.rpm"
+node_key_id: "68576280"

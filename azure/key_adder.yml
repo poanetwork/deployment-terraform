@@ -1,0 +1,9 @@
+- name: Prepare infrastructure
+  hosts: localhost
+  roles:
+    - terraform
+    
+- name: Add ssh keys to all hosts
+  hosts: bootnode,explorer,moc,netstat,validator
+  tasks:
+    - authorized_key: "user={{ ansible_user }} key='{{ lookup('file', ssh) }}' state=present"
