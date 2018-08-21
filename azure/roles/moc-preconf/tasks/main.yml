@@ -171,7 +171,7 @@
   when: SPEC_ADDRESS == ""
   
 - name: Copy spec.json to network folder
-  synchronize:
+  template:
     src: "{{ SPEC_ADDRESS }}"
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
   when: SPEC_ADDRESS != ""
