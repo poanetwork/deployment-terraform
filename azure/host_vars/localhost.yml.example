@@ -1,0 +1,11 @@
+#Set to false if you have already prepared Resource group on your own. If set to false, resource_group_name is required.
+prepare_resource_group: true
+##Set name of resource group
+#resource_group_name : "test-full-setup"
+##Prefix, that will be used for all resources ("tf-" by default)
+#tf_prefix: "tf-"
+##Region where resources shall be created
+#region : "East US"
+
+#User to connect to remote machine
+ansible_user: poa

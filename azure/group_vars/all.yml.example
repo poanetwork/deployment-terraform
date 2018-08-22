@@ -35,18 +35,6 @@ terraform_location: "/usr/local/bin/terraform"
 #Path where your public SSH key stored. Will be used to connect to external instance
 PUB_KEY_STORE: "id_rsa.pub"
 
-#Set to false if you have already prepared Resource group on your own. If set to false, resource_group_name is required.
-prepare_resource_group: true
-##Set name of resource group
-#resource_group_name : "test-full-setup"
-##Prefix, that will be used for all resources ("tf-" by default)
-#tf_prefix: "tf-"
-##Region where resources shall be created
-#region : "East US"
-
-#User to connect to remote machine
-ansible_user: poa
-
 #That usually should be unchanged. However, sometimes it should be set to /usr/bin/python if system will not be able to find python3 installed
 ansible_python_interpreter: "/usr/bin/python3"
 ansible_pip: "/usr/bin/pip3"
