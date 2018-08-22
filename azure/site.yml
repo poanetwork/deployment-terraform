@@ -1,8 +1,7 @@
 - name: Prepare resource group
   hosts: localhost
   roles:
-    - resource-group
-  when: "moc not in groups"
+    - { role: resource-group, when: moc not in groups }
   tags: 
     - bootnode
     - explorer
@@ -14,8 +13,7 @@
 - name: Prepare storage account
   hosts: localhost
   roles:
-    - storage-account
-  when: "moc not in groups and backend == true"
+    - { role: storage-account, when: moc not in groups and backend == true }
   tags: 
     - bootnode
     - explorer
@@ -27,8 +25,7 @@
 - name: Prepare infrastructure
   hosts: localhost
   roles:
-    - terraform
-  when: "moc not in groups"
+    - { role: terraform, when: moc not in groups }
   tags: 
     - bootnode
     - explorer
