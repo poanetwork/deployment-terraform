@@ -1,0 +1,5 @@
+- name: Create a resource group
+  azure_rm_resourcegroup:
+    name: "{{ resource_group_name }}"
+    location: "{{ region }}"
+  when: prepare_resource_group == true

@@ -1,0 +1,11 @@
+- name: Create an account
+  azure_rm_storageaccount:
+    resource_group: "{{ resource_group_name }}"
+    name: "{{ tf_prefix }}{{ NETWORK_NAME }}-account"
+    access_tier: Hot
+    
+- name: Create container
+  azure_rm_storageblob:
+    resource_group: "{{ resource_group_name }}"
+    storage_account_name: "{{ tf_prefix }}{{ NETWORK_NAME }}-account"
+    container: "{{ tf_prefix }}{{ NETWORK_NAME }}-container"
