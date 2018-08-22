@@ -1,13 +1,41 @@
-- name: Prepare infrastructure
+- name: Prepare resource group
   hosts: localhost
   roles:
-    - terraform
+    - resource-group
+  when: "moc not in groups"
   tags: 
     - bootnode
     - explorer
     - moc
     - netstat
     - validator
+    - preconf
+    
+- name: Prepare storage account
+  hosts: localhost
+  roles:
+    - storage-account
+  when: "moc not in groups and backend == true"
+  tags: 
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    - preconf
+
+- name: Prepare infrastructure
+  hosts: localhost
+  roles:
+    - terraform
+  when: "moc not in groups"
+  tags: 
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    - preconf
     
 - name: preconf - install python
   hosts: bootnode,explorer,moc,netstat,validator
@@ -16,17 +44,15 @@
   tasks:
     - name: Install python
       raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+  tags:
+    - preconf
 
 - name: Generate network variables
   hosts: moc
   roles:
     - moc-preconf
   tags:
-    - bootnode
-    - explorer
-    - moc
-    - netstat
-    - validator
+    - preconf
     
 - name: Create temporary directory for configs on local machine
   hosts: localhost
@@ -41,8 +67,9 @@
     - moc
     - netstat
     - validator
+    - preconf
 
-- name: Save certs to tmp folder
+- name: Save network variables locally
   hosts: moc
   gather_facts: False
   tasks:  
@@ -53,45 +80,16 @@
       with_items:
         - server.crt
         - server.key
+        - spec.json
+        - moc
+        - netstat_secret
+        - cert_secret
+        - gwcert.pfx
+      when: (item != gwcert.pfx and item != cert_secret) or bootnode_balanced_count>0
   tags:
     - bootnode
-    
-- name: Save gwcert to tmp folder
-  hosts: moc
-  gather_facts: False
-  tasks:  
-    - synchronize: 
-        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.pfx"
-        dest: "/tmp/{{ NETWORK_NAME }}/gwcert.pfx"
-        mode: pull
-      when: bootnode_balanced_count>0
-  tags:
-    - bootnode
-
-- name: Prepare application gateway
-  hosts: localhost
-  roles:
-    - balancer
-  tags: 
-    - bootnode
-  vars:
-    key_for_lb: "{{ hostvars[groups['moc']|first]['cert_secret'] }}"
+    - preconf
         
-- name: Save spec.json to tmp folder
-  hosts: moc
-  gather_facts: False
-  tasks:  
-    - synchronize: 
-        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
-        dest: "/tmp/{{ NETWORK_NAME }}/spec.json"
-        mode: pull
-  tags:
-    - bootnode
-    - explorer
-    - moc
-    - netstat
-    - validator
-
 - hosts: bootnode,explorer,moc,netstat,validator
   tasks:
     - name: Setting remote hosts facts
@@ -99,9 +97,9 @@
         spec_json: "/tmp/{{ NETWORK_NAME }}/spec.json"
         bootnodes_txt: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
         install_firewall: false
-        MOC_ADDRESS: "{{ hostvars[groups['moc']|first]['MOC_ADDRESS'] }}"
+        MOC_ADDRESS: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/moc') }}"
         NETSTATS_SERVER: "http://{{ groups['netstat']|first }}:3000"
-        NETSTATS_SECRET: "{{ hostvars[groups['moc']|first]['NETSTATS_SECRET'] }}"
+        NETSTATS_SECRET: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/netstat_secret') }}"
         NODE_FULLNAME: "{{ ansible_hostname }}"
   tags: 
     - bootnode
@@ -109,6 +107,16 @@
     - moc
     - netstat
     - validator
+    - preconf
+
+- name: Prepare application gateway
+  hosts: localhost
+  roles:
+    - balancer
+  when: bootnode_balanced_count>0 and balancer not in groups
+  tags: 
+    - bootnode
+    - preconf
 
 - name: Launch netstat node
   hosts: netstat
@@ -124,11 +132,22 @@
 - name: Configure bootnodes
   hosts: bootnode
   become: True
-  #serial: 1
   roles:
     - bootnode
   tags:
     - bootnode 
+    
+- name: Get bootnodes list
+  hosts: bootnode
+  tasks:
+    - synchronize: 
+        src: "/home/bootnode/bootnodes.txt"
+        dest: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        mode: pull
+  tags:
+    - moc
+    - validator
+    - explorer
     
 - name: Send bootnodes.txt to MoC
   hosts: moc
@@ -138,18 +157,6 @@
         dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bootnodes.txt"
         force: true
   tags:
-    - moc
-
-- name: Get bootnodes list
-  hosts: moc
-  tasks:
-    - synchronize: 
-        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bootnodes.txt"
-        dest: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
-        mode: pull
-  tags:
-    - validator
-    - explorer
     - moc
  
 - name: Launch explorer node
@@ -184,6 +191,14 @@
     - moc
     - netstat
     - validator
+    
+- name: Generate validator keys
+  hosts: moc
+  become: True
+  roles:
+    - validator-keys
+  tags: 
+    - validator
 
 - name: Prepare prod keys for deployment
   hosts: moc
@@ -213,6 +228,7 @@
         name: poa-dashboard
         state: restarted
         enabled: yes
+      ignore_errors: yes
   tags:
     - bootnode
     - explorer
@@ -229,6 +245,7 @@
         name: poa-netstats
         state: restarted
         enabled: yes
+      ignore_errors: yes
   tags:
     - bootnode
     - explorer
@@ -259,8 +276,3 @@
     - outputs                                                                                                                        
   tags:                                                                                                                                 
     - outputs
-    - bootnode                                                                                                                          
-    - explorer                                                                                                                          
-    - moc                                                                                                                               
-    - netstat                                                                                                                           
-    - validator        
