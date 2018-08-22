@@ -1,7 +1,7 @@
 - name: Prepare resource group
   hosts: localhost
   roles:
-    - { role: resource-group, when: moc not in groups }
+    - { role: resource-group, when: "'moc' not in groups" }
   tags: 
     - bootnode
     - explorer
@@ -13,7 +13,7 @@
 - name: Prepare storage account
   hosts: localhost
   roles:
-    - { role: storage-account, when: moc not in groups and backend == true }
+    - { role: storage-account, when: "'moc' not in groups and backend == true" }
   tags: 
     - bootnode
     - explorer
@@ -25,7 +25,7 @@
 - name: Prepare infrastructure
   hosts: localhost
   roles:
-    - { role: terraform, when: moc not in groups }
+    - { role: terraform, when: "'moc' not in groups" }
   tags: 
     - bootnode
     - explorer
@@ -109,8 +109,7 @@
 - name: Prepare application gateway
   hosts: localhost
   roles:
-    - balancer
-  when: bootnode_balanced_count>0 and balancer not in groups
+    - { role: balancer, when: "bootnode_balanced_count>0 and 'balancer' not in groups" } 
   tags: 
     - bootnode
     - preconf
