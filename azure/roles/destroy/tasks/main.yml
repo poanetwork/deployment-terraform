@@ -71,10 +71,22 @@
     - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '' }}"
     - destroy
     
-- name: Terraform destroy all infra
+- name: Terraform destroy main infra
   shell: "echo yes | {{ terraform_location }} {{ item }}"
   args:
     chdir: "roles/terraform/files"
   with_items:
     - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '' }}"
     - destroy
+
+- name: Delete storage account
+  azure_rm_storageaccount:
+    resource_group: "{{ resource_group_name }}"
+    name: "{{ tf_prefix }}{{ NETWORK_NAME }}-account"
+    state: absent
+
+- name: Delete a resource group
+  azure_rm_resourcegroup:
+    name: "{{ resource_group_name }}"
+    state: absent
+  when: prepare_resource_group == true
