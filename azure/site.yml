@@ -1,26 +1,26 @@
 - name: Prepare resource group
   hosts: localhost
   roles:
-    - { role: resource-group, when: "'moc' not in groups" }
+    - { role: resource-group, when: "'moc' not in groups and prepare_resource_group|bool == true" }
   tags: 
     - bootnode
     - explorer
     - moc
     - netstat
     - validator
-    - preconf
+    - deploy
     
 - name: Prepare storage account
   hosts: localhost
   roles:
-    - { role: storage-account, when: "'moc' not in groups and backend == true" }
+    - { role: storage-account, when: "'moc' not in groups and backend|bool == true" }
   tags: 
     - bootnode
     - explorer
     - moc
     - netstat
     - validator
-    - preconf
+    - deploy
 
 - name: Prepare infrastructure
   hosts: localhost
@@ -32,7 +32,7 @@
     - moc
     - netstat
     - validator
-    - preconf
+    - deploy
     
 - name: preconf - install python
   hosts: bootnode,explorer,moc,netstat,validator
@@ -112,7 +112,7 @@
     - { role: balancer, when: "bootnode_balanced_count>0 and 'balancer' not in groups" } 
   tags: 
     - bootnode
-    - preconf
+    - deploy
 
 - name: Launch netstat node
   hosts: netstat
