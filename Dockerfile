@@ -14,8 +14,8 @@ RUN apt-get update -qq && \
   python \
   python-dev 
 
-ENV TERAFORM_VERSION="0.11.7"
-ENV ANSIBLE_VERSION="2.5.4"
+ENV TERAFORM_VERSION="0.11.8"
+ENV ANSIBLE_VERSION="2.6.3"
 
 RUN \
   curl -fSs https://releases.hashicorp.com/terraform/${TERAFORM_VERSION}/terraform_${TERAFORM_VERSION}_linux_amd64.zip \
