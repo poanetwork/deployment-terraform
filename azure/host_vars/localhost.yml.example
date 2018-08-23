@@ -14,7 +14,7 @@ prepare_resource_group: true
 ##Prefix, that will be used for all resources ("tf-" by default)
 #tf_prefix: "tf-"
 ##Set name of resource group. Will not be prefixed.
-resource_group_name : "еа-test-full-setup"
+resource_group_name : "tf-test-full-setup"
 ##Region where resources should be created
 #region : "East US"
 
