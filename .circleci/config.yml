@@ -10,8 +10,12 @@ jobs:
           path: ~/deployment-terraform/
 
       - run:
-          name: adjust configs
-          command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+          name: Set all.yml config
+          command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+
+      - run:
+          name: Set localhost.yml config
+          command: echo $localhost_yml | base64 --decode > ~/deployment-terraform/azure/host_vars/localhost.yml
 
       - run:
           name: set id_rsa.pub
@@ -47,8 +51,12 @@ jobs:
           at: /tmp/hosts/
 
       - run:
-          name: adjust configs
-          command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+          name: Set all.yml config
+          command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+
+      - run:
+          name: Set localhost.yml config
+          command: echo $localhost_yml | base64 --decode > ~/deployment-terraform/azure/host_vars/localhost.yml
 
       - run:
           name: set id_rsa.pub
@@ -75,8 +83,12 @@ jobs:
           path: ~/deployment-terraform/
           
       - run:
-          name: adjust configs
-          command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+          name: Set all.yml config
+          command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+
+      - run:
+          name: Set localhost.yml config
+          command: echo $localhost_yml | base64 --decode > ~/deployment-terraform/azure/host_vars/localhost.yml
 
       - run:
           name: set id_rsa.pub

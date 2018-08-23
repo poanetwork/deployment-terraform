@@ -29,12 +29,6 @@ NETSTATS_SECRET: ""
 #MOC secret (optional). Will be generated automatically if set to ""
 MOC_SECRET: ""
 
-#Where terraform binary is located
-terraform_location: "/usr/local/bin/terraform"
-
-#Path where your public SSH key stored. Will be used to connect to external instance
-PUB_KEY_STORE: "id_rsa.pub"
-
 #That usually should be unchanged. However, sometimes it should be set to /usr/bin/python if system will not be able to find python3 installed
 ansible_python_interpreter: "/usr/bin/python3"
 ansible_pip: "/usr/bin/pip3"
