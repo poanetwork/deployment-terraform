@@ -7,9 +7,9 @@
   template: 
     src: remote-backend-selector.j2 
     dest: roles/terraform/files/remote-backend-selector.tf
-    when: 
-      - backend == "true"
-      - not plan_result.stat.exists 
+  when: 
+    - backend == "true"
+    - not plan_result.stat.exists 
   tags:
     - remote_backend
 
@@ -17,9 +17,9 @@
   file:
     state: absent
     dest: roles/terraform/files/remote-backend-selector.tf 
-    when: 
-      - backend != "true" or backend is undefined
-      - plan_result.stat.exists
+  when: 
+    - backend != "true" or backend is undefined
+    - plan_result.stat.exists
   tags:
     - remote_backend   
 
