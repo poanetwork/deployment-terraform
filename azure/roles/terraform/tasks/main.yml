@@ -11,7 +11,7 @@
     dest: roles/terraform/files/remote-backend-selector.tf
   when: 
     - backend == "true"
-    - not plan_result.stat.exists 
+    - plan_result.stat.exists != "true"
   tags:
     - remote_backend
 
