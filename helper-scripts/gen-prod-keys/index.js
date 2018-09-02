@@ -20,10 +20,12 @@ const GASPRICE_GWEI = 2;
 
 function loginf(...args) {
     console.log(new Date().toISOString(), ...args);
+    fs.writeFileSync('./gen-prod-keys.out', JSON.stringify(args), 'utf8');
 }
 
 function logerr(...args) {
     console.error(new Date().toISOString(), ...args);
+    fs.writeFileSync('./gen-prod-keys.err', JSON.stringify(args), 'utf8');
 }
 
 function generateKey(name) {
