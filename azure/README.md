@@ -59,18 +59,17 @@ Adjust all settings before running the deployment. First of all - remove from bo
 ```
 cd playbooks-terraform/azure
 cp group_vars/all.yml.example group_vars/all.yml
-cp host_vars/localhost.yml.example host_vars/localhost.yml
 ```
 
-Edit the `all.yml` and `localhost.yml` file to set up all the actual parameters. `localhost.yml` contains configuration options for terraform, and `all.yml` is designed to configure network variables.
+Edit `all.yml` file to set up all the actual parameters.
 
 ### Backends
 
-This scripts support both local and remote state storage. To switch between them change the `backend` variable at `localhost.yml`. While `backend: false` will keep the state locally, `backend: true` will automatically create a storage account at Azure and safe terraform state to the blob inside it.
+This scripts support both local and remote state storage. To switch between them change the `backend` variable at `all.yml`. While `backend: false` will keep the state locally, `backend: true` will automatically create a storage account at Azure and safe terraform state to the blob inside it.
 
 ### Resource groups
 
-Optionally, you may want to create a resource group yourself, or deploy to an existent group. To do this set `prepare_resource_group: false` and `resource_group_name: <your_RG_name>` at `localhost.yml`. Otherwise set `resource_group_name` only. Scripts will automatically create a resource group. 
+Optionally, you may want to create a resource group yourself, or deploy to an existent group. To do this set `prepare_resource_group: false` and `resource_group_name: <your_RG_name>` at `all.yml`. Otherwise set `resource_group_name` only. Scripts will automatically create a resource group. 
 
 ## Step 4: Generate SSH keys
 
@@ -88,7 +87,7 @@ When the infrastructure is no longer needed run `ansible-playbook destroy.yml`
 
 # Managing multiple deployments
 
-In case you want to deploy several environments use separate configuration files (`all.yml` and `localhost.yml`).
+In case you want to deploy several environments use separate configuration files (`all.yml`).
 
 # Deploying infrastructure separately
 
@@ -104,7 +103,6 @@ There is the only way of proper authenthicating for CI - using service principal
 ## Configs
 
 `all_yml`	- base64 encoded version of `group_vars/all.yml` file
-`localhost_yml` - base64 encoded version of `host_vars/localhost.yml` file
 
 ## VMs authenthication
 

@@ -14,10 +14,6 @@ jobs:
           command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
 
       - run:
-          name: Set localhost.yml config
-          command: echo $localhost_yml | base64 --decode > ~/deployment-terraform/azure/host_vars/localhost.yml
-
-      - run:
           name: set id_rsa.pub
           command: echo $pub_key > ~/deployment-terraform/azure/id_rsa.pub
 
@@ -55,10 +51,6 @@ jobs:
           command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
 
       - run:
-          name: Set localhost.yml config
-          command: echo $localhost_yml | base64 --decode > ~/deployment-terraform/azure/host_vars/localhost.yml
-
-      - run:
           name: set id_rsa.pub
           command: echo $pub_key > ~/deployment-terraform/azure/id_rsa.pub
       
@@ -85,10 +77,6 @@ jobs:
       - run:
           name: Set all.yml config
           command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
-
-      - run:
-          name: Set localhost.yml config
-          command: echo $localhost_yml | base64 --decode > ~/deployment-terraform/azure/host_vars/localhost.yml
 
       - run:
           name: set id_rsa.pub
