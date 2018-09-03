@@ -2,17 +2,13 @@
   template:                                                                                                                             
     src: remote-backend-selector.j2                                                                                                     
     dest: roles/balancer/files/remote-backend-selector.tf                                                                              
-  when: backend == "true"                                                                                                               
-  tags:                                                                                                                                 
-    - remote_backend                                                                                                                    
+  when: backend == "true"                                                                                                                                                                                           
                                                                                                                                         
 - name: Local or remote backend selector (local)                                                                                        
   file:                                                                                                                                 
     state: absent                                                                                                                       
     dest: roles/balancer/files/remote-backend-selector.tf                                                                              
   when: backend != "true" or backend is undefined
-  tags:                                                                                                                                 
-    - remote_backend  
 
 - name: Generating variables file
   template:

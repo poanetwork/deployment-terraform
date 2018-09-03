@@ -13,7 +13,7 @@
 - name: Prepare storage account
   hosts: localhost
   roles:
-    - { role: storage-account, when: "'moc' not in groups and backend|bool == true" }
+    - { role: storage-account, when: "'moc' not in groups and backend|bool == true and storage_account is undefined" }
   tags: 
     - bootnode
     - explorer
@@ -82,7 +82,7 @@
         - netstat_secret
         - cert_secret
         - gwcert.pfx
-      when: (item != gwcert.pfx and item != cert_secret) or bootnode_balanced_count>0
+      when: (item != 'gwcert.pfx' and item != 'cert_secret') or bootnode_balanced_count>0
   tags:
     - bootnode
     - preconf
@@ -134,7 +134,7 @@
     - bootnode 
     
 - name: Get bootnodes list
-  hosts: bootnode
+  hosts: "groups['bootnode']|first"
   tasks:
     - synchronize: 
         src: "/home/bootnode/bootnodes.txt"

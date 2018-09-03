@@ -60,6 +60,12 @@
       with_items: "{{ initial_keys.stdout_lines }}"
       when: initial.matched/2 < initial_key_convert_count
     
+    - name: Check if contracts were not already deployed
+      find:
+        paths: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys"
+        file_type: directory
+      register: folders
+    
     - name: Install reqired NPM modules (workaround)
       shell: "npm install"
       args:

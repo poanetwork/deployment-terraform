@@ -7,5 +7,5 @@
 - name: Create container
   azure_rm_storageblob:
     resource_group: "{{ resource_group_name }}"
-    storage_account_name: "{{ NETWORK_NAME }}account"
+    storage_account_name: "{{ NETWORK_NAME|lower }}account"
     container: "{{ NETWORK_NAME|lower }}container"

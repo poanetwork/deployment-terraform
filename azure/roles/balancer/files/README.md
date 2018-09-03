@@ -98,7 +98,7 @@ key                  = "<filename_to_save_or_search>"
 
 ```
 terraform {
-    backend "azurerm" {}
+    backend "azurerm" { resource_group_name="<RG_name>" }
 }  
 
 ```

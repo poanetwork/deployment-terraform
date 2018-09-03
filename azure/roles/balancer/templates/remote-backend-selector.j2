@@ -1,3 +1,3 @@
 terraform {                                                                                                                             
-    backend "azurerm" {}                                                                                                                
+    backend "azurerm" { resource_group_name="{{ resource_group_name }}" }                                                                                                                
 }  

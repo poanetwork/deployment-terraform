@@ -77,18 +77,6 @@
         groups: explorer
       with_items: "{{ explorerips.stdout_lines }}" 
      
-- name: Refresh moc host addresses
-  block:
-    - name : Refresh moc host address
-      shell: "{{ terraform_location }} output moc-ips | tr -d ,"
-      register: mocips   
-      args:
-        chdir: roles/terraform/files/
-    - add_host:
-        name: "{{ item }}"
-        groups: moc
-      with_items: "{{ mocips.stdout_lines }}" 
-   
 - name: Refresh netstat host addresses
   block:
     - name : Refresh netstat host address
@@ -112,3 +100,15 @@
         name: "{{ item }}"
         groups: validator
       with_items: "{{ validatorips.stdout_lines }}" 
+
+- name: Refresh moc host addresses
+  block:
+    - name : Refresh moc host address
+      shell: "{{ terraform_location }} output moc-ips | tr -d ,"
+      register: mocips   
+      args:
+        chdir: roles/terraform/files/
+    - add_host:
+        name: "{{ item }}"
+        groups: moc
+      with_items: "{{ mocips.stdout_lines }}" 

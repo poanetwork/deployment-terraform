@@ -1,14 +1,14 @@
-- name: Check if production keys were not already generated
+- name: Check if contracts were not already deployed
   find:
-    paths: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys"
-    file_type: directory
-  register: folders
+    paths: "/home/moc/poa-network-consensus-contracts/"
+    patterns: "contracts.json"
+  register: contracts
   
 - name: Clear old MoC installation
   file:
     state: absent
     path: "/home/moc"
-  when: folders.matched == 0
+  when: contracts.matched == 0
   
 - name: Slurp variable KEYFILE
   block:

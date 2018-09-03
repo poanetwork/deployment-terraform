@@ -11,6 +11,7 @@
   with_items:
     - "/tmp/{{ NETWORK_NAME }}/gwcert.pfx"
     - "/tmp/{{ NETWORK_NAME }}/server.crt"
+    - "/tmp/{{ NETWORK_NAME }}/cert_secret"
 
 - name: Local or remote backend selector (remote)
   template: 
@@ -82,7 +83,7 @@
 - name: Delete storage account
   azure_rm_storageaccount:
     resource_group: "{{ resource_group_name }}"
-    name: "{{ tf_prefix }}{{ NETWORK_NAME }}-account"
+    name: "{{ NETWORK_NAME|lower }}account"
     state: absent
 
 - name: Delete a resource group
@@ -90,3 +91,8 @@
     name: "{{ resource_group_name }}"
     state: absent
   when: prepare_resource_group == true
+  
+- name: Remove temporary directory
+  file:
+    state: absent
+    path: "/tmp/{{ NETWORK_NAME }}"

@@ -32,3 +32,4 @@ MOC_SECRET: ""
 #That usually should be unchanged. However, sometimes it should be set to /usr/bin/python if system will not be able to find python3 installed
 ansible_python_interpreter: "/usr/bin/python3"
 ansible_pip: "/usr/bin/pip3"
+ansilbe_user: "poa"
