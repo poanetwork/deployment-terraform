@@ -23,3 +23,12 @@ ansible_user: poa
 
 #If set to true - Terraform will be using remote state instead of local.
 backend: false
+
+#Required number of bootnodes
+bootnode_count: 1
+
+#Required number of bootnodes to put in load-balancer (defaults to 1)
+bootnode_balanced_count: 1
+
+#Required number of validator nodes to launch (defaults to 1)
+validator_count: 1
