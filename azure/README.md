@@ -54,7 +54,7 @@ export ARM_SUBSCRIPTION_ID = 1xx2x3x4-x5xx-6x7x-xx89-0x1xx23xx456
 
 ## Step 3: Configure
 
-Adjust all settings before running the deployment. First of all - remove from both example configs `.example` extension: 
+Adjust all settings before running the deployment. First of all - copy example config file to the same folder and name it like `all.yml`: : 
 
 ```
 cd playbooks-terraform/azure
