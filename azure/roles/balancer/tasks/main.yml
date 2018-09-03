@@ -2,13 +2,13 @@
   template:                                                                                                                             
     src: remote-backend-selector.j2                                                                                                     
     dest: roles/balancer/files/remote-backend-selector.tf                                                                              
-  when: backend == "true"                                                                                                                                                                                           
+  when: backend|bool == true                                                                                                                                                                                          
                                                                                                                                         
 - name: Local or remote backend selector (local)                                                                                        
   file:                                                                                                                                 
     state: absent                                                                                                                       
     dest: roles/balancer/files/remote-backend-selector.tf                                                                              
-  when: backend != "true" or backend is undefined
+  when: backend|bool != true or backend is undefined
 
 - name: Generating variables file
   template:
@@ -20,7 +20,7 @@
   template:
     src: backend.tfvars.j2
     dest: roles/balancer/files/backend.tfvars
-  when: backend == "true"
+  when: backend|bool == true
 
 #Workaround since terraform module return unexpected error.
 - name: Terraform provisioning
@@ -28,7 +28,7 @@
   args:
     chdir: "roles/balancer/files"
   with_items:
-    - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '' }}"
+    - "init {{ '-backend-config=backend.tfvars' if backend|bool == true else '' }}"
     - plan
     - apply
   when: bootnode_balanced_count>0

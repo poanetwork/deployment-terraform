@@ -36,13 +36,13 @@ bootnode_count: 1
 #Required number of bootnodes to put in load-balancer (defaults to 1)
 bootnode_balanced_count: 1
 
-#Required number of validator nodes to launch (defaults to 1)
-validator_count: 1
-
 #Required number of initial keys to generate (defaults to 1, not more than 12)
 initial_key_count: 1
 
-#Required number of initial keys to convert to production keys (defaults to 1)
+#Required number of validator nodes to launch (defaults to 1, not more than `initial_key_count`)
+validator_count: 1
+
+#Required number of initial keys to convert to production keys (defaults to 1, not more than `initial_key_count`)
 initial_key_convert_count: 1
 
 #Set to false if you have already prepared Resource group on your own. If set to false, `resource_group_name` is required.
