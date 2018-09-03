@@ -92,6 +92,12 @@
   args:
     creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc_secret"
   when: MOC_SECRET == ""
+  
+- name: Save MOC secret to outputs
+  copy:
+    content: "{{ MOC_SECRET }}"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc_secret"
+  when: MOC_SECRET != ""
 
 - name: Download terraform repo
   git:

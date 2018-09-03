@@ -14,7 +14,7 @@ Also, you can get our latest docker image with preinstalled software [here](http
 
 ## Step 2: Authenticating with Azure
 
-You can authenthicate using your own account or via service principal.
+You can authenthicate terraform in Azure using your own account or via service principal. For your local deployments it will be better to authenthicate using your account since it relies on short-term tokens. For CI deployments Service Principals are the only way to authenthicate.
 
 ### Authenthicating using your account
 
@@ -65,16 +65,16 @@ Edit `all.yml` file to set up all the actual parameters.
 
 ### Backends
 
-This scripts support both local and remote state storage. To switch between them change the `backend` variable at `all.yml`. While `backend: false` will keep the state locally, `backend: true` will automatically create a storage account at Azure and safe terraform state to the blob inside it.
+This scripts support both local and remote state storage. To switch between them change the `backend` variable at `all.yml`. While `backend: false` will keep the state locally, `backend: true` will automatically create a storage account at Azure and safe terraform state to the blob inside it. It is a best practice to keep backend remotely, since it is much more safer.
 
 ### Resource groups
 
 Optionally, you may want to create a resource group yourself, or deploy to an existent group. To do this set `prepare_resource_group: false` and `resource_group_name: <your_RG_name>` at `all.yml`. Otherwise set `resource_group_name` only. Scripts will automatically create a resource group. 
 
-## Step 4: Generate SSH keys
+## Step 4: SSH keys
 
-We recommend using a separate key for ansible deployment. Terraform also puts your personal key `ssh_public_key` on the machine.
-To generate a new key run `ssh-keygen -t rsa -b 4096 -C "full-node"`
+We recommend using a separate key for ansible deployment. To generate a new key run `ssh-keygen -t rsa -b 4096 -C "full-node"`
+You should explicitly specify path to your public SSH key. Ansible script will put it on all the virtual machines in a deployment. Also, do not forget to specify private ssh key while calling Ansible scripts via `--key-file`, otherwise the default SSH key of your system will be used.
 
 ## Step 5: Deploy
 

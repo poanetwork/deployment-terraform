@@ -38,6 +38,8 @@ module "bootnode" {
   role           = "bootnode"
   ssh_public_key = "${var.ssh_public_key}"  
   prefix         = "${var.prefix}"  
+  
+  admin_username = "${var.admin_username}"
 }
 
 module "explorer" {
@@ -53,7 +55,9 @@ module "explorer" {
   platform       = "ubuntu"
   role           = "explorer"
   ssh_public_key = "${var.ssh_public_key}"
-  prefix         = "${var.prefix}"  
+  prefix         = "${var.prefix}"
+    
+  admin_username = "${var.admin_username}"
 }
 
 module "moc" {
@@ -69,7 +73,9 @@ module "moc" {
   platform       = "ubuntu"
   role           = "moc"  
   ssh_public_key = "${var.ssh_public_key}"
-  prefix         = "${var.prefix}" 
+  prefix         = "${var.prefix}"
+    
+  admin_username = "${var.admin_username}"
 }
 
 module "netstat" {
@@ -86,6 +92,8 @@ module "netstat" {
   role           = "netstat"  
   ssh_public_key = "${var.ssh_public_key}"
   prefix         = "${var.prefix}"
+    
+  admin_username = "${var.admin_username}"
 }
 
 module "validator" {
@@ -101,5 +109,7 @@ module "validator" {
   platform       = "ubuntu"
   role           = "validator"  
   ssh_public_key = "${var.ssh_public_key}"
-  prefix         = "${var.prefix}"  
+  prefix         = "${var.prefix}"
+    
+  admin_username = "${var.admin_username}"
 }
