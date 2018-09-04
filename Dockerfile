@@ -27,7 +27,7 @@ RUN \
   curl -fsSL https://releases.ansible.com/ansible/ansible-${ANSIBLE_VERSION}.tar.gz -o ansible.tar.gz && \
   mkdir ansible; tar -xzf ansible.tar.gz -C ansible --strip-components 1 && \
   curl https://bootstrap.pypa.io/get-pip.py | python && \
-  pip install -U pip setuptools packaging && \
+  pip install -U pip setuptools packaging msrestazure && \
   cd ansible && make && make install
 
 RUN \
