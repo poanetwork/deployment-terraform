@@ -33,7 +33,7 @@ export ARM_TENANT_ID = <tenant>
 
 Adjust all settings before running the deployment. First of all - copy example config file to the same folder and name it like `all.yml`: 
 
-```
+```..
 cd playbooks-terraform/azure
 cp group_vars/all.yml.example group_vars/all.yml
 ```
@@ -96,3 +96,5 @@ In case you want to deploy several environments use separate configuration files
 # Deploying infrastructure separately
 
 If you want to deploy an infrastructure for network without creating network itself you can refer to those READMEs: [building nodes](roles/terraform/files/README.md) and [bringing up a balancer](roles/balancer/files/README.md).
+  
+

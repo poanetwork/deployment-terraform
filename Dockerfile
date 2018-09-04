@@ -36,3 +36,6 @@ RUN \
   tee /etc/apt/sources.list.d/azure-cli.list && \
   curl -L https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
   apt-get update && apt-get install -qqy azure-cli
+  
+RUN \
+  pip install -U msrestazure ansible[azure]
