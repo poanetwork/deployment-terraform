@@ -2,7 +2,6 @@
   azure_rm_storageaccount:
     resource_group: "{{ resource_group_name }}"
     name: "{{ NETWORK_NAME|lower }}account"
-    account_type: Standard_LRS
     
 - name: Create container
   azure_rm_storageblob:
