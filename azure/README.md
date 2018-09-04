@@ -9,6 +9,7 @@ Here is the list of docs that will lead you through the process of prerequisites
 1. [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 2. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
 3. [Terraform](https://www.terraform.io/intro/getting-started/install.html)
+4. `PIP msrestazure module`(optional). You can install it using `pip install msrestazure`. Required only if you need scripts to create a resource group and a storage account.
 
 Also, you can get our latest docker image with preinstalled software [here](https://hub.docker.com/r/poanetwork/terraform-prep/).
 
