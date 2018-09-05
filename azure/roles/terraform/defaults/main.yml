@@ -3,6 +3,7 @@ container: tf-ci-state
 terraform_location: /usr/bin/terraform
 tf_prefix: tf-
 resource_group_name: tf-test-full-setup
+default_resource_group_name: tf-default-full-setup
 region: East US
 PUB_KEY_STORE: id_rsa.pub
 ansible_user: poa
