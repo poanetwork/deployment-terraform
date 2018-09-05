@@ -4,8 +4,15 @@ bootnode_count         = "{{ bootnode_count }}"
 bootnode_lb_count      = "{{ bootnode_balanced_count }}"
 validator_count        = "{{ validator_count }}"
 ssh_public_key         = "{{ PUB_KEY_STORE }}"
+<<<<<<< HEAD
 prepare_resource_group = "{% if resource_group_name %}0{% else %}1{% endif %}"
 region                 = "{{ region }}"
+=======
+#prepare_resource_group = "{% if prepare_resource_group %}1{% else %}0{% endif %}"
+prepare_resource_group = "{% if resource_group_name %}0{% else %}1{% endif %}"
+region                 = "{{ region }}"
+#resource_group_name    = "{{ resource_group_name }}"
+>>>>>>> e0a823c3c8d106d70b697afc91fa6fcf60f9848a
 resource_group_name    = "{% if resource_group_name %}{{ resource_group_name }}{% else %}{{ default_resource_group_name }}{% endif %}"
 admin_username         = "{{ ansible_user }}"
 prefix                 = "{{ tf_prefix }}"
