@@ -53,9 +53,8 @@ bootnode_count         = "<bootnode_count>"
 bootnode_lb_count      = "<balanced_bootnode_count>"
 validator_count        = "<validator_count>"
 ssh_public_key         = "<path_to_ssh_public_key>"
-prepare_resource_group = "<1 or 0 (depends on whether you want terraform to prerpare RG for you or not)>"
 region                 = "<region>"
-resource_group_name    = "<only if prepare_resource_group is set to 0>
+resource_group_name    = "<if a resource group already exists, enter its name here. If you do not have a resource group ready, leave this variable empty - a resource group with the default name will be automatically created.>
 admin_username         = "<ubuntu/centos/admin/poa or any other that will be used to connect to VMs that will be deployed by terraform>"
 prefix                 = "<prefix_to_all_terraform_resources>"
 ```
