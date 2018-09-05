@@ -54,8 +54,11 @@ bootnode_lb_count      = "<balanced_bootnode_count>"
 validator_count        = "<validator_count>"
 ssh_public_key         = "<path_to_ssh_public_key>"
 region                 = "<region>"
-resource_group_name    = "<if a resource group already exists, enter its name here. If you do not have a resource group ready, leave this variable empty - a resource group with the default name will be automatically created.>
-admin_username         = "<ubuntu/centos/admin/poa or any other that will be used to connect to VMs that will be deployed by terraform>"
+resource_group_name    = "<if a resource group already exists, enter its name here. 
+                           If you do not have a resource group ready, leave this variable empty - 
+                           a resource group with the default name will be automatically created.>
+admin_username         = "<ubuntu/centos/admin/poa or any other that will be used to connect 
+                           to VMs that will be deployed by terraform>"
 prefix                 = "<prefix_to_all_terraform_resources>"
 ```
 Make sure to fill the file above with the actual parameters.
