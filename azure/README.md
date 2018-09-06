@@ -105,7 +105,7 @@ There is the only way of proper authenthicating for CI - using service principal
 ## Configs
 
 Besides the azure authenthication variables CI requires config and a public SSH key to be set:
-`all_yml` - base64 encoded version of `group_vars/all.yml` file
+`config_file` - base64 encoded version of `group_vars/all.yml` file
 `pub_key` - plain text SSH public key
 `
 

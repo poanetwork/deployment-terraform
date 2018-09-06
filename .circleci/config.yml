@@ -13,7 +13,7 @@ jobs:
 
       - run:
           name: Set all.yml config
-          command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+          command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
 
       - run:
           name: set id_rsa.pub
@@ -50,7 +50,7 @@ jobs:
 
       - run:
           name: Set all.yml config
-          command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+          command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
 
       - run:
           name: set id_rsa.pub
@@ -80,7 +80,7 @@ jobs:
           
       - run:
           name: Set all.yml config
-          command: echo $all_yml | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
+          command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
 
       - run:
           name: set id_rsa.pub
