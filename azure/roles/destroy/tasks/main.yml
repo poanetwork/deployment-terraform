@@ -76,7 +76,7 @@
   with_items:
     - "init{{ ' -backend-config=backend.tfvars' if backend|bool == true else '' }}"
     - destroy
-  when: not (backend|bool==true and storage_account_key.stdout == '')
+  when: not (backend|bool==true and storage_account_key.stdout | default('') == '')
     
 - name: Terraform destroy main infra
   shell: "echo yes | {{ terraform_location }} {{ item }}"
@@ -85,7 +85,7 @@
   with_items:
     - "init {{ '-backend-config=backend.tfvars' if backend|bool == true else '' }}"
     - destroy
-  when: not (backend|bool==true and storage_account_key.stdout == '')
+  when: not (backend|bool==true and storage_account_key.stdout | default('') == '')
 
 - name: Delete storage account
   azure_rm_storageaccount:
