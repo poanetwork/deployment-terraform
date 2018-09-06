@@ -4,7 +4,9 @@ jobs:
     docker:
       - image: poanetwork/terraform-prep
     working_directory: ~/deployment-terraform/azure
-
+    environment:
+          ANSIBLE_AZURE_AUTH_SOURCE: env
+          
     steps:      
       - checkout:
           path: ~/deployment-terraform/
@@ -69,6 +71,8 @@ jobs:
     docker:
       - image: poanetwork/terraform-prep
     working_directory: ~/deployment-terraform/azure
+    environment:
+          ANSIBLE_AZURE_AUTH_SOURCE: env
 
     steps:      
       - checkout:

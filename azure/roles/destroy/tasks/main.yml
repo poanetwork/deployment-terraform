@@ -13,6 +13,11 @@
     - "/tmp/{{ NETWORK_NAME }}/server.crt"
     - "/tmp/{{ NETWORK_NAME }}/cert_secret"
 
+- name: Get storage key
+  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ NETWORK_NAME|lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
+  register: storage_account_key
+  when: "lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true"
+
 - name: Local or remote backend selector (remote)
   template: 
     src: "{{ item.src }}"
@@ -69,30 +74,50 @@
   args:
     chdir: "roles/balancer/files"
   with_items:
-    - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '' }}"
+    - "init{{ ' -backend-config=backend.tfvars' if backend|bool == true else '' }}"
     - destroy
+  when: not (backend|bool==true and storage_account_key.stdout == '')
     
 - name: Terraform destroy main infra
   shell: "echo yes | {{ terraform_location }} {{ item }}"
   args:
     chdir: "roles/terraform/files"
   with_items:
-    - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '' }}"
+    - "init {{ '-backend-config=backend.tfvars' if backend|bool == true else '' }}"
     - destroy
+  when: not (backend|bool==true and storage_account_key.stdout == '')
 
 - name: Delete storage account
   azure_rm_storageaccount:
     resource_group: "{{ resource_group_name }}"
     name: "{{ NETWORK_NAME|lower }}account"
     state: absent
+    auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
+  environment:
+    AZURE_SUBSCRIPTION_ID: "{{ lookup ('env','ARM_SUBSCRIPTION_ID') }}"
+    AZURE_CLIENT_ID: "{{ lookup ('env','ARM_CLIENT_ID') }}"
+    AZURE_SECRET: "{{ lookup ('env','ARM_CLIENT_SECRET') }}"
+    AZURE_TENANT: "{{ lookup ('env','ARM_TENANT_ID') }}"
+    #Variables, that are set for Terraform are not the same required by Ansible
 
 - name: Delete a resource group
   azure_rm_resourcegroup:
     name: "{{ resource_group_name }}"
     state: absent
-  when: prepare_resource_group == true
+    auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
+  environment:
+    AZURE_SUBSCRIPTION_ID: "{{ lookup ('env','ARM_SUBSCRIPTION_ID') }}"
+    AZURE_CLIENT_ID: "{{ lookup ('env','ARM_CLIENT_ID') }}"
+    AZURE_SECRET: "{{ lookup ('env','ARM_CLIENT_SECRET') }}"
+    AZURE_TENANT: "{{ lookup ('env','ARM_TENANT_ID') }}"
+  when: resource_group_name == ''
+    #Variables, that are set for Terraform are not the same required by Ansible
   
-- name: Remove temporary directory
+- name: Remove cache directories
   file:
     state: absent
-    path: "/tmp/{{ NETWORK_NAME }}"
+    path: "{{ item }}"
+  with_items:
+    - "/tmp/{{ NETWORK_NAME }}"
+    - "roles/terraform/files/.terraform"
+    - "roles/balancer/files/.terraform"

@@ -9,7 +9,7 @@ Here is the list of docs that will lead you through the process of prerequisites
 1. [Ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
 2. [Azure CLI](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest)
 3. [Terraform](https://www.terraform.io/intro/getting-started/install.html)
-4. `PIP msrestazure module`(optional). You can install it using `pip install msrestazure`. Required only if you need scripts to create a resource group and a storage account.
+4. `PIP msrestazure and ansible[azure] modules`(optional). You can install it using `pip install msrestazure && pip install ansible[azure]`. Required only if you need scripts to create a resource group or a storage account.
 
 Also, you can get our latest docker image with preinstalled software [here](https://hub.docker.com/r/poanetwork/terraform-prep/).
 
@@ -19,7 +19,7 @@ You can authenthicate terraform in Azure using your own account or via service p
 
 ### Authenthicating using your account
 
-To authenthicate using your own account use `az login` shell command. Follow the instructions on screen.
+To authenthicate using your own account use `az login` shell command. Follow the instructions on screen. It is better to use this option only with [local backend storage](#backends).
 
 ### Authenthicating using Service Principal
 
@@ -31,8 +31,8 @@ export ARM_CLIENT_ID = <appId>
 export ARM_CLIENT_SECRET = <password>
 export ARM_TENANT_ID = <tenant>
 export ARM_SUBSCRIPTION_ID = <subscription>
-```
-
+export ANSIBLE_AZURE_AUTH_SOURCE = env
+``` 
 #### Example
 
 After creating Service Principal you will get an output in the following format:
@@ -51,6 +51,7 @@ export ARM_CLIENT_ID = x123xx45-x6x7-8x9x-0x1x-123x456xx78x
 export ARM_CLIENT_SECRET = 1x2345xx-678x-9x0x-1234-x5xx6xxxx789
 export ARM_TENANT_ID = 01234xx5-6789-0x12-34xx-5x6789x0x1x2
 export ARM_SUBSCRIPTION_ID = 1xx2x3x4-x5xx-6x7x-xx89-0x1xx23xx456
+export ANSIBLE_AZURE_AUTH_SOURCE = env
 ```
 
 ## Step 3: Configure
