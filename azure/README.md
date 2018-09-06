@@ -58,7 +58,7 @@ export ANSIBLE_AZURE_AUTH_SOURCE = env
 
 Adjust all settings before running the deployment. First of all - copy example config file to the same folder and name it like `all.yml`: : 
 
-```
+```..
 cd playbooks-terraform/azure
 cp group_vars/all.yml.example group_vars/all.yml
 ```
