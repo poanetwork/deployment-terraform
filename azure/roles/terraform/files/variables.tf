@@ -43,11 +43,6 @@ variable ssh_public_key {
   default     = "~/.ssh/id_rsa.pub"
 } 
 
-variable prepare_resource_group {
-  description = "Create resource group, virtual network and subnet"
-  default     = "1"
-}
-
 variable admin_username {
   description = "Default user for machine"
   default     = "poa"

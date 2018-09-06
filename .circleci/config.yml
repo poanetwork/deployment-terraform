@@ -4,13 +4,15 @@ jobs:
     docker:
       - image: poanetwork/terraform-prep
     working_directory: ~/deployment-terraform/azure
-
+    environment:
+          ANSIBLE_AZURE_AUTH_SOURCE: env
+          
     steps:      
       - checkout:
           path: ~/deployment-terraform/
 
       - run:
-          name: adjust configs
+          name: Set all.yml config
           command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
 
       - run:
@@ -47,7 +49,7 @@ jobs:
           at: /tmp/hosts/
 
       - run:
-          name: adjust configs
+          name: Set all.yml config
           command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
 
       - run:
@@ -69,13 +71,15 @@ jobs:
     docker:
       - image: poanetwork/terraform-prep
     working_directory: ~/deployment-terraform/azure
+    environment:
+          ANSIBLE_AZURE_AUTH_SOURCE: env
 
     steps:      
       - checkout:
           path: ~/deployment-terraform/
           
       - run:
-          name: adjust configs
+          name: Set all.yml config
           command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
 
       - run:
