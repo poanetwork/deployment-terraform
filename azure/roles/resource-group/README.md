@@ -1,0 +1,1 @@
+You can use this playbook to create a storage account and a blob storage inside it. By default it will be created with `tf-test-full-setup` name. You can override this behaviour by modifying [defaults/main.yml](defaults/main.yml) variables file. 

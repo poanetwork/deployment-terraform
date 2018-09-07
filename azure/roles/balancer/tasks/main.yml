@@ -1,18 +1,20 @@
+- name: Get storage key
+  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ NETWORK_NAME|lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
+  register: storage_account_key
+  when: "lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true"
+
+
 - name: Local or remote backend selector (remote)                                                                                       
   template:                                                                                                                             
     src: remote-backend-selector.j2                                                                                                     
     dest: roles/balancer/files/remote-backend-selector.tf                                                                              
-  when: backend == "true"                                                                                                               
-  tags:                                                                                                                                 
-    - remote_backend                                                                                                                    
+  when: backend|bool == true                                                                                                                                                                                          
                                                                                                                                         
 - name: Local or remote backend selector (local)                                                                                        
   file:                                                                                                                                 
     state: absent                                                                                                                       
     dest: roles/balancer/files/remote-backend-selector.tf                                                                              
-  when: backend != "true" or backend is undefined
-  tags:                                                                                                                                 
-    - remote_backend  
+  when: backend|bool != true or backend is undefined
 
 - name: Generating variables file
   template:
@@ -24,7 +26,7 @@
   template:
     src: backend.tfvars.j2
     dest: roles/balancer/files/backend.tfvars
-  when: backend == "true"
+  when: backend|bool == true
 
 #Workaround since terraform module return unexpected error.
 - name: Terraform provisioning
@@ -32,7 +34,7 @@
   args:
     chdir: "roles/balancer/files"
   with_items:
-    - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '' }}"
+    - "init{{ ' -backend-config=backend.tfvars' if backend|bool == true else '' }}"
     - plan
     - apply
   when: bootnode_balanced_count>0

@@ -20,10 +20,12 @@ const GASPRICE_GWEI = 2;
 
 function loginf(...args) {
     console.log(new Date().toISOString(), ...args);
+    fs.appendFileSync('./gen-prod-keys.out', new Date().toISOString() + ' ' + args.map(a => JSON.stringify(a)).join(' ') + '\n', 'utf8');
 }
 
 function logerr(...args) {
     console.error(new Date().toISOString(), ...args);
+    fs.appendFileSync('./gen-prod-keys.err', new Date().toISOString() + ' ' + args.map(a => JSON.stringify(a)).join(' ') + '\n', 'utf8');
 }
 
 function generateKey(name) {
@@ -125,7 +127,7 @@ function asyncForEach(array, forEach, done) {
         if (err) return done(err);
         if (i === array.length - 1) return done();
         i += 1;
-        setTimeout(function () { forEach(array[i], next) }, 0);
+        setTimeout(function () { forEach(array[i], next) }, 11000);
     }
     next();
 }

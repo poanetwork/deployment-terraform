@@ -3,6 +3,19 @@
     msg: "You can't set initial_key_count to value more than 12"
   when: initial_key_count>12 or initial_key_count<validator_count or initial_key_convert_count<validator_count or initial_key_count<initial_key_convert_count
   
+- name: Check if contracts were not already deployed
+  find:
+    paths: "/home/moc/poa-network-consensus-contracts/"
+    patterns: "contracts.json"
+  register: contracts
+  
+- name: Clear old MoC installation
+  become: true
+  file:
+    state: absent
+    path: "/home/moc"
+  when: contracts.matched == 0
+  
 - name: Ensure deployment playbooks exists on local server
   local_action:
     module: git
@@ -79,6 +92,12 @@
   args:
     creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc_secret"
   when: MOC_SECRET == ""
+  
+- name: Save MOC secret to outputs
+  copy:
+    content: "{{ MOC_SECRET }}"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc_secret"
+  when: MOC_SECRET != ""
 
 - name: Download terraform repo
   git:
