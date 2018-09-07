@@ -2,14 +2,14 @@
   block:
     - name: Create an account
       azure_rm_storageaccount:
-        resource_group: "{{ resource_group_name | default(NETWORK_NAME+'rg') }}"
+        resource_group: "{{ resource_group_name }}"
         name: "{{ NETWORK_NAME|lower }}account"
         account_type: Standard_RAGRS
         auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
 
     - name: Create container
       azure_rm_storageblob:
-        resource_group: "{{ resource_group_name | default(NETWORK_NAME+'rg') }}"
+        resource_group: "{{ resource_group_name }}"
         storage_account_name: "{{ NETWORK_NAME|lower }}account"
         container: "{{ NETWORK_NAME|lower }}container"
         auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
