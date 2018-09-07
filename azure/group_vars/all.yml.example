@@ -47,7 +47,7 @@ initial_key_convert_count: 1
 
 ##Prefix, that will be used for all resources ("tf-" by default)
 tf_prefix: "tf-"
-##Set name of resource group if it is already created. If this variable is empty - resource group will be created automatically with the following name: {{ NETWORK_NAME }}rg
+##Set name of resource group. Will be created with the following name if is not already exists. If this variable is empty - resource group will be created automatically with the following name: {{ NETWORK_NAME }}rg
 resource_group_name : "tf-test-full-setup"
 ##Region where resources should be created
 region : "East US"
