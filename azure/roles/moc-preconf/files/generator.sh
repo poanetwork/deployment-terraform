@@ -69,18 +69,18 @@ function gensecret {
     fi
 }
 
-# Genenrat moc_address function
-function genmocaddress {
-
-    if [ ! -e $KEYGENFILE  ]
-    then
-        node  $KEYGENPATH
-        echo -n $(cat $KEYGENFILE )
-    else
-
-        echo -n $(cat $KEYGENFILE)
-    fi
-}
+# Genenrate moc_address function
+#function genmocaddress {
+#
+#    if [ ! -e $KEYGENFILE  ]
+#    then
+#        node  $KEYGENPATH
+#        echo -n $(cat $KEYGENFILE )
+#    else
+#
+#        echo -n $(cat $KEYGENFILE)
+#    fi
+#}
 
 # Generate bytecode function
 function genbytecode {
@@ -116,7 +116,9 @@ fi
 # Generate MOC keypair
 export $MOC_SECRET
 export NETWORK_NAME=$CERTPATH
-export MOC_ADDRESS=$(genmocaddress)
+#export MOC_ADDRESS=$(genmocaddress)
+node $KEYGENPATH
+export MOC_ADDRESS=$(cat $KEYGENFILE)
 
 # Generate bytecode
 cd $BYTEGENPATH
