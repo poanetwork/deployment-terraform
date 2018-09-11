@@ -69,6 +69,19 @@ function gensecret {
     fi
 }
 
+# Genenrat moc_address function
+function genmocaddress {
+
+    if [ ! -e $KEYGENPATH  ]
+    then
+        node > "$KEYGENPATH"
+        echo -n $(cat $KEYGENPATH )
+    else
+
+        echo -n $(cat $KEYGENPATH)
+    fi
+}
+
 # Generate bytecode function
 function genbytecode {
 
@@ -80,13 +93,6 @@ function genbytecode {
         echo -n $(cat $BYTECODEFILE)
     fi
 }
-
-
-# Create directory for certificates if not exists
-if [ ! -e $CERTPATH  ]
-then
-    mkdir $CERTPATH
-fi
 
 # Generate/getting secret
 MOC_SECRET=$(gensecret $MOC_SECRET_FILE $MOC_SECRET_LENGTH $MOC_SECRET)
@@ -108,14 +114,12 @@ then
 fi
 
 # Generate MOC keypair
-if [[ ! -e $KEYGENPATH ]]
-then
-    node $KEYGENPATH
-fi
+MOC_ADDRESS=$(genmocaddress)
+MASTER_OF_CEREMONY=$MOC_ADDRESS
 
 # Generate bytecode
 cd $BYTEGENPATH
 BYTECODE=$(genbytecode)
 
 # Return secrets
-echo -e "${MOC_SECRET}:1:${NETSTAT_SECRET}:2:${CERT_SECRET}:3:${BYTECODE}"
+echo -e "${MOC_SECRET}:1:${NETSTAT_SECRET}:2:${CERT_SECRET}:3:${MOC_ADDRESS}:4:${BYTECODE}"

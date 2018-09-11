@@ -102,17 +102,6 @@
     creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bytecode"
     chdir: /home/{{ ansible_user }}/poa-network-consensus-contracts/scripts/  
 
-- name: Generate spec.json
-  template:
-    src: spec.json.j2
-    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
-  when: SPEC_ADDRESS == ""
-  
-- name: Copy spec.json to network folder
-  template:
-    src: "{{ SPEC_ADDRESS }}"
-    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
-  when: SPEC_ADDRESS != ""
 
 - name: Generate certificates ans secrets
   shell: "{{ role_path }}/files/generator.sh"
@@ -137,7 +126,8 @@
     MOC_SECRET: "{{ res_secrets.stdout  | regex_replace('^(.+?):1:.*', '\\1')}}"
     NETSTAT_SECRET: "{{ res_secrets.stdout  | regex_replace('.+:1:(.+):2:.+', '\\1')}}"
     CERT_SECRET: "{{ res_secrets.stdout  | regex_replace('.+:2:(.+?):3:.+', '\\1')}}"
-    bytecode: "{{ res_secrets.stdout | regex_replace('.+:3:(.+?)$', '\\1')}}"
+    MOC_ADDRESS: "{{ res_secrets.stdout  | regex_replace('.+:3:(.+?):4:.+', '\\1') }}"
+    bytecode: "{{ res_secrets.stdout | regex_replace('.+:4:(.+?)$', '\\1')}}"
 
     #- name: Set local variable MOC_SECRET
     #  block:     
@@ -280,6 +270,17 @@
   #    privatekey_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.key"
   #    csr_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.csr"
   #  when: not nodes_cert_file_check.stat.exists
+- name: Generate spec.json
+  template:
+    src: spec.json.j2
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
+  when: SPEC_ADDRESS == ""
+  
+- name: Copy spec.json to network folder
+  template:
+    src: "{{ SPEC_ADDRESS }}"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/spec.json"
+  when: SPEC_ADDRESS != ""
   
 - name: Restore default global store for npm modules
   shell: "npm config set prefix /usr"
