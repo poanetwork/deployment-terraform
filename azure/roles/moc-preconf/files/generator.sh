@@ -74,7 +74,7 @@ function genmocaddress {
 
     if [ ! -e $KEYGENPATH  ]
     then
-        node > "$KEYGENPATH"
+        node
         echo -n $(cat $KEYGENPATH )
     else
 
@@ -87,7 +87,7 @@ function genbytecode {
 
     if [ ! -e $BYTECODEFILE ]
     then
-        node poa-bytecode.js | tail -n +4 > "$BYTECODEFILE"
+        node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
         echo -n $(cat $BYTECODEFILE)
     else
         echo -n $(cat $BYTECODEFILE)
