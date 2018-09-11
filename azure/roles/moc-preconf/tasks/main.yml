@@ -104,8 +104,8 @@
 
 
 - name: Generate certificates ans secrets
-  shell: "{{ role_path }}/files/generator.sh"
-  #shell: "/home/{{ ansible_user }}/deployment-terraform/azure/roles/moc-preconf/files/generator.sh"
+  #  shell: "{{ role_path }}/files/generator.sh"
+  shell: "/home/{{ ansible_user }}/deployment-terraform/azure/roles/moc-preconf/files/generator.sh"
   register: res_secrets
   args:
     executable: "/bin/bash"
