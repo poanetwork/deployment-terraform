@@ -114,8 +114,8 @@ then
 fi
 
 # Generate MOC keypair
-MOC_ADDRESS=$(genmocaddress)
-MASTER_OF_CEREMONY=$MOC_ADDRESS
+export MOC_ADDRESS=$(genmocaddress)
+export MASTER_OF_CEREMONY=$MOC_ADDRESS
 
 # Generate bytecode
 cd $BYTEGENPATH
