@@ -114,12 +114,13 @@ then
 fi
 
 # Generate MOC keypair
-export MOC_ADDRESS=$(genmocaddress)
-export MASTER_OF_CEREMONY=$MOC_ADDRESS
+export $MOC_SECRET
 export NETWORK_NAME=$CERTPATH
+export MOC_ADDRESS=$(genmocaddress)
 
 # Generate bytecode
 cd $BYTEGENPATH
+export MASTER_OF_CEREMONY=$MOC_ADDRESS
 BYTECODE=$(genbytecode)
 
 # Return secrets
