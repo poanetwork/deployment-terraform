@@ -2,5 +2,5 @@ storage_account: ""
 container: ""
 terraform_location: /usr/bin/terraform
 tf_prefix: tf-
-resource_group_name: tf-test-full-setup
+resource_group_name: "{{ NETWORK_NAME }}rg"
 backend: false
