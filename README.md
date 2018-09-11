@@ -15,4 +15,4 @@ terraform version
 
 [Azure deployment README](azure/README.md)
 
-
+.
