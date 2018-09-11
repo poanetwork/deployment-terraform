@@ -74,12 +74,6 @@
     path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys"
     state: directory
 
-    #- name: Autogenerate MOC secret
-    #  shell: "head /dev/urandom | tr -dc A-Za-z0-9 | head -c {{ moc_secret_length }} | tee /home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc_secret"
-    #  args:
-    #    creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc_secret"
-    #  when: MOC_SECRET == ""
-
 - name: Download terraform repo
   git:
     repo: "{{ DEPLOYMENT_TERRAFORM }}"
@@ -87,11 +81,11 @@
     force: true  
     version: "{{ DEPLOYMENT_TERRAFORM_BRANCH }}"
 
-- name: Install reqired NPM modules
+- name: Install reqired NPM modules (key-generator)
   npm:
     path: /home/{{ ansible_user }}/deployment-terraform/helper-scripts/key-generator/ 
 
-- name: Install reqired NPM modules
+- name: Install reqired NPM modules (scripts)
   shell: npm install
   args:
     chdir: /home/{{ ansible_user }}/poa-network-consensus-contracts/scripts/  
@@ -102,9 +96,7 @@
     creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bytecode"
     chdir: /home/{{ ansible_user }}/poa-network-consensus-contracts/scripts/  
 
-
-- name: Generate certificates ans secrets
-  #  shell: "{{ role_path }}/files/generator.sh"
+- name: Generate certificates and secrets
   shell: "/home/{{ ansible_user }}/deployment-terraform/azure/roles/moc-preconf/files/generator.sh"
   register: res_secrets
   args:
@@ -124,157 +116,12 @@
 
 - name: Set secrets
   set_fact:
-    MOC_SECRET: "{{ res_secrets.stdout  | regex_replace('^(.+?):1:.*', '\\1')}}"
-    NETSTAT_SECRET: "{{ res_secrets.stdout  | regex_replace('.+:1:(.+):2:.+', '\\1')}}"
-    cert_secret: "{{ res_secrets.stdout  | regex_replace('.+:2:(.+?):3:.+', '\\1')}}"
-    MOC_ADDRESS: "{{ res_secrets.stdout  | regex_replace('.+:3:(.+?):4:.+', '\\1') }}"
-    bytecode: "{{ res_secrets.stdout | regex_replace('.+:4:(.+?)$', '\\1')}}"
-- name: SECRETS ------------->
-    debug:
-      msg: "moc_secret: {{ res_secrets.stdout  | regex_replace('^(.+?):1:.*', '\\1')}} netstat_secret: {{ res_secrets.stdout  | regex_replace('.+:1:(.+):2:.+', '\\1')}} cert_secret:{{ res_secrets.stdout  | regex_replace('.+:2:(.+?):3:.+', '\\1')}} moc_address: {{ res_secrets.stdout  | regex_replace('.+:3:(.+?):4:.+', '\\1') }} bytecode: {{ res_secrets.stdout | regex_replace('.+:4:(.+?)$', '\\1')}}"
+    MOC_SECRET: "{{ res_secrets.stdout_lines[0] }}"
+    NETSTAT_SECRET: "{{ res_secrets.stdout_lines[1] }}"
+    cert_secret: "{{ res_secrets.stdout_lines[2] }}"
+    MOC_ADDRESS: "{{ res_secrets.stdout_lines[3] }}"
+    bytecode: "{{ res_secrets.stdout_lines[4] }}"
 
-
-    #- name: Set local variable MOC_SECRET
-    #  block:     
-    #    - slurp:
-    #        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc_secret"
-    #      register:
-    #        MOC_SECRET_coded
-    #    - set_fact:
-    #         MOC_SECRET: "{{ MOC_SECRET_coded['content'] | b64decode }}"
-    #
-    #- name: Generate MOC keypair
-    #  shell: "MOC_SECRET={{ MOC_SECRET }} NETWORK_NAME=/home/{{ ansible_user }}/{{ NETWORK_NAME }}/ node /home/{{ ansible_user }}/deployment-terraform/helper-scripts/key-generator/script.js"
-    #  args:
-    #    creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc"
-    #    
-    #- name: Set local variable MOC_ADDRESS
-    #  block:     
-    #    - slurp:
-    #        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc"
-    #      register:
-    #        MOC_ADDRESS_coded
-    #    - set_fact:
-    #         MOC_ADDRESS: "{{ MOC_ADDRESS_coded['content'] | b64decode }}"
-    #
-    #- name: Autogenerate netstat secret
-    #  shell: "head /dev/urandom | tr -dc A-Za-z0-9 | head -c {{ netstat_secret_length }} | tee /home/{{ ansible_user }}/{{ NETWORK_NAME }}/netstat_secret"
-    #  args:
-    #    creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/netstat_secret"
-    #  when: NETSTATS_SECRET == ""
-    #  
-    #- name: Save netstat secret to outputs
-    #  copy:
-    #    content: "{{ NETSTATS_SECRET }}"
-    #    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/netstat_secret"
-    #  when: NETSTATS_SECRET != ""
-    #  
-    #- name: Set local variable NETSTATS_SECRET
-    #  block:     
-    #    - slurp:
-    #        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/netstat_secret"
-    #      register:
-    #        NETSTATS_SECRET_coded
-    #    - set_fact:
-    #         NETSTATS_SECRET: "{{ NETSTATS_SECRET_coded['content'] | b64decode }}"
-    #  when: NETSTATS_SECRET == ""
-    
- 
-    #- name: Generate bytecode
-    #  shell: "MASTER_OF_CEREMONY={{ MOC_ADDRESS }} node poa-bytecode.js | tail -n +4 | tee /home/{{ ansible_user }}/{{ NETWORK_NAME }}/bytecode"
-    #  register: bytecode_output
-    #  args:
-    #    creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bytecode"
-    #    chdir: ./poa-network-consensus-contracts/scripts
-    #  failed_when: "'Error' in bytecode_output.stdout or bytecode_output.stdout|length<1" 
-    #     
-    #- name: Register bytecode variable
-    #  block:     
-    #    - slurp:
-    #        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bytecode"
-    #      register:
-    #        bytecode_coded 
-    #    - set_fact:
-    #        bytecode: "{{ bytecode_coded['content'] | b64decode | replace('\n', '')  }}"
- 
-    
-  #- name: Check GW certificate file
-  #  stat:
-  #    path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.pfx"
-  #  register: cert_file_check
-  #  
-  #- name: Autogenerate cert secret
-  #  shell: "head /dev/urandom | tr -dc A-Za-z0-9 | head -c {{ cert_secret_length }} | tee /home/{{ ansible_user }}/{{ NETWORK_NAME }}/cert_secret"
-  #  args:
-  #    creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/cert_secret"
-  #  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
-  #  
-  #- name: Register cert_secret variable
-  #  block:     
-  #    - slurp:
-  #        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/cert_secret"
-  #      register:
-  #        cert_secret_coded 
-  #    - set_fact:
-  #        cert_secret: "{{ cert_secret_coded['content'] | b64decode | replace('\n', '')  }}"
-  #  when: bootnode_balanced_count>0
-  #
-  #- name: Generate SSL private key
-  #  openssl_privatekey:
-  #    path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.key"
-  #    passphrase: "{{ cert_secret }}"
-  #    cipher: aes256
-  #    size: 4096
-  #  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
-  #
-  #- name: Generate SSL certificate request
-  #  openssl_csr:
-  #    path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.csr"
-  #    privatekey_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.key"
-  #    privatekey_passphrase: "{{ cert_secret }}"
-  #    common_name: "*.cloudapp.net"
-  #  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
-  #
-  #- name: Generate self-signed SSL certificate for gateway
-  #  openssl_certificate:
-  #    path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.crt"
-  #    provider: selfsigned
-  #    privatekey_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.key"
-  #    privatekey_passphrase: "{{ cert_secret }}"
-  #    csr_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/gwcert.csr"
-  #  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
-  #  
-  #- name: Converting CRT to PFX
-  #  shell: "openssl pkcs12 -export -inkey gwcert.key -in gwcert.crt -out gwcert.pfx -passin pass:{{ cert_secret }} -passout pass:{{ cert_secret }}"
-  #  args:
-  #    chdir: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/"
-  #  when: not cert_file_check.stat.exists and bootnode_balanced_count>0
-  # 
-  #- name: Check nodes certificate file
-  #  stat:
-  #    path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.crt"
-  #  register: nodes_cert_file_check 
-  # 
-  #- name: Generate SSL private key without password for nodes
-  #  openssl_privatekey:
-  #    path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.key"
-  #    size: 4096
-  #  when: not nodes_cert_file_check.stat.exists
-  #
-  #- name: Generate SSL certificate request
-  #  openssl_csr:
-  #    path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.csr"
-  #    privatekey_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.key"
-  #    common_name: "{{ ansible_host }}"
-  #  when: not nodes_cert_file_check.stat.exists
-  #
-  #- name: Generate self-signed SSL certificate
-  #  openssl_certificate:
-  #    path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.crt"
-  #    provider: selfsigned
-  #    privatekey_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.key"
-  #    csr_path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/server.csr"
-  #  when: not nodes_cert_file_check.stat.exists
 - name: Generate spec.json
   template:
     src: spec.json.j2
@@ -289,4 +136,3 @@
   
 - name: Restore default global store for npm modules
   shell: "npm config set prefix /usr"
-
