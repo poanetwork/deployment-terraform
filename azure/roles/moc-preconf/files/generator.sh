@@ -116,6 +116,7 @@ fi
 # Generate MOC keypair
 export MOC_ADDRESS=$(genmocaddress)
 export MASTER_OF_CEREMONY=$MOC_ADDRESS
+export NETWORK_NAME=$CERTPATH
 
 # Generate bytecode
 cd $BYTEGENPATH
