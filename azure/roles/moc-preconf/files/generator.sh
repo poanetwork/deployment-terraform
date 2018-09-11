@@ -72,13 +72,13 @@ function gensecret {
 # Genenrat moc_address function
 function genmocaddress {
 
-    if [ ! -e $KEYGENPATH  ]
+    if [ ! -e $KEYGENFILE  ]
     then
-        node
-        echo -n $(cat $KEYGENPATH )
+        node  $KEYGENPATH
+        echo -n $(cat $KEYGENFILE )
     else
 
-        echo -n $(cat $KEYGENPATH)
+        echo -n $(cat $KEYGENFILE)
     fi
 }
 
