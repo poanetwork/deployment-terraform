@@ -112,7 +112,7 @@
   environment:
     ANSIBLE_USER: "{{ ansible_user }}"
     NETWORK_NAME: "{{ NETWORK_NAME }}"  
-    SRDOMAIN: "{{ ansible_hosts }}"
+    SRDOMAIN: "{{ ansible_host }}"
     MOC_SECRET: "{{ moc_secret }}"
     CERT_SECRET: "{{ cert_secret }}" 
     NETSTAT_SECRET: "{{ netstat_secret }}"
