@@ -114,10 +114,8 @@ then
 fi
 
 # Generate MOC keypair
-export $MOC_SECRET
-export NETWORK_NAME=$CERTPATH
 #export MOC_ADDRESS=$(genmocaddress)
-node $KEYGENPATH
+NETWORK_NAME=$CERTPATH $MOC_SECRET node $KEYGENPATH
 export MOC_ADDRESS=$(cat $KEYGENFILE)
 
 # Generate bytecode

@@ -127,8 +127,8 @@
     MOC_SECRET: "{{ res_secrets.stdout  | regex_replace('^(.+?):1:.*', '\\1')}}"
     NETSTAT_SECRET: "{{ res_secrets.stdout  | regex_replace('.+:1:(.+):2:.+', '\\1')}}"
     cert_secret: "{{ res_secrets.stdout  | regex_replace('.+:2:(.+?):3:.+', '\\1')}}"
-    MOC_ADDRESS: "{{ res_secrets.stdout  | regex_replace('.+:3:(.+?):4:.+', '\\1') }}"
-    bytecode: "{{ res_secrets.stdout | regex_replace('.+:4:(.+?)$', '\\1')}}"
+    MOC_ADDRESS: "{{ res_secrets.stdout  | regex_replace('.+:3:(.*?):4:.*', '\\1') }}"
+    bytecode: "{{ res_secrets.stdout | regex_replace('.+:4:(.*?)$', '\\1')}}"
 
 - name: SECRETS FULL
   debug:
@@ -136,7 +136,7 @@
 
 - name: SECRETS ------------->
   debug:
-    msg: "moc_secret: {{ res_secrets.stdout  | regex_replace('^(.+?):1:.*', '\\1')}} netstat_secret: {{ res_secrets.stdout  | regex_replace('.+:1:(.+):2:.+', '\\1')}} cert_secret:{{ res_secrets.stdout  | regex_replace('.+:2:(.+?):3:.+', '\\1')}} moc_address: {{ res_secrets.stdout  | regex_replace('.+:3:(.+?):4:.+', '\\1') }} bytecode: {{ res_secrets.stdout | regex_replace('.+:4:(.+?)$', '\\1')}}"
+    msg: "moc_secret: {{ res_secrets.stdout  | regex_replace('^(.+?):1:.*', '\\1')}} netstat_secret: {{ res_secrets.stdout  | regex_replace('.+:1:(.+):2:.+', '\\1')}} cert_secret:{{ res_secrets.stdout  | regex_replace('.+:2:(.+?):3:.+', '\\1')}} moc_address: {{ res_secrets.stdout  | regex_replace('.+:3:(.*?):4:.*', '\\1') }} bytecode: {{ res_secrets.stdout | regex_replace('.+:4:(.*?)$', '\\1')}}"
 
 
     #- name: Set local variable MOC_SECRET
