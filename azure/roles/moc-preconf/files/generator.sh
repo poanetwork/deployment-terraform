@@ -88,7 +88,7 @@ function genbytecode {
     if [ ! -e $BYTECODEFILE ]
     then
         cd $BYTEGENPATH
-        export MASTER_OF_CEREMONY=$MOC_ADDRESS && node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
+        MASTER_OF_CEREMONY=$MOC_ADDRESS node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
         echo -n $(cat $BYTECODEFILE)
     else
         echo -n $(cat $BYTECODEFILE)
