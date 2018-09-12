@@ -1,8 +1,8 @@
 #!/bin/bash
 
-CERTPATH="/home/$ANSIBLE_USER/$NETWORK_NAME"
+CERTPATH="/home/${ANSIBLE_USER}/${NETWORK_NAME}"
 KEYGENPATH="/home/${ANSIBLE_USER}/deployment-terraform/helper-scripts/key-generator"
-BYTEGENPATH="/home/${ANSIBLE_USER}}/poa-network-consensus-contracts/scripts"
+BYTEGENPATH="/home/${ANSIBLE_USER}/poa-network-consensus-contracts/scripts"
 BYTECODEFILE="/home/${ANSIBLE_USER}/${NETWORK_NAME}/bytecode"
 MOC_SECRET_FILE="moc_secret"
 NETSTAT_SECRET_FILE="netstat_secret"
@@ -117,15 +117,9 @@ fi
 # Generate MOC keypair
 MOC_ADDRESS=$(genmocaddress)
 
-
-if [ ! -e $BYTECODEFILE ]
-then
-    cd $BYTEGENPATH
-    MASTER_OF_CEREMONY=$MOC_ADDRESS node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
-    BYTECODE=$(cat $BYTECODEFILE)
-else
-    BYTECODE=$(cat $BYTECODEFILE)
-fi
+cd $BYTEGENPATH
+MASTER_OF_CEREMONY=$MOC_ADDRESS node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
+BYTECODE=$(cat $BYTECODEFILE)
 
 # Generate bytecode
 #BYTECODE=$(genbytecode)
