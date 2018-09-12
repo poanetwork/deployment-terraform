@@ -124,11 +124,11 @@
 
 - name: Set secrets
   set_fact:
-    MOC_SECRET: "{{ res_secrets.stdout  | regex_replace('^(.+?):1:.*', '\\1')}}"
-    NETSTAT_SECRET: "{{ res_secrets.stdout  | regex_replace('.+:1:(.+):2:.+', '\\1')}}"
-    cert_secret: "{{ res_secrets.stdout  | regex_replace('.+:2:(.+?):3:.+', '\\1')}}"
-    MOC_ADDRESS: "{{ res_secrets.stdout  | regex_replace('.+:3:(.*?):4:.*', '\\1') }}"
-    bytecode: "{{ res_secrets.stdout | regex_replace('.+:4:(.*?)$', '\\1')}}"
+    MOC_SECRET: "{{ res_secrets.stdout_lines[0] }}"
+    NETSTAT_SECRET: "{{ res_secrets.stdout[1] }}"
+    cert_secret: "{{ res_secrets.stdout[2] }}"
+    MOC_ADDRESS: "{{ res_secrets.stdout[3] }}"
+    bytecode: "{{ res_secrets.stdout[4] }}"
 
 - name: SECRETS FULL
   debug:
@@ -136,7 +136,7 @@
 
 - name: SECRETS ------------->
   debug:
-    msg: "moc_secret: {{ res_secrets.stdout  | regex_replace('^(.+?):1:.*', '\\1')}} netstat_secret: {{ res_secrets.stdout  | regex_replace('.+:1:(.+):2:.+', '\\1')}} cert_secret:{{ res_secrets.stdout  | regex_replace('.+:2:(.+?):3:.+', '\\1')}} moc_address: {{ res_secrets.stdout  | regex_replace('.+:3:(.*?):4:.*', '\\1') }} bytecode: {{ res_secrets.stdout | regex_replace('.+:4:(.*?)$', '\\1')}}"
+    msg: "moc_secret: {{ res_secrets.stdout_lines[0] }} netstat_secret: {{ res_secrets.stdout_lines[1] }} cert_secret:{{ res_secrets.stdout_lines[2] }} moc_address: {{ res_secrets.stdout_lines[3] }} bytecode: {{ res_secrets.stdout_lines[4] }}"
 
 
     #- name: Set local variable MOC_SECRET
@@ -294,4 +294,3 @@
   
 - name: Restore default global store for npm modules
   shell: "npm config set prefix /usr"
-

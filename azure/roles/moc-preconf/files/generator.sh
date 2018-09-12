@@ -121,4 +121,8 @@ MOC_ADDRESS=$(genmocaddress)
 BYTECODE=$(genbytecode)
 
 # Return secrets
-echo -e "${MOC_SECRET}:1:${NETSTAT_SECRET}:2:${CERT_SECRET}:3:${MOC_ADDRESS}:4:${BYTECODE}"
+echo "${MOC_SECRET}"
+echo "${NETSTAT_SECRET}"
+echo "${CERT_SECRET}"
+echo "${MOC_ADDRESS}"
+echo "${BYTECODE}"
