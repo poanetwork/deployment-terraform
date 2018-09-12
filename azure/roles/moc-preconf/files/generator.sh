@@ -72,7 +72,7 @@ function genmocaddress {
     if [ ! -e "${CERTPATH}/moc"  ]
     then
         cd $KEYGENPATH
-        node script.js $MOC_SECRET $CERTPATH
+        MOC_SECRET=$MOC_SECRET CERTPATH=$CERTPATH node script.js
         cat "${CERTPATH}/moc"
     else
         cat "${CERTPATH}/moc"
