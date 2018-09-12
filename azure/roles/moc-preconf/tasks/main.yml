@@ -125,10 +125,10 @@
 - name: Set secrets
   set_fact:
     MOC_SECRET: "{{ res_secrets.stdout_lines[0] }}"
-    NETSTAT_SECRET: "{{ res_secrets.stdout[1] }}"
-    cert_secret: "{{ res_secrets.stdout[2] }}"
-    MOC_ADDRESS: "{{ res_secrets.stdout[3] }}"
-    bytecode: "{{ res_secrets.stdout[4] }}"
+    NETSTAT_SECRET: "{{ res_secrets.stdout_lines[1] }}"
+    cert_secret: "{{ res_secrets.stdout_lines[2] }}"
+    MOC_ADDRESS: "{{ res_secrets.stdout_lines[3] }}"
+    bytecode: "{{ res_secrets.stdout_lines[4] }}"
 
 - name: SECRETS FULL
   debug:
