@@ -82,18 +82,18 @@ function genmocaddress {
     fi
 }
 
-## Generate bytecode function
-#function genbytecode {
-#
-#    if [ ! -e $BYTECODEFILE ]
-#    then
-#        cd $BYTEGENPATH
-#        MASTER_OF_CEREMONY=$MOC_ADDRESS node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
-#        echo -n $(cat $BYTECODEFILE)
-#    else
-#        echo -n $(cat $BYTECODEFILE)
-#    fi
-#}
+# Generate bytecode function
+function genbytecode {
+
+    if [ ! -e $BYTECODEFILE ]
+    then
+        cd $BYTEGENPATH
+        MASTER_OF_CEREMONY=$MOC_ADDRESS node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
+        echo -n $(cat $BYTECODEFILE)
+    else
+        echo -n $(cat $BYTECODEFILE)
+    fi
+}
 
 # Generate/getting secret
 MOC_SECRET=$(gensecret $MOC_SECRET_FILE $MOC_SECRET_LENGTH $MOC_SECRET)
@@ -117,12 +117,8 @@ fi
 # Generate MOC keypair
 MOC_ADDRESS=$(genmocaddress)
 
-cd $BYTEGENPATH
-MASTER_OF_CEREMONY=$MOC_ADDRESS node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
-BYTECODE=$(cat $BYTECODEFILE)
-
 # Generate bytecode
-#BYTECODE=$(genbytecode)
+BYTECODE=$(genbytecode)
 
 # Return secrets
 echo -e "${MOC_SECRET}:1:${NETSTAT_SECRET}:2:${CERT_SECRET}:3:${MOC_ADDRESS}:4:${BYTECODE}"
