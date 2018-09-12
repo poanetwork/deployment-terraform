@@ -66,7 +66,7 @@ function gensecret {
     fi
 }
 
-# Genenrat moc_address function
+# Genenrate moc_address function
 function genmocaddress {
 
     if [ ! -e "${CERTPATH}/moc"  ]
@@ -104,9 +104,9 @@ if [ $count -eq 0  ] && [ $BOOTNODE_BALANCED_COUNT -gt 0 ]
 then
     cd $CERTPATH
     # Generate cert for gw
-    gencert $GWDOMAIN $GWCERTNAME $MOC_SECRET
+    gencert $GWDOMAIN $GWCERTNAME $CERT_SECRET
     # Convert gw crt to pfx
-    crttopfx $GWCERTNAME $MOC_SECRET
+    crttopfx $GWCERTNAME $CERT_SECRET
     # Generate cert for srv
     gencert $SRDOMAIN $SRCERTNAME
 fi
