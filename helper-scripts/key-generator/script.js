@@ -1,8 +1,10 @@
 var keythereum = require('keythereum');
 var fs = require('fs');
 
-const MOC_SECRET = process.env.MOC_SECRET;
-const NETWORK_NAME = process.env.CERTPATH;
+//const MOC_SECRET = process.env.MOC_SECRET;
+//const NETWORK_NAME = process.env.CERTPATH;
+const MOC_SECRET = process.argv[2];
+const NETWORK_NAME = process.argv[3];
 
 if (!MOC_SECRET || !NETWORK_NAME) throw new Error('MOC_SECRET and NETWORK_NAME env variables are required');
 

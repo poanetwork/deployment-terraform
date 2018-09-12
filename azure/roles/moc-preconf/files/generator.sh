@@ -74,7 +74,7 @@ function genmocaddress {
     if [ ! -e "${CERTPATH}/moc"  ]
     then
         cd $KEYGENPATH
-        export $MOC_SECRET && export $CERTPATH &&  node script.js
+        node script.js $MOC_SECRET $CERTPATH
         echo -n $(cat "${CERTPATH}/moc" )
     else
 
