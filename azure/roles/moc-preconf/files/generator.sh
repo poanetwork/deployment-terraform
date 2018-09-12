@@ -3,7 +3,6 @@
 CERTPATH="/home/${ANSIBLE_USER}/${NETWORK_NAME}"
 KEYGENPATH="/home/${ANSIBLE_USER}/deployment-terraform/helper-scripts/key-generator"
 BYTEGENPATH="/home/${ANSIBLE_USER}/poa-network-consensus-contracts/scripts"
-BYTECODEFILE="/home/${ANSIBLE_USER}/${NETWORK_NAME}/bytecode"
 MOC_SECRET_FILE="moc_secret"
 NETSTAT_SECRET_FILE="netstat_secret"
 CERT_SECRET_FILE="cert_secret"
@@ -56,15 +55,14 @@ function gensecret {
     then
         if [[ -z "$SECRET" ]]
         then
-            echo -n $(head /dev/urandom | tr -dc A-Za-z0-9 | head -c ${SECRET_LENGTH}) > $FILEPATH
-            echo -n $(cat $FILEPATH)
-
+            head /dev/urandom | tr -dc A-Za-z0-9 | head -c ${SECRET_LENGTH} > $FILEPATH
+            cat $FILEPATH
         else
-            echo -n $SECRET > $FILEPATH
-            echo -n $(cat $FILEPATH)
+            echo $SECRET > $FILEPATH
+            cat $FILEPATH
         fi
     else
-        echo -n $(cat $FILEPATH)
+        cat $FILEPATH
     fi
 }
 
@@ -75,23 +73,22 @@ function genmocaddress {
     then
         cd $KEYGENPATH
         node script.js $MOC_SECRET $CERTPATH
-        echo -n $(cat "${CERTPATH}/moc" )
+        cat "${CERTPATH}/moc"
     else
-
-        echo -n $(cat "${CERTPATH}/moc" )
+        cat "${CERTPATH}/moc"
     fi
 }
 
 # Generate bytecode function
 function genbytecode {
 
-    if [ ! -e $BYTECODEFILE ]
+    if [ ! -e "$CERTPATH/bytecode" ]
     then
         cd $BYTEGENPATH
-        MASTER_OF_CEREMONY=$MOC_ADDRESS node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
-        echo -n $(cat $BYTECODEFILE)
+        MASTER_OF_CEREMONY=$MOC_ADDRESS node poa-bytecode.js | tail -n +4 > "$CERTPATH/bytecode"
+        cat "$CERTPATH/bytecode"
     else
-        echo -n $(cat $BYTECODEFILE)
+        cat "$CERTPATH/bytecode"
     fi
 }
 
