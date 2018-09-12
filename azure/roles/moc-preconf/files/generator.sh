@@ -10,7 +10,7 @@ GWDOMAIN="*.cloudapp.net"
 GWCERTNAME="gwcert"
 SRCERTNAME="server"
 
-# Generate cert with or without password function
+# Generation cert with or without password function
 function gencert {
 
     DOMAIN="$1"
@@ -28,11 +28,11 @@ organizationalUnitName=POA
 emailAddress=admin@example.com
 "
 
-# Generate the private key
+# Private key generation
 openssl genrsa  ${PASSPHRASE:+-aes256 -passout pass:$PASSPHRASE} -out $PRIVNAME.key 4096
-# Generate the CSR
+# Csr generation
 openssl req  -new -batch -subj "$(echo -n "$subj" | tr "\n" "/")" -key $PRIVNAME.key -out $PRIVNAME.csr ${PASSPHRASE:+-passin pass:$PASSPHRASE}
-# Generate the cert (good for 1 year)
+# Crt generation
 openssl x509 -req -days 365 -in $PRIVNAME.csr -signkey $PRIVNAME.key -out $PRIVNAME.crt  ${PASSPHRASE:+-passin pass:$PASSPHRASE}
 }
 
@@ -43,7 +43,7 @@ function crttopfx {
     openssl pkcs12 -export -inkey $PRIVNAME.key -in $PRIVNAME.crt -out $PRIVNAME.pfx -passin pass:$PASSPHRASE -passout pass:$PASSPHRASE
 }
 
-# Autogenerate/read secret function
+# Autogeneration/read secret function
 function gensecret {
 
     SECRET_FILE="$1"
@@ -66,7 +66,7 @@ function gensecret {
     fi
 }
 
-# Genenrate moc_address function
+# Generation moc_address function
 function genmocaddress {
 
     if [ ! -e "${CERTPATH}/moc"  ]
@@ -79,7 +79,7 @@ function genmocaddress {
     fi
 }
 
-# Generate bytecode function
+# Generation bytecode function
 function genbytecode {
 
     if [ ! -e "$CERTPATH/bytecode" ]
@@ -92,7 +92,7 @@ function genbytecode {
     fi
 }
 
-# Generate/getting secret
+# Generation/getting secret
 MOC_SECRET=$(gensecret $MOC_SECRET_FILE $MOC_SECRET_LENGTH $MOC_SECRET)
 NETSTAT_SECRET=$(gensecret $NETSTAT_SECRET_FILE $NETSTAT_SECRET_LENGTH $NETSTAT_SECRET)
 CERT_SECRET=$(gensecret $CERT_SECRET_FILE $CERT_SECRET_LENGTH $CERT_SECRET)
@@ -103,18 +103,18 @@ count=$(find "$CERTPATH" -type f -name "*.crt" 2>/dev/null | wc -l)
 if [ $count -eq 0  ] && [ $BOOTNODE_BALANCED_COUNT -gt 0 ]
 then
     cd $CERTPATH
-    # Generate cert for gw
+    # Generation cert for gw
     gencert $GWDOMAIN $GWCERTNAME $CERT_SECRET
     # Convert gw crt to pfx
     crttopfx $GWCERTNAME $CERT_SECRET
-    # Generate cert for srv
+    # Generation cert for srv
     gencert $SRDOMAIN $SRCERTNAME
 fi
 
-# Generate MOC keypair
+# Generation MOC keypair
 MOC_ADDRESS=$(genmocaddress)
 
-# Generate bytecode
+# Generation bytecode
 BYTECODE=$(genbytecode)
 
 # Return secrets
