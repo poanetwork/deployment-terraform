@@ -73,7 +73,8 @@ function genmocaddress {
 
     if [ ! -e "${CERTPATH}/moc"  ]
     then
-        node script.js
+        cd $KEYGENPATH
+        export $MOC_SECRET && export $CERTPATH &&  node script.js
         echo -n $(cat "${CERTPATH}/moc" )
     else
 
@@ -86,7 +87,8 @@ function genbytecode {
 
     if [ ! -e $BYTECODEFILE ]
     then
-        node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
+        cd $BYTEGENPATH
+        export MASTER_OF_CEREMONY=$MOC_ADDRESS && node poa-bytecode.js | tail -n +4 | tee $BYTECODEFILE
         echo -n $(cat $BYTECODEFILE)
     else
         echo -n $(cat $BYTECODEFILE)
@@ -113,14 +115,9 @@ then
 fi
 
 # Generate MOC keypair
-cd $KEYGENPATH
-export $MOC_SECRET
-export $CERTPATH
 MOC_ADDRESS=$(genmocaddress)
 
 # Generate bytecode
-cd $BYTEGENPATH
-export MASTER_OF_CEREMONY=$MOC_ADDRESS
 BYTECODE=$(genbytecode)
 
 # Return secrets
