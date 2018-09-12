@@ -1,8 +1,7 @@
 #!/bin/bash
 
 CERTPATH="/home/$ANSIBLE_USER/$NETWORK_NAME"
-KEYGENPATH="/home/${ANSIBLE_USER}/deployment-terraform/helper-scripts/key-generator/script.js"
-KEYGENFILE="/home/${ANSIBLE_USER}/${NETWORK_NAME}}/moc"
+KEYGENPATH="/home/${ANSIBLE_USER}/deployment-terraform/helper-scripts/key-generator"
 BYTEGENPATH="/home/${ANSIBLE_USER}}/poa-network-consensus-contracts/scripts"
 BYTECODEFILE="/home/${ANSIBLE_USER}/${NETWORK_NAME}/bytecode"
 MOC_SECRET_FILE="moc_secret"
@@ -69,18 +68,18 @@ function gensecret {
     fi
 }
 
-# Genenrate moc_address function
-#function genmocaddress {
-#
-#    if [ ! -e $KEYGENFILE  ]
-#    then
-#        node  $KEYGENPATH
-#        echo -n $(cat $KEYGENFILE )
-#    else
-#
-#        echo -n $(cat $KEYGENFILE)
-#    fi
-#}
+# Genenrat moc_address function
+function genmocaddress {
+
+    if [ ! -e "${CERTPATH}/moc"  ]
+    then
+        node script.js
+        echo -n $(cat "${CERTPATH}/moc" )
+    else
+
+        echo -n $(cat "${CERTPATH}/moc" )
+    fi
+}
 
 # Generate bytecode function
 function genbytecode {
@@ -114,9 +113,10 @@ then
 fi
 
 # Generate MOC keypair
-#export MOC_ADDRESS=$(genmocaddress)
-NETWORK_NAME=$CERTPATH $MOC_SECRET node $KEYGENPATH
-export MOC_ADDRESS=$(cat $KEYGENFILE)
+cd $KEYGENPATH
+export $MOC_SECRET
+export $CERTPATH
+MOC_ADDRESS=$(genmocaddress)
 
 # Generate bytecode
 cd $BYTEGENPATH
