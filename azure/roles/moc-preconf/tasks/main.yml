@@ -96,7 +96,7 @@
     creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bytecode"
     chdir: /home/{{ ansible_user }}/poa-network-consensus-contracts/scripts/  
 
-- name: Generate certificates ans secrets
+- name: Generate certificates and secrets
   shell: "/home/{{ ansible_user }}/deployment-terraform/azure/roles/moc-preconf/files/generator.sh"
   register: res_secrets
   args:
