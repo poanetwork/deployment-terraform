@@ -58,7 +58,7 @@ function gensecret {
             head /dev/urandom | tr -dc A-Za-z0-9 | head -c ${SECRET_LENGTH} > $FILEPATH
             cat $FILEPATH
         else
-            echo $SECRET > $FILEPATH
+            echo -n $SECRET > $FILEPATH
             cat $FILEPATH
         fi
     else
