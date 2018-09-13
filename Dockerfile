@@ -14,8 +14,8 @@ RUN apt-get update -qq && \
   python \
   python-dev 
 
-ENV TERAFORM_VERSION="0.11.7"
-ENV ANSIBLE_VERSION="2.5.4"
+ENV TERAFORM_VERSION="0.11.8"
+ENV ANSIBLE_VERSION="2.6.3"
 
 RUN \
   curl -fSs https://releases.hashicorp.com/terraform/${TERAFORM_VERSION}/terraform_${TERAFORM_VERSION}_linux_amd64.zip \
@@ -27,7 +27,7 @@ RUN \
   curl -fsSL https://releases.ansible.com/ansible/ansible-${ANSIBLE_VERSION}.tar.gz -o ansible.tar.gz && \
   mkdir ansible; tar -xzf ansible.tar.gz -C ansible --strip-components 1 && \
   curl https://bootstrap.pypa.io/get-pip.py | python && \
-  pip install -U pip setuptools packaging && \
+  pip install -U pip setuptools packaging msrestazure && \
   cd ansible && make && make install
 
 RUN \

@@ -1,40 +1,37 @@
+- name: Get storage key
+  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ NETWORK_NAME|lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
+  register: storage_account_key
+  when: "lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true"
+
 - name: Check that remote backend selector plan exists on host
   stat:
     path: roles/terraform/files/remote-backend-selector.tf
   register: plan_result
-  tags:
-    - remote backend
 
 - name: Local or remote backend selector (remote)
   template: 
     src: remote-backend-selector.j2 
     dest: roles/terraform/files/remote-backend-selector.tf
   when: 
-    - backend == "true"
-    - plan_result.stat.exists != "true"
-  tags:
-    - remote_backend
+    - backend|bool == "true" and plan_result.stat.exists != "true"
 
 - name: Local or remote backend selector (local)
   file:
     state: absent
     dest: roles/terraform/files/remote-backend-selector.tf 
   when: 
-    - backend != "true" or backend is undefined
-    - plan_result.stat.exists
-  tags:
-    - remote_backend   
+    - backend | default ('false') | bool != "true" and plan_result.stat.exists
 
 - name: Generating variables file
   template:
     src: terraform.tfvars.j2
     dest: roles/terraform/files/terraform.tfvars
-    
+
 - name: Generating backend file
   template:
     src: backend.tfvars.j2
     dest: roles/terraform/files/backend.tfvars
-  when: backend == "true"
+  when: backend|bool == true
     
 - name: Copy ssh key to terraform directory
   copy: 
@@ -47,7 +44,7 @@
   args:
     chdir: "roles/terraform/files"
   with_items:
-    - "init {{ '-backend-config=backend.tfvars' if backend == 'true' else '' }}"
+    - "init{{ ' -backend-config=backend.tfvars' if backend|bool == true else '' }}"
     - plan
     - apply
 
@@ -92,18 +89,6 @@
         groups: explorer
       with_items: "{{ explorerips.stdout_lines }}" 
      
-- name: Refresh moc host addresses
-  block:
-    - name : Refresh moc host address
-      shell: "{{ terraform_location }} output moc-ips | tr -d ,"
-      register: mocips   
-      args:
-        chdir: roles/terraform/files/
-    - add_host:
-        name: "{{ item }}"
-        groups: moc
-      with_items: "{{ mocips.stdout_lines }}" 
-   
 - name: Refresh netstat host addresses
   block:
     - name : Refresh netstat host address
@@ -127,3 +112,15 @@
         name: "{{ item }}"
         groups: validator
       with_items: "{{ validatorips.stdout_lines }}" 
+
+- name: Refresh moc host addresses
+  block:
+    - name : Refresh moc host address
+      shell: "{{ terraform_location }} output moc-ips | tr -d ,"
+      register: mocips   
+      args:
+        chdir: roles/terraform/files/
+    - add_host:
+        name: "{{ item }}"
+        groups: moc
+      with_items: "{{ mocips.stdout_lines }}" 

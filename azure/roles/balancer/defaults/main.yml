@@ -1,7 +1,6 @@
-storage_account: tfci
-container: tf-ci-state
+storage_account: ""
+container: ""
 terraform_location: /usr/bin/terraform
 tf_prefix: tf-
-resource_group_name: tf-test-full-setup
-default_resource_group_name: tf-default-full-setup
+resource_group_name: "{{ NETWORK_NAME }}rg"
 backend: false
