@@ -40,7 +40,7 @@
   become: True
   tasks:
     - name: Install python
-      raw: test -e /usr/bin/python || (sudo apt -y update && sudo apt install -y python-minimal)
+      raw: "test -e {{ ansible_python_interpreter | default ('/usr/bin/python') }} || (sudo apt -y update && sudo apt install -y python-minimal)"
   tags:
     - preconf
 
