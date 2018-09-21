@@ -4,6 +4,7 @@ DEPLOYMENT_TERRAFORM: https://github.com/poanetwork/deployment-terraform.git
 DEPLOYMENT_PLAYBOOKS_BRANCH: master
 DEPLOYMENT_TERRAFORM_BRANCH: master
 POA_CONSENSUS_CONTRACTS: https://github.com/poanetwork/poa-network-consensus-contracts.git
+POA_CONSENSUS_CONTRACTS_BRANCH: "1.0"
 terraform_version: 0.11.7
 node_version: 8
 moc_secret_length: 20
