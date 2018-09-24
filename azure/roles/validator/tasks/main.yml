@@ -27,7 +27,7 @@
   vars:
     username: "validator"
     GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
-    MINING_ADDRESS: "{{ addresses.stdout }}"
+    MINING_ADDRESS: "0x{{ addresses.stdout }}"
     MINING_KEYPASS: "{{ lookup ('file', keys.stdout) }}"
     MINING_KEYFILE: "{{ lookup ('file', keyfiles.stdout) }}"
 
