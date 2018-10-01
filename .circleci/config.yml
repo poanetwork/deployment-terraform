@@ -25,7 +25,7 @@ jobs:
 
       - run:
           name: deploy infra
-          command: bash -c "ansible-playbook site.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' -e 'tf_prefix=$tf_prefix' $build_attr"
+          command: bash -c "ansible-playbook site.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' -e 'tf_prefix='$tf_prefix $build_attr"
           no_output_timeout: 2000
       
       - run:
@@ -66,11 +66,11 @@ jobs:
       
       - run:
           name: check network
-          command: bash -c "ansible-playbook tests.yml -i /tmp/hosts/latest_deploy_hosts -e 'terraform_location=/usr/local/bin/terraform' -e 'tf_prefix=$tf_prefix' -e 'backend=true' $tests_attr"
+          command: bash -c "ansible-playbook tests.yml -i /tmp/hosts/latest_deploy_hosts -e 'terraform_location=/usr/local/bin/terraform' -e 'tf_prefix='$tf_prefix -e 'backend=true' $tests_attr"
           
       - run:
           name: Save artifacts
-          command: bash -c "ansible-playbook -i /tmp/hosts/latest_deploy_hosts download_outputs.yml -t tests -e 'destination=/tmp/artifacts/' -e 'terraform_location=/usr/local/bin/terraform' $tests_attr"
+          command: bash -c "ansible-playbook -i /tmp/hosts/latest_deploy_hosts download_outputs.yml -t tests -e 'destination=/tmp/artifacts/' -e 'tf_prefix='$tf_prefix -e 'terraform_location=/usr/local/bin/terraform' $tests_attr"
   
       - store_artifacts:
           path: /tmp/artifacts
@@ -103,7 +103,7 @@ jobs:
           
       - run:
           name: destroy infra
-          command: bash -c "ansible-playbook destroy.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' -e 'tf_prefix=$tf_prefix' $destroy_attr"
+          command: bash -c "ansible-playbook destroy.yml -e 'tf_prefix='$tf_prefix -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' -e 'tf_prefix=$tf_prefix' $destroy_attr"
           no_output_timeout: 2000
 
 workflows:
