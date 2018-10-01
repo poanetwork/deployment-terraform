@@ -20,8 +20,12 @@ jobs:
           command: echo $pub_key > ~/deployment-terraform/azure/id_rsa.pub
 
       - run:
+          name: Set unique prefix for this build
+          command: "mkdir -p /tmp/artifacts && head /dev/urandom | tr -dc A-Za-z0-9 | head -c 5  | tee /tmp/artifacts/prefix ~/deployment-terraform/azure/outputs/prefix && export tf_prefix=tf_$(cat /tmp/artifacts/prefix)_"
+
+      - run:
           name: deploy infra
-          command: bash -c "ansible-playbook site.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' $build_attr"
+          command: bash -c "ansible-playbook site.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' -e 'tf_prefix=$tf_prefix' $build_attr"
           no_output_timeout: 2000
       
       - run:
@@ -47,6 +51,10 @@ jobs:
           
       - attach_workspace:
           at: /tmp/hosts/
+          
+      - run:
+          name: Fetch pre-defined prefix to environmental variable
+          command: "export tf_prefix=tf_$(cat /tmp/hosts/prefix)_"
 
       - run:
           name: Set all.yml config
@@ -58,7 +66,7 @@ jobs:
       
       - run:
           name: check network
-          command: bash -c "ansible-playbook tests.yml -i /tmp/hosts/latest_deploy_hosts -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' $tests_attr"
+          command: bash -c "ansible-playbook tests.yml -i /tmp/hosts/latest_deploy_hosts -e 'terraform_location=/usr/local/bin/terraform' -e 'tf_prefix=$tf_prefix' -e 'backend=true' $tests_attr"
           
       - run:
           name: Save artifacts
@@ -78,6 +86,13 @@ jobs:
       - checkout:
           path: ~/deployment-terraform/
           
+      - attach_workspace:
+          at: /tmp/hosts/
+        
+      - run:
+          name: Fetch pre-defined prefix to environmental variable
+          command: "export tf_prefix=tf_$(cat /tmp/hosts/prefix)_"
+          
       - run:
           name: Set all.yml config
           command: echo $config_file | base64 --decode > ~/deployment-terraform/azure/group_vars/all.yml
@@ -88,7 +103,7 @@ jobs:
           
       - run:
           name: destroy infra
-          command: bash -c "ansible-playbook destroy.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' $destroy_attr"
+          command: bash -c "ansible-playbook destroy.yml -e 'terraform_location=/usr/local/bin/terraform' -e 'backend=true' -e 'tf_prefix=$tf_prefix' $destroy_attr"
           no_output_timeout: 2000
 
 workflows:
