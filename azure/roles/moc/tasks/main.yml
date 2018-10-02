@@ -55,6 +55,7 @@
         repo: "{{ SECONDARY_CONTRACTS_REPO }}"
         dest: "/home/moc/poa-network-consensus-contracts"
         force: yes
+        version: "{{ SECONDARY_CONTRACTS_BRANCH}}"
 
     - name: Install required NPM modules
       shell: npm install

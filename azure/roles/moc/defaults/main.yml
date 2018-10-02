@@ -1,2 +1,3 @@
 ---
 SECONDARY_CONTRACTS_REPO: https://github.com/poanetwork/poa-network-consensus-contracts.git
+SECONDARY_CONTRACTS_BRANCH: "1.0"
