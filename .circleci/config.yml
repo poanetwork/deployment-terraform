@@ -39,15 +39,15 @@ jobs:
           ANSIBLE_AZURE_AUTH_SOURCE: env
           
     steps:     
+      - checkout:
+          path: ~/deployment-terraform/
+          
       - attach_workspace:
           at: /tmp/workspace/    
           
       - run:
           name: Set unique prefix for this build
           command: echo 'export tf_prefix=tf_$(cat /tmp/workspace/prefix)_' >> $BASH_ENV
-    
-      - checkout:
-          path: ~/deployment-terraform/
           
       - run:
           name: Copy all.yml file to appropriate folder
