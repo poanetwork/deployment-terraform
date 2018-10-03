@@ -55,7 +55,7 @@ jobs:
           
       - run:
           name: Fetch pre-defined prefix to environmental variable
-          command: "export tf_prefix=tf_$(cat /tmp/hosts/prefix)_"
+          command: echo 'export tf_prefix=tf_$(cat /tmp/hosts/prefix)_' >> $BASH_ENV
 
       - run:
           name: Set all.yml config
@@ -92,7 +92,7 @@ jobs:
         
       - run:
           name: Fetch pre-defined prefix to environmental variable
-          command: "export tf_prefix=tf_$(cat /tmp/hosts/prefix)_"
+          command: echo 'export tf_prefix=tf_$(cat /tmp/hosts/prefix)_' >> $BASH_ENV
           
       - run:
           name: Set all.yml config
