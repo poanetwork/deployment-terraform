@@ -21,7 +21,7 @@ jobs:
 
       - run:
           name: Set unique prefix for this build
-          command: "export tf_prefix=tf_$(mkdir -p /tmp/artifacts && mkdir -p ~/deployment-terraform/azure/outputs/ && head /dev/urandom | tr -dc A-Za-z0-9 | head -c 5  | tee /tmp/artifacts/prefix ~/deployment-terraform/azure/outputs/prefix)_"
+          command: bash -c "export tf_prefix=tf_$(mkdir -p /tmp/artifacts && mkdir -p ~/deployment-terraform/azure/outputs/ && head /dev/urandom | tr -dc A-Za-z0-9 | head -c 5  | tee /tmp/artifacts/prefix ~/deployment-terraform/azure/outputs/prefix)_"
 
       - run:
           name: deploy infra
