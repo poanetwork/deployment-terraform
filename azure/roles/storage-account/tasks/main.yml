@@ -3,14 +3,14 @@
     - name: Create an account
       azure_rm_storageaccount:
         resource_group: "{{ resource_group_name }}"
-        name: "{{ tf_prefix | replace('_', '') }}{{ NETWORK_NAME|lower }}account"
+        name: "{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}account"
         account_type: Standard_RAGRS
         auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
 
     - name: Create container
       azure_rm_storageblob:
         resource_group: "{{ resource_group_name }}"
-        storage_account_name: "{{ tf_prefix | replace('_', '') }}{{ NETWORK_NAME|lower }}account"
+        storage_account_name: "{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}account"
         container: "{{ tf_prefix }}{{ NETWORK_NAME|lower }}container"
         auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
   environment:
