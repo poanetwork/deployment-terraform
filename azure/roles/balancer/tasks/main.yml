@@ -14,7 +14,7 @@
   file:                                                                                                                                 
     state: absent                                                                                                                       
     dest: roles/balancer/files/remote-backend-selector.tf                                                                              
-  when: backend|bool != true or backend is undefined
+  when: backend | default ('false') | bool != true
 
 - name: Generating variables file
   template:
