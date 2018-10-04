@@ -59,8 +59,8 @@ jobs:
           no_output_timeout: 2000
     
       - run:
-          name: Save latest hosts output
-          command: cp ~/deployment-terraform/azure/outputs/latest_deploy_hosts /tmp/workspace/hosts
+          name: Save latest hosts output && build prefix
+          command: cp ~/deployment-terraform/azure/outputs/latest_deploy_hosts /tmp/workspace/hosts && cp /tmp/workspace/prefix /tmp/artifacts/prefix
       
       - run:
           name: Save artifacts
@@ -103,6 +103,9 @@ jobs:
           command: bash -c "ansible-playbook -i /tmp/workspace/hosts download_outputs.yml -t tests -e 'destination=/tmp/artifacts/' -e 'PUB_KEY_STORE=/tmp/workspace/id_rsa.pub' -e 'tf_prefix=$tf_prefix' -e 'terraform_location=/usr/local/bin/terraform' $tests_attr"
   
       - store_artifacts:
+          path: /tmp/artifacts
+          
+      - store_test_results:
           path: /tmp/artifacts
 
   destroy:
