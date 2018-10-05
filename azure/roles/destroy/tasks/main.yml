@@ -14,7 +14,7 @@
     - "/tmp/{{ NETWORK_NAME }}/cert_secret"
 
 - name: Get storage key
-  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ NETWORK_NAME|lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
+  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ tf_prefix | replace("_", "") | lower }}{{ NETWORK_NAME | lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
   register: storage_account_key
   when: "lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true"
 
@@ -90,7 +90,7 @@
 - name: Delete storage account
   azure_rm_storageaccount:
     resource_group: "{{ resource_group_name }}"
-    name: "{{ NETWORK_NAME|lower }}account"
+    name: "{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}account"
     state: absent
     auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
   environment:
@@ -98,6 +98,7 @@
     AZURE_CLIENT_ID: "{{ lookup ('env','ARM_CLIENT_ID') }}"
     AZURE_SECRET: "{{ lookup ('env','ARM_CLIENT_SECRET') }}"
     AZURE_TENANT: "{{ lookup ('env','ARM_TENANT_ID') }}"
+  when: storage_account | default('') == '' 
     #Variables, that are set for Terraform are not the same required by Ansible
 
 - name: Delete a resource group

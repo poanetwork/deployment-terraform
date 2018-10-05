@@ -52,10 +52,10 @@
          
     - name: Clone secondary contracts from GitHub
       git:
-        repo: "{{ SECONDARY_CONTRACTS_REPO }}"
+        repo: "{{ POA_CONSENSUS_CONTRACTS }}"
         dest: "/home/moc/poa-network-consensus-contracts"
         force: yes
-        version: "{{ SECONDARY_CONTRACTS_BRANCH}}"
+        version: "{{ POA_CONSENSUS_CONTRACTS_BRANCH }}"
 
     - name: Install required NPM modules
       shell: npm install

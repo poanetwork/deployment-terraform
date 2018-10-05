@@ -1,5 +1,5 @@
 - name: Get storage key
-  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ NETWORK_NAME|lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
+  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ tf_prefix | replace("_", "") | lower }}{{ NETWORK_NAME | lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
   register: storage_account_key
   when: "lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true"
 
@@ -14,7 +14,7 @@
   file:                                                                                                                                 
     state: absent                                                                                                                       
     dest: roles/balancer/files/remote-backend-selector.tf                                                                              
-  when: backend|bool != true or backend is undefined
+  when: backend | default ('false') | bool != true
 
 - name: Generating variables file
   template:
