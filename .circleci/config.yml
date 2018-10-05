@@ -104,6 +104,9 @@ jobs:
   
       - store_test_results:
           path: /tmp/artifacts
+  
+      - store_artifacts:
+          path: /tmp/artifacts
 
   destroy:
     docker:
