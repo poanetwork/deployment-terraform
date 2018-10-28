@@ -9,7 +9,7 @@ ENVIRONMENT_NAME: "POA"
 NETWORK_ID: 76
 
 #Path to the template of spec.json. Has a default.
-SPEC_ADDRESS: ""
+SPEC_ADDRESS: "c4-spec.json.j2"
 
 #Netstats secret (optional). Will be generated automatically if set to ""
 NETSTATS_SECRET: ""
