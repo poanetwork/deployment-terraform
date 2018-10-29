@@ -1,10 +1,10 @@
 ### Tests runner params
 # Git path to the repo (url and branch) , where tests sources are.
 # defaulted to deployment teraaform path
-tests_repo_source_git: "https://github.com/poanetwork/deployment-terraform.git"
+tests_repo_source_git: "https://github.com/c4coin/deployment-terraform.git"
 tests_repo_source_git_branch: "master"
 
-# Path for cloning repo.  
+# Path for cloning repo.
 tests_repo_dest: "/home/{{ ansible_user }}/tests"
 
 # Playbook gets tests contracts file from this location
@@ -15,7 +15,7 @@ contracts_tests_config_remote_path:
 # path to directory with configs for tests
 tests_config_dir_path: "/home/{{ ansible_user }}/tests_configs"
 
-# We expect some config files to be generated on moc node. 
+# We expect some config files to be generated on moc node.
 # Here are paths to this files.
 
 moc_key_path: "/home/moc/parity_data/keys/{{ NETWORK_NAME }}/moc.key"

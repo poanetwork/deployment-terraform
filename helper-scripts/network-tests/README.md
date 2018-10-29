@@ -5,24 +5,24 @@ Test in the <code>tests.js</code> file sends transactions one by one (after conf
  Before this test waits some time for a few empty blocks were mined for including them to the test.
  <br>
  Results are logged to the log files. <br>
- <code>combined.log</code> will contain all logs and 
+ <code>combined.log</code> will contain all logs and
  <code>error.log</code> only failed test results and any other errors.
  <br>
  <br>
 <code>contracts</code> folder contains abi and address of needed contracts.<br>
-<code>contracts.json</code> is an example of file with contracts addresses. 
+<code>contracts.json</code> is an example of file with contracts addresses.
 Replace after network deployment with file contains contracts addresses.
 <br>
 <br>
 <code>config-sample.toml</code> is an example of file with settings. Needs to be renamed to <code>config.toml</code>
-and filled with valid settings (as path to the keystore file, password, rpc endpoint, timeoutSeconds enough for a couple blocks creation and other configurations). 
+and filled with valid settings (as path to the keystore file, password, rpc endpoint, timeoutSeconds enough for a couple blocks creation and other configurations).
 
 <h2>Setup</h2>
 
 1.Clone the repository
 
 ```sh
-git clone https://github.com/poanetwork/deployment-terraform.git
+git clone https://github.com/c4coin/deployment-terraform.git
 cd ./deployment-terraform/helper-scripts/network-tests
 ```
 
