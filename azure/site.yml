@@ -1,20 +1,20 @@
 - name: Prepare resource group
   hosts: localhost
   roles:
-    - { role: resource-group, when: "'moc' not in groups and prepare_resource_group|bool == true" }
-  tags: 
+    - { role: resource-group, when: "'moc' not in groups" }
+  tags:
     - bootnode
     - explorer
     - moc
     - netstat
     - validator
     - deploy
-    
+
 - name: Prepare storage account
   hosts: localhost
   roles:
     - { role: storage-account, when: "'moc' not in groups and backend|bool == true and storage_account is undefined" }
-  tags: 
+  tags:
     - bootnode
     - explorer
     - moc
@@ -26,14 +26,14 @@
   hosts: localhost
   roles:
     - { role: terraform, when: "'moc' not in groups" }
-  tags: 
+  tags:
     - bootnode
     - explorer
     - moc
     - netstat
     - validator
     - deploy
-    
+
 - name: preconf - install python
   hosts: bootnode,explorer,moc,netstat,validator
   gather_facts: False
@@ -50,7 +50,7 @@
     - moc-preconf
   tags:
     - preconf
-    
+
 - name: Create temporary directory for configs on local machine
   hosts: localhost
   gather_facts: False
@@ -69,8 +69,8 @@
 - name: Save network variables locally
   hosts: moc
   gather_facts: False
-  tasks:  
-    - synchronize: 
+  tasks:
+    - synchronize:
         src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/{{ item }}"
         dest: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
         mode: pull
@@ -86,7 +86,7 @@
   tags:
     - bootnode
     - preconf
-        
+
 - hosts: bootnode,explorer,moc,netstat,validator
   tasks:
     - name: Setting remote hosts facts
@@ -98,7 +98,7 @@
         NETSTATS_SERVER: "http://{{ groups['netstat']|first }}:3000"
         NETSTATS_SECRET: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/netstat_secret') }}"
         NODE_FULLNAME: "{{ ansible_hostname }}"
-  tags: 
+  tags:
     - bootnode
     - explorer
     - moc
@@ -109,34 +109,34 @@
 - name: Prepare application gateway
   hosts: localhost
   roles:
-    - { role: balancer, when: "bootnode_balanced_count>0 and 'balancer' not in groups" } 
-  tags: 
+    - { role: balancer, when: "bootnode_balanced_count>0 and 'balancer' not in groups" }
+  tags:
     - bootnode
     - deploy
 
 - name: Launch netstat node
   hosts: netstat
   become: True
-  tasks: 
+  tasks:
     - include_role:
         name: 'deployment-playbooks/roles/netstat'
       vars:
         username: "netstat"
   tags:
     - netstat
- 
+
 - name: Configure bootnodes
   hosts: bootnode
   become: True
   roles:
     - bootnode
   tags:
-    - bootnode 
-    
+    - bootnode
+
 - name: Get bootnodes list
   hosts: "groups['bootnode']|first"
   tasks:
-    - synchronize: 
+    - synchronize:
         src: "/home/bootnode/bootnodes.txt"
         dest: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
         mode: pull
@@ -144,7 +144,7 @@
     - moc
     - validator
     - explorer
-    
+
 - name: Send bootnodes.txt to MoC
   hosts: moc
   tasks:
@@ -154,7 +154,7 @@
         force: true
   tags:
     - moc
- 
+
 - name: Launch explorer node
   hosts: explorer
   become: True
@@ -171,9 +171,9 @@
   become: True
   roles:
     - moc
-  tags: 
+  tags:
     - moc
-    
+
 - name: Cleanup
   hosts: localhost
   tasks:
@@ -187,19 +187,19 @@
     - moc
     - netstat
     - validator
-    
+
 - name: Generate validator keys
   hosts: moc
   become: True
   roles:
     - validator-keys
-  tags: 
+  tags:
     - validator
 
 - name: Prepare prod keys for deployment
   hosts: moc
   tasks:
-    - synchronize: 
+    - synchronize:
         src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/validator-*"
         dest: "/tmp/{{ NETWORK_NAME }}/production-keys/"
         mode: pull
@@ -212,9 +212,9 @@
   serial: 1
   roles:
     - validator
-  tags: 
+  tags:
     - validator
-    
+
 - name: Restart poa-dashboard on netstat
   hosts: netstat
   become: True
@@ -231,7 +231,7 @@
     - moc
     - netstat
     - validator
-    
+
 - name: Restart poa-netstats on nodes
   hosts: bootnode,moc,validator
   become: True
@@ -248,7 +248,7 @@
     - moc
     - netstat
     - validator
-    
+
 - name: Cleanup
   hosts: localhost,moc
   tasks:
@@ -268,7 +268,7 @@
 
 - name: Generating outputs
   hosts: moc
-  roles:                                                                                                                                
-    - outputs                                                                                                                        
-  tags:                                                                                                                                 
+  roles:
+    - outputs
+  tags:
     - outputs
