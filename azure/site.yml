@@ -34,15 +34,15 @@
     - validator
     - deploy
 
-# - name: preconf - install python
-#   hosts: bootnode,explorer,moc,netstat,validator
-#   gather_facts: False
-#   become: True
-#   tasks:
-#     - name: Install python
-#       raw: "test -e {{ ansible_python_interpreter | default ('/usr/bin/python') }} || (sudo apt -y update && sudo apt install -y python-minimal)"
-#   tags:
-#     - preconf
+- name: preconf - install python
+  hosts: bootnode,explorer,moc,netstat,validator
+  gather_facts: False
+  become: True
+  tasks:
+    - name: Install python
+      raw: "test -e {{ ansible_python_interpreter | default ('/usr/bin/python') }} || (sudo apt -y update && sudo apt install -y python-minimal)"
+  tags:
+    - preconf
 
 - name: Generate network variables
   hosts: moc
