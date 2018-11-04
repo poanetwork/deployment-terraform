@@ -96,7 +96,7 @@ variable opened_ports_by_role {
     "bootnode-lb"  = ["ssh", "p2p", "p2p-udp", "rpc", "https"]
     "bootnode"     = ["ssh", "p2p", "p2p-udp", "rpc", "https"]
     "explorer"     = ["ssh", "p2p", "p2p-udp", "http-3000", "https"]
-    "validator"    = ["ssh", "p2p", "p2p-udp"]
+    "validator"    = ["ssh", "p2p", "p2p-udp", "jspon-rpc"]
     "netstat"      = ["ssh", "https", "http-3000"]
     "moc"          = ["ssh", "p2p", "p2p-udp"]
   }
@@ -113,6 +113,7 @@ variable ports {
     p2p = ["30303", "Tcp", "30303"]
     p2p-udp = ["30303", "Udp", "30303"]
     http-3000 = ["3000", "Tcp", "3000"]
+    jspon-rpc = ["8545", "Tcp", "8545"]
   }
 }
 
