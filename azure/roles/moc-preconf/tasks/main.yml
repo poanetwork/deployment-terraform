@@ -119,7 +119,7 @@
     ANSIBLE_USER: "{{ ansible_user }}"
     NETWORK_NAME: "{{ NETWORK_NAME }}"
     SRDOMAIN: "{{ ansible_host }}"
-    MOC_SECRET: "{{ MOC_SECRET | default ('') }}"
+    MOC_SECRET: "{{ MOC_SECRET | default('') }}"
     CERT_SECRET: "{{ CERT_SECRET | default('') }}"
     NETSTAT_SECRET: "{{ NETSTAT_SECRET | default('') }}"
     MOC_SECRET_LENGTH: "{{ moc_secret_length }}"
