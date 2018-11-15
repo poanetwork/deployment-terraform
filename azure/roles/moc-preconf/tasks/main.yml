@@ -119,9 +119,9 @@
     ANSIBLE_USER: "{{ ansible_user }}"
     NETWORK_NAME: "{{ NETWORK_NAME }}"
     SRDOMAIN: "{{ ansible_host }}"
-    MOC_SECRET: "{{ moc_secret }}"
-    CERT_SECRET: "{{ cert_secret }}"
-    NETSTAT_SECRET: "{{ netstat_secret }}"
+    MOC_SECRET: "{{ MOC_SECRET }}"
+    CERT_SECRET: "{{ CERT_SECRET }}"
+    NETSTAT_SECRET: "{{ NETSTAT_SECRET }}"
     MOC_SECRET_LENGTH: "{{ moc_secret_length }}"
     CERT_SECRET_LENGTH: "{{ cert_secret_length }}"
     NETSTAT_SECRET_LENGTH: "{{ netstat_secret_length }}"
@@ -132,7 +132,7 @@
   set_fact:
     MOC_SECRET: "{{ res_secrets.stdout_lines[0] }}"
     NETSTAT_SECRET: "{{ res_secrets.stdout_lines[1] }}"
-    cert_secret: "{{ res_secrets.stdout_lines[2] }}"
+    CERT_SECRET: "{{ res_secrets.stdout_lines[2] }}"
     MOC_ADDRESS: "{{ res_secrets.stdout_lines[3] }}"
     bytecode: "{{ res_secrets.stdout_lines[4] }}"
 
