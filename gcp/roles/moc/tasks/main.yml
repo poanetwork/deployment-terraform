@@ -1,0 +1,93 @@
+- name: Check if contracts were not already deployed
+  find:
+    paths: "/home/moc/poa-network-consensus-contracts/"
+    patterns: "contracts.json"
+  register: contracts
+  
+- name: Clear old MoC installation
+  file:
+    state: absent
+    path: "/home/moc"
+  when: contracts.matched == 0
+  
+- name: Slurp variable KEYFILE
+  block:
+    - slurp:
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc.json"
+      register: KEYFILE
+    - set_fact:
+        KEYFILE_decoded: "{{ KEYFILE['content'] | b64decode }}"
+  
+- name: Slurp variables KEYPASS
+  block:
+    - slurp:
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/moc_secret"
+      register: KEYPASS
+    - set_fact:
+        KEYPASS_decoded: "{{ KEYPASS['content'] | b64decode }}"
+
+- include_role:
+    name: 'deployment-playbooks/roles/moc'
+  vars:
+    username: "moc"
+    MOC_KEYFILE: "{{ KEYFILE_decoded }}"
+    MOC_KEYPASS: "{{ KEYPASS_decoded }}"
+    GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
+
+- name: Become user moc
+  become: true
+  become_user: moc
+  block:
+    - name: Uncomment line at node.toml
+      lineinfile:
+        path: /home/moc/node.toml
+        regexp: '^.*unlock = .*'
+        line: 'unlock = ["{{ MOC_ADDRESS }}"]'
+      notify:
+        - restart poa-parity
+        - restart poa-pm2
+    
+    - name: Run handlers immediately
+      meta: flush_handlers
+         
+    - name: Clone secondary contracts from GitHub
+      git:
+        repo: "{{ POA_CONSENSUS_CONTRACTS }}"
+        dest: "/home/moc/poa-network-consensus-contracts"
+        force: yes
+        version: "{{ POA_CONSENSUS_CONTRACTS_BRANCH }}"
+
+    - name: Install required NPM modules
+      shell: npm install
+      args:
+        chdir: /home/moc/poa-network-consensus-contracts
+
+    - name:  Deploy contracts
+      shell: "SAVE_TO_FILE=true POA_NETWORK_CONSENSUS_ADDRESS=0x8bf38d4764929064f2d4d3a56520a76ab3df415b MASTER_OF_CEREMONY={{ MOC_ADDRESS }} ./node_modules/.bin/truffle migrate --reset --network sokol"
+      args:
+        chdir: "/home/moc/poa-network-consensus-contracts"
+        creates: "/home/moc/poa-network-consensus-contracts/contracts.json"
+
+    - name: Set contracts.json
+      block:     
+        - slurp:
+            src: /home/moc/poa-network-consensus-contracts/contracts.json
+          register:
+            contracts 
+        - set_fact:
+            contracts_json: "{{ contracts['content'] | b64decode }}"
+        
+    - name: Comment line at node.toml
+      lineinfile:
+          path: /home/moc/node.toml
+          regexp: '^.*unlock = .*'
+          line: '#unlock = ["{{ MOC_ADDRESS }}"]'
+      notify:
+        - restart poa-parity
+        - restart poa-pm2
+        
+- name: Save contracts.json to output folder
+  copy: 
+    src: "/home/moc/poa-network-consensus-contracts/contracts.json"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/"
+    remote_src: yes

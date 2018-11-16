@@ -1,0 +1,9 @@
+[controller]
+control2 ansible_connection=local
+
+bootnode  ansible_user=full-node
+explorer  ansible_user=full-node
+validator  ansible_user=full-node
+moc  ansible_user=full-node
+netstat  ansible_user=full-node
+

@@ -1,0 +1,80 @@
+
+PLAY [preconf - install python] **************************************************************************
+
+TASK [Install python] ************************************************************************************
+changed: [moc]
+changed: [bootnode]
+changed: [explorer]
+changed: [netstat]
+changed: [validator]
+
+PLAY [Generate network variables] ************************************************************************
+
+TASK [Gathering Facts] ***********************************************************************************
+ok: [moc]
+
+TASK [moc-preconf : Basic checks] ************************************************************************
+skipping: [moc]
+
+TASK [moc-preconf : Check if contracts were not already deployed] ****************************************
+ok: [moc]
+
+TASK [moc-preconf : Clear old MoC installation] **********************************************************
+ok: [moc]
+
+TASK [moc-preconf : Ensure deployment playbooks exists on local server] **********************************
+ok: [moc -> localhost]
+
+TASK [moc-preconf : Ensure POA contracts exists on local server] *****************************************
+changed: [moc]
+
+TASK [moc-preconf : Create folder that will contain all configs for created network] *********************
+ok: [moc]
+
+TASK [moc-preconf : Add solc repo] ***********************************************************************
+ok: [moc]
+
+TASK [moc-preconf : Install the gpg key for nodejs LTS] **************************************************
+ok: [moc]
+
+TASK [moc-preconf : Install the nodejs LTS repos] ********************************************************
+ok: [moc]
+
+TASK [moc-preconf : Ensure all necessary apts is installed on local machine] *****************************
+ok: [moc] => (item=[u'git', u'solc', u'python-pip', u'nodejs', u'libssl-dev'])
+
+TASK [moc-preconf : Install latest passlib with pip] *****************************************************
+changed: [moc] => (item=[u'passlib', u'pyopenssl'])
+
+TASK [moc-preconf : Config store for npm modules] ********************************************************
+changed: [moc]
+
+TASK [moc-preconf : Install NPM packages globally] *******************************************************
+ok: [moc]
+
+TASK [moc-preconf : Make folder for keeping network output variables] ************************************
+ok: [moc]
+
+TASK [moc-preconf : Download terraform repo] *************************************************************
+ok: [moc]
+
+TASK [moc-preconf : Install reqired NPM modules (key-generator)] *****************************************
+ok: [moc]
+
+TASK [moc-preconf : Install reqired NPM modules (scripts)] ***********************************************
+changed: [moc]
+
+TASK [moc-preconf : Installing solc if bytecode is not generated (workaround)] ***************************
+changed: [moc]
+
+TASK [moc-preconf : Generate certificates and secrets] ***************************************************
+fatal: [moc]: FAILED! => {"msg": "The field 'environment' has an invalid value, which includes an undefined variable. The error was: 'moc_secret' is undefined\n\nThe error appears to have been in '/opt/c4coin/deployment-terraform/gcp/roles/moc-preconf/tasks/main.yml': line 113, column 3, but may\nbe elsewhere in the file depending on the exact syntax problem.\n\nThe offending line appears to be:\n\n\n- name: Generate certificates and secrets\n  ^ here\n"}
+	to retry, use: --limit @/opt/c4coin/deployment-terraform/gcp/site.retry
+
+PLAY RECAP ***********************************************************************************************
+bootnode                   : ok=1    changed=1    unreachable=0    failed=0   
+explorer                   : ok=1    changed=1    unreachable=0    failed=0   
+moc                        : ok=19   changed=6    unreachable=0    failed=1   
+netstat                    : ok=1    changed=1    unreachable=0    failed=0   
+validator                  : ok=1    changed=1    unreachable=0    failed=0   
+

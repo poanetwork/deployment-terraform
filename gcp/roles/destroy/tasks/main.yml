@@ -1,0 +1,124 @@
+- name: Create temporary directory
+  file:
+    state: directory
+    path: "/tmp/{{ NETWORK_NAME }}"
+
+- name: Generate stubs for certificates
+  copy:
+    dest: "{{ item }}"
+    content: ""
+    mode: 777
+  with_items:
+    - "/tmp/{{ NETWORK_NAME }}/gwcert.pfx"
+    - "/tmp/{{ NETWORK_NAME }}/server.crt"
+    - "/tmp/{{ NETWORK_NAME }}/cert_secret"
+
+- name: Get storage key
+  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ tf_prefix | replace("_", "") | lower }}{{ NETWORK_NAME | lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
+  register: storage_account_key
+  when: "lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true"
+
+- name: Local or remote backend selector (remote)
+  template: 
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  when: backend == "true"
+  with_items:
+    - { src: '{{ playbook_dir }}/roles/terraform/templates/remote-backend-selector.j2', dest: 'roles/terraform/files/remote-backend-selector.tf' }
+    - { src: '{{ playbook_dir }}/roles/balancer/templates/remote-backend-selector.j2', dest: 'roles/balancer/files/remote-backend-selector.tf' }
+  tags:
+    - remote_backend
+
+- name: Local or remote backend selector (local)
+  file:
+    state: absent
+    dest: "{{ item }}"
+  when: backend != "true" or backend is undefined
+  with_items:
+    - roles/terraform/files/remote-backend-selector.tf 
+    - roles/balancer/files/remote-backend-selector.tf 
+  tags:
+    - remote_backend   
+
+- name: Generating variables file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  with_items:
+    - { src: '{{ playbook_dir }}/roles/terraform/templates/terraform.tfvars.j2', dest: 'roles/terraform/files/terraform.tfvars' }
+    - { src: '{{ playbook_dir }}/roles/balancer/templates/terraform.tfvars.j2', dest: 'roles/balancer/files/terraform.tfvars' }
+  vars:
+    bootnodelbips:
+        stdout: '127.0.0.1'
+    key_for_lb: 0
+    
+- name: Generating backend file
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+  when: backend == "true"
+  with_items:
+    - { src: '{{ playbook_dir }}/roles/terraform/templates/backend.tfvars.j2', dest: 'roles/terraform/files/backend.tfvars' }
+    - { src: '{{ playbook_dir }}/roles/balancer/templates/backend.tfvars.j2', dest: 'roles/balancer/files/backend.tfvars' }
+    
+- name: Copy ssh key to terraform directory
+  copy: 
+    src: "{{ PUB_KEY_STORE }}"
+    dest: "{{ item }}"
+  with_items:
+    - roles/terraform/files/
+    - roles/balancer/files/
+
+- name: Terraform destroy balancer
+  shell: "echo yes | {{ terraform_location }} {{ item }}"
+  args:
+    chdir: "roles/balancer/files"
+  with_items:
+    - "init{{ ' -backend-config=backend.tfvars' if backend|bool == true else '' }}"
+    - destroy
+  when: not (backend|bool==true and storage_account_key.stdout | default('undefined') == '')
+    
+- name: Terraform destroy main infra
+  shell: "echo yes | {{ terraform_location }} {{ item }}"
+  args:
+    chdir: "roles/terraform/files"
+  with_items:
+    - "init {{ '-backend-config=backend.tfvars' if backend|bool == true else '' }}"
+    - destroy
+  when: not (backend|bool==true and storage_account_key.stdout | default('undefined') == '')
+
+- name: Delete storage account
+  azure_rm_storageaccount:
+    resource_group: "{{ resource_group_name }}"
+    name: "{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}account"
+    state: absent
+    auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
+  environment:
+    AZURE_SUBSCRIPTION_ID: "{{ lookup ('env','ARM_SUBSCRIPTION_ID') }}"
+    AZURE_CLIENT_ID: "{{ lookup ('env','ARM_CLIENT_ID') }}"
+    AZURE_SECRET: "{{ lookup ('env','ARM_CLIENT_SECRET') }}"
+    AZURE_TENANT: "{{ lookup ('env','ARM_TENANT_ID') }}"
+  when: storage_account | default('') == '' 
+    #Variables, that are set for Terraform are not the same required by Ansible
+
+- name: Delete a resource group
+  azure_rm_resourcegroup:
+    name: "{{ resource_group_name }}"
+    state: absent
+    auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
+  environment:
+    AZURE_SUBSCRIPTION_ID: "{{ lookup ('env','ARM_SUBSCRIPTION_ID') }}"
+    AZURE_CLIENT_ID: "{{ lookup ('env','ARM_CLIENT_ID') }}"
+    AZURE_SECRET: "{{ lookup ('env','ARM_CLIENT_SECRET') }}"
+    AZURE_TENANT: "{{ lookup ('env','ARM_TENANT_ID') }}"
+  when: resource_group_name == ''
+    #Variables, that are set for Terraform are not the same required by Ansible
+  
+- name: Remove cache directories
+  file:
+    state: absent
+    path: "{{ item }}"
+  with_items:
+    - "/tmp/{{ NETWORK_NAME }}"
+    - "roles/terraform/files/.terraform"
+    - "roles/balancer/files/.terraform"

@@ -1,0 +1,3 @@
+ storage_account_name = "{% if storage_account is undefined or storage_account == "" %}{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}account{% else %}{{ storage_account }}{% endif %}"
+ container_name       = "{% if storage_account is undefined or storage_account == "" %}{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}container{% else %}{{ container }}{% endif %}"
+ key                  = "{{ tf_prefix }}terraform-balancer.tfstate"

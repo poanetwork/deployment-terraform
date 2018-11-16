@@ -1,0 +1,53 @@
+###This file contains all the necessary variables that you should set to deploy your own network
+
+#Name of your network
+NETWORK_NAME: "POA"
+#Name of the deployment environment
+ENVIRONMENT_NAME: "POA"
+
+#ID of your network. Should be a numeric value.
+NETWORK_ID: 76
+
+#Path to the template of spec.json. Has a default.
+SPEC_ADDRESS: ""
+
+#Netstats secret (optional). Will be generated automatically if set to ""
+NETSTATS_SECRET: ""
+#MOC secret (optional). Will be generated automatically if set to ""
+MOC_SECRET: ""
+
+#That usually should be unchanged. However, sometimes it should be set to /usr/bin/python if system will not be able to find python3 installed
+ansible_python_interpreter: "/usr/bin/python3"
+ansible_pip: "/usr/bin/pip3"
+ansible_user: "poa"
+
+#Where terraform binary is located
+terraform_location: "/usr/local/bin/terraform"
+
+#Path where your public SSH key stored. Will be used to connect to external instance
+PUB_KEY_STORE: "id_rsa.pub"
+
+#If set to true - Terraform will be using remote state instead of local.
+backend: false
+
+#Required number of bootnodes
+bootnode_count: 1
+
+#Required number of bootnodes to put in load-balancer (defaults to 1)
+bootnode_balanced_count: 1
+
+#Required number of initial keys to generate (defaults to 1, not more than 12)
+initial_key_count: 1
+
+#Required number of validator nodes to launch (defaults to 1, not more than `initial_key_count`)
+validator_count: 1
+
+#Required number of initial keys to convert to production keys (defaults to 1, not more than `initial_key_count`)
+initial_key_convert_count: 1
+
+##Prefix, that will be used for all resources ("tf-" by default)
+tf_prefix: "tf-"
+##Set name of resource group. Will be created with the following name if is not already exists. If this variable is empty - resource group will be created automatically with the following name: {{ NETWORK_NAME }}rg
+resource_group_name : "tf-test-full-setup"
+##Region where resources should be created
+region : "East US"

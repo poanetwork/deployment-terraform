@@ -1,0 +1,8 @@
+ssl_cert               = "/tmp/{{ NETWORK_NAME }}/gwcert.pfx"
+nodes_cert             = "/tmp/{{ NETWORK_NAME }}/server.crt"
+region                 = "{{ region | default("East US") }}"
+resource_group_name    = "{% if resource_group_name %}{{ resource_group_name  }}{% else %}{{ default_resource_group_name  }}{% endif %}"
+virtual_network        = "{{ tf_prefix }}{{ NETWORK_NAME }}-network"
+prefix                 = "{{ tf_prefix }}"
+password               = "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/cert_secret') }}"
+balanced_ips           = [{% for node in bootnodelbips.stdout.split('\n') %}"{{ node }}"{{ "," if not loop.last else "" }}{% endfor %}]

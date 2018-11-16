@@ -1,0 +1,26 @@
+{% for group in groups %}{% raw %}[{% endraw %}{{ group }}{% raw %}]{% endraw %}
+
+{% for host in groups[group] %}
+{{ host }}
+{% endfor %}
+
+{% endfor %}
+[poa:children]
+bootnode
+moc
+netstat
+validator
+explorer
+ 
+[centos]
+ 
+[ubuntu]
+{% for h in groups['all'] %}
+{% if groups['balancer'] is defined %}
+{% if h not in groups['balancer'] %}
+{{ h }}
+{% endif %}
+{% else %}
+{{ h }}
+{% endif %}
+{% endfor %} 

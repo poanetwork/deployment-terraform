@@ -1,0 +1,53 @@
+- name: Get storage key
+  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ tf_prefix | replace("_", "") | lower }}{{ NETWORK_NAME | lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
+  register: storage_account_key
+  when: "lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true"
+
+
+- name: Local or remote backend selector (remote)                                                                                       
+  template:                                                                                                                             
+    src: remote-backend-selector.j2                                                                                                     
+    dest: roles/balancer/files/remote-backend-selector.tf                                                                              
+  when: backend|bool == true                                                                                                                                                                                          
+                                                                                                                                        
+- name: Local or remote backend selector (local)                                                                                        
+  file:                                                                                                                                 
+    state: absent                                                                                                                       
+    dest: roles/balancer/files/remote-backend-selector.tf                                                                              
+  when: backend | default ('false') | bool != true
+
+- name: Generating variables file
+  template:
+    src: terraform.tfvars.j2
+    dest: roles/balancer/files/terraform.tfvars
+  when: bootnode_balanced_count>0
+  
+- name: Generating backend file
+  template:
+    src: backend.tfvars.j2
+    dest: roles/balancer/files/backend.tfvars
+  when: backend|bool == true
+
+#Workaround since terraform module return unexpected error.
+- name: Terraform provisioning
+  shell: "echo yes | {{ terraform_location }} {{ item }}"
+  args:
+    chdir: "roles/balancer/files"
+  with_items:
+    - "init{{ ' -backend-config=backend.tfvars' if backend|bool == true else '' }}"
+    - plan
+    - apply
+  when: bootnode_balanced_count>0
+  
+- name: Refresh balancer host addresses
+  block:
+    - name : Refresh balancer host addresses
+      shell: "{{ terraform_location }} output ips | tr -d ,"
+      register: balancerips  
+      args:
+        chdir: roles/balancer/files/
+    - add_host:
+        name: "{{ item }}"
+        groups: balancer
+      with_items: "{{ balancerips.stdout_lines }}" 
+  when: bootnode_balanced_count>0

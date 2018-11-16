@@ -1,0 +1,54 @@
+# Gets configs from moc and generates config files for tests
+- fail:
+    msg: "To run tests specify either lb or bootnode IP at hosts file"
+  when: groups['balancer'] is undefined and groups['bootnode'] is undefined
+
+- name: Create directory for tests config
+  file: 
+    path: "{{ tests_config_dir_path }}"
+    state: directory
+
+- name: Get variables files from MOC node
+  become: true
+  synchronize:
+    src: "{{ item }}"
+    dest:  "{{ tests_config_dir_path }}"
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
+  with_items:
+    - "{{ moc_key_path }}"
+    - "{{ node_pwd_path }}"
+    - "{{ contracts_json_path }}"
+    - "{{ spec_json_path }}"
+    - "{{ moc_path }}"
+
+- name: Get tests and helpers repo
+  git: 
+    repo: "{{ tests_repo_source_git }}"
+    dest: "{{ tests_repo_dest }}"
+    force: yes                                                                                                                          
+    version: "{{ tests_repo_source_git_branch }}"     
+
+# Configuration scripts will generate configs, sutable for tests framework from
+# the data, taken from MOC node and this role parametes. 
+
+- name: Install reqired NPM modules
+  shell: npm install
+  args:
+    chdir: "{{ configurator_script_path }}"  
+
+- name: Run configurator script 
+  become: yes
+  shell: "node {{ configurator_script_path }}/configurator.js"
+  args:
+    chdir: "{{ configurator_script_path }}"
+  environment:
+    NODE_PWD: "{{ tests_config_dir_path }}/node.pwd"
+    TOML_PATH: "{{ tests_repo_dest }}/helper-scripts/network-tests/config-sample.toml"
+    MOC_KEY: "{{ tests_config_dir_path }}/moc.key"
+    CONTRACTS_JSON_PATH: "{{ tests_config_dir_path }}/contracts.json"
+    SPEC_JSON_PATH: "{{ tests_config_dir_path }}/spec.json"
+    MOC_ADDRESS_FILE_PATH: "{{ tests_config_dir_path }}/moc" 
+    EXTERNAL_URL: "http://{{ groups['balancer']|first if groups['balancer'] is defined else groups['bootnode']|first }}/"
+
+# Smoke tests, contracts.json and config.toml should exists and
+# be not empty

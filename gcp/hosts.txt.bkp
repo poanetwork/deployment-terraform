@@ -1,0 +1,6 @@
+[controller]
+control ansible_connection=local
+
+[bootnode]
+35.231.197.41 ansible_user=full-node 
+

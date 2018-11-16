@@ -1,0 +1,121 @@
+- name: Get storage key
+  shell: 'az storage account keys list -g {{ resource_group_name }} -n {{ tf_prefix | replace("_", "") | lower }}{{ NETWORK_NAME | lower }}account | grep value | cut -d ":" -f2 | sed "1q;d" | tr -d \" | tr -d "[:space:]"'
+  register: storage_account_key
+  when: "lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true"
+
+- name: Local or remote backend selector (remote)
+  template: 
+    src: remote-backend-selector.j2 
+    dest: roles/terraform/files/remote-backend-selector.tf
+  when: 
+    - backend|bool == true
+
+- name: Local or remote backend selector (local)
+  file:
+    state: absent
+    dest: roles/terraform/files/remote-backend-selector.tf 
+  when: 
+    - backend | default ('false') | bool != true
+
+- name: Generating variables file
+  template:
+    src: terraform.tfvars.j2
+    dest: roles/terraform/files/terraform.tfvars
+
+- name: Generating backend file
+  template:
+    src: backend.tfvars.j2
+    dest: roles/terraform/files/backend.tfvars
+  when: backend|bool == true
+    
+- name: Copy ssh key to terraform directory
+  copy: 
+    src: "{{ PUB_KEY_STORE }}"
+    dest: roles/terraform/files/
+
+#Workaround since terraform module return unexpected error.
+- name: Terraform provisioning
+  shell: "echo yes | {{ terraform_location }} {{ item }}"
+  args:
+    chdir: "roles/terraform/files"
+  with_items:
+    - "init{{ ' -backend-config=backend.tfvars' if backend|bool == true else '' }}"
+    - plan
+    - apply
+
+- name: Refresh bootnodes host addresses
+  block:
+    - name : Refresh bootnodes host addresses
+      shell: "{{ terraform_location }} output bootnode-ips | tr -d ,"
+      register: bootnodeips
+      args:
+        chdir: roles/terraform/files/
+    - name : Refresh load balanced bootnodes host addresses
+      shell: "{{ terraform_location }} output bootnode-lb-ips | tr -d ,"
+      register: bootnodelbips
+      args:
+        chdir: roles/terraform/files/
+    - name: Add balanced bootnode hosts
+      add_host:
+        name: "{{ item }}"
+        groups: bootnode
+      with_items: "{{ bootnodelbips.stdout_lines }}" 
+    - name: Mark nodes as balanced
+      delegate_to: "{{ item }}"
+      delegate_facts: true
+      set_fact:
+        balanced: true
+      with_items: "{{ bootnodelbips.stdout_lines }}" 
+    - name: Add bootnode hosts
+      add_host:
+        name: "{{ item }}"
+        groups: bootnode
+      with_items: "{{ bootnodeips.stdout_lines }}" 
+      
+- name: Refresh explorer host addresses
+  block:
+    - name : Refresh explorer host addresses
+      shell: "{{ terraform_location }} output explorer-ips | tr -d ,"
+      register: explorerips  
+      args:
+        chdir: roles/terraform/files/
+    - add_host:
+        name: "{{ item }}"
+        groups: explorer
+      with_items: "{{ explorerips.stdout_lines }}" 
+     
+- name: Refresh netstat host addresses
+  block:
+    - name : Refresh netstat host address
+      shell: "{{ terraform_location }} output netstat-ips | tr -d ,"
+      register: netstatips 
+      args:
+        chdir: roles/terraform/files/
+    - add_host:
+        name: "{{ item }}"
+        groups: netstat
+      with_items: "{{ netstatips.stdout_lines }}" 
+      
+- name: Refresh validator host addresses
+  block:
+    - name : Refresh validator host addresses
+      shell: "{{ terraform_location }} output validator-ips | tr -d ,"
+      register: validatorips
+      args:
+        chdir: roles/terraform/files/
+    - add_host:
+        name: "{{ item }}"
+        groups: validator
+      with_items: "{{ validatorips.stdout_lines }}" 
+
+- name: Refresh moc host addresses
+  block:
+    - name : Refresh moc host address
+      shell: "{{ terraform_location }} output moc-ips | tr -d ,"
+      register: mocips   
+      args:
+        chdir: roles/terraform/files/
+    - add_host:
+        name: "{{ item }}"
+        groups: moc
+      with_items: "{{ mocips.stdout_lines }}" 

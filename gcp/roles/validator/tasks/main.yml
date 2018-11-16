@@ -1,0 +1,60 @@
+- name: gather validator address
+  become: false
+  delegate_to: "localhost"
+  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/ | sed '1q;d'"
+  register: validator
+
+- name: gather list of addresses
+  become: false
+  delegate_to: "localhost"
+  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }} | egrep .*mining_.*.json | sed '1q;d' | sed -e 's/^mining_//' -e 's/.json//'"
+  register: addresses
+    
+- name: gather list of keyfiles
+  become: false
+  delegate_to: "localhost"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.json | sed '1q;d'"
+  register: keyfiles
+  
+- name: gather list of keys
+  become: false
+  delegate_to: "localhost"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.key | sed '1q;d'"
+  register: keys
+
+- include_role:
+    name: '{{ playbook_dir }}/deployment-playbooks/roles/validator'
+  vars:
+    username: "validator"
+    GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
+    MINING_ADDRESS: "0x{{ addresses.stdout }}"
+    MINING_KEYPASS: "{{ lookup ('file', keys.stdout) }}"
+    MINING_KEYFILE: "{{ lookup ('file', keyfiles.stdout) }}"
+
+- name: Register bytecode variable
+  block:    
+    - name: get contracts.json content
+      delegate_to: "{{ groups['moc']|first }}"
+      slurp:
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/contracts.json"
+      register:
+        contracts_coded
+    - set_fact:
+        contracts_json: "{{ contracts_coded['content'] | b64decode }}"
+  
+- name: Adjust RewardTransfer configs
+  lineinfile:
+    path: /home/validator/poa-scripts-validator/config.json
+    regexp: '^.*\"addr\"\: .*'
+    line: '        "addr": "{{ contracts_json.KEYS_MANAGER_ADDRESS }}",'
+    
+- name: make sure npm transferRewardToPayoutKey modules installed
+  npm:
+    path: "/home/validator/poa-scripts-validator/transferRewardToPayoutKey"
+  become: true
+  become_user: "validator"
+    
+- name: iterate
+  delegate_to: "localhost"
+  become: false
+  file: "state=absent path=/tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}"

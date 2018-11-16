@@ -1,0 +1,6 @@
+terraform {                                                                                                                             
+    backend "azurerm" { 
+        resource_group_name="{{ resource_group_name }}"
+        {% if lookup ('env','ANSIBLE_AZURE_AUTH_SOURCE') != 'env' and backend|bool == true %}access_key="{{ storage_account_key.stdout }}"{% endif %}
+    }                                                                                                                
+}  

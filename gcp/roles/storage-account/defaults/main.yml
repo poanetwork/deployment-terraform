@@ -1,0 +1,4 @@
+---
+tf_prefix: tf-
+NETWORK_NAME: POA
+resource_group_name: "{{ NETWORK_NAME }}rg"

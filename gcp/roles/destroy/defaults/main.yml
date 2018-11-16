@@ -1,0 +1,10 @@
+storage_account: ""
+container: ""
+terraform_location: /usr/bin/terraform
+tf_prefix: tf-
+resource_group_name: "{{ NETWORK_NAME }}rg"
+backend: false
+region: East US
+PUB_KEY_STORE: id_rsa.pub
+ansible_user: poa
+ENVIRONMENT_NAME: POA-test-network

@@ -1,0 +1,21 @@
+- name: Service principal
+  block:
+    - name: Create an account
+      azure_rm_storageaccount:
+        resource_group: "{{ resource_group_name }}"
+        name: "{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}account"
+        account_type: Standard_RAGRS
+        auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
+
+    - name: Create container
+      azure_rm_storageblob:
+        resource_group: "{{ resource_group_name }}"
+        storage_account_name: "{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}account"
+        container: "{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}container"
+        auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
+  environment:
+    AZURE_SUBSCRIPTION_ID: "{{ lookup ('env','ARM_SUBSCRIPTION_ID') }}"
+    AZURE_CLIENT_ID: "{{ lookup ('env','ARM_CLIENT_ID') }}"
+    AZURE_SECRET: "{{ lookup ('env','ARM_CLIENT_SECRET') }}"
+    AZURE_TENANT: "{{ lookup ('env','ARM_TENANT_ID') }}"
+    #Variables, that are set for Terraform are not the same required by Ansible

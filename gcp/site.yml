@@ -1,0 +1,238 @@
+- name: preconf - install python
+  hosts: bootnode,explorer,moc,netstat,validator
+  gather_facts: False
+  become: True
+  tasks:
+    - name: Install python
+      raw: "test -e {{ ansible_python_interpreter | default ('/usr/bin/python') }} || (sudo apt -y update && sudo apt install -y python-minimal)"
+  tags:
+    - preconf
+
+- name: Generate network variables
+  hosts: moc
+  roles:
+    - moc-preconf
+  tags:
+    - preconf
+
+- name: Create temporary directory for configs on local machine
+  hosts: localhost
+  gather_facts: False
+  tasks:
+    - file:
+        state: directory
+        path: "/tmp/{{ NETWORK_NAME }}"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    - preconf
+
+- name: Save network variables locally
+  hosts: moc
+  gather_facts: False
+  tasks:
+    - synchronize:
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/{{ item }}"
+        dest: "/tmp/{{ NETWORK_NAME }}/{{ item }}"
+        mode: pull
+      with_items:
+        - server.crt
+        - server.key
+        - spec.json
+        - moc
+        - netstat_secret
+        - cert_secret
+        - gwcert.pfx
+      when: (item != 'gwcert.pfx' and item != 'cert_secret') or bootnode_balanced_count>0
+  tags:
+    - bootnode
+    - preconf
+
+- hosts: bootnode,explorer,moc,netstat,validator
+  tasks:
+    - name: Setting remote hosts facts
+      set_fact:
+        spec_json: "/tmp/{{ NETWORK_NAME }}/spec.json"
+        bootnodes_txt: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        install_firewall: false
+        MOC_ADDRESS: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/moc') }}"
+        NETSTATS_SERVER: "http://{{ groups['netstat']|first }}:3000"
+        NETSTATS_SECRET: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/netstat_secret') }}"
+        NODE_FULLNAME: "{{ ansible_hostname }}"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+    - preconf
+
+- name: Prepare application gateway
+  hosts: localhost
+  roles:
+    - { role: balancer, when: "bootnode_balanced_count>0 and 'balancer' not in groups" }
+  tags:
+    - bootnode
+    - deploy
+
+- name: Launch netstat node
+  hosts: netstat
+  become: True
+  tasks:
+    - include_role:
+        name: 'deployment-playbooks/roles/netstat'
+      vars:
+        username: "netstat"
+  tags:
+    - netstat
+
+- name: Configure bootnodes
+  hosts: bootnode
+  become: True
+  roles:
+    - bootnode
+  tags:
+    - bootnode
+
+- name: Get bootnodes list
+  hosts: "groups['bootnode']|first"
+  tasks:
+    - synchronize:
+        src: "/home/bootnode/bootnodes.txt"
+        dest: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        mode: pull
+  tags:
+    - moc
+    - validator
+    - explorer
+
+- name: Send bootnodes.txt to MoC
+  hosts: moc
+  tasks:
+    - copy:
+        src: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
+        dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bootnodes.txt"
+        force: true
+  tags:
+    - moc
+
+- name: Launch explorer node
+  hosts: explorer
+  become: True
+  tasks:
+    - include_role:
+        name: 'deployment-playbooks/roles/explorer'
+      vars:
+        username: "explorer"
+  tags:
+    - explorer
+
+- name: Configure MoC node
+  hosts: moc
+  become: True
+  roles:
+    - moc
+  tags:
+    - moc
+
+- name: Cleanup
+  hosts: localhost
+  tasks:
+    - name: "Clear /tmp/{{ NETWORK_NAME}}/production-keys/ dir"
+      file:
+        state: absent
+        path: "/tmp/{{ NETWORK_NAME}}/production-keys/*"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- name: Generate validator keys
+  hosts: moc
+  become: True
+  roles:
+    - validator-keys
+  tags:
+    - validator
+
+- name: Prepare prod keys for deployment
+  hosts: moc
+  tasks:
+    - synchronize:
+        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/validator-*"
+        dest: "/tmp/{{ NETWORK_NAME }}/production-keys/"
+        mode: pull
+  tags:
+    - validator
+
+- name: Configure validators node
+  hosts: validator
+  become: True
+  serial: 1
+  roles:
+    - validator
+  tags:
+    - validator
+
+- name: Restart poa-dashboard on netstat
+  hosts: netstat
+  become: True
+  tasks:
+    - name: restart poa-dashboard
+      service:
+        name: poa-dashboard
+        state: restarted
+        enabled: yes
+      ignore_errors: yes
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- name: Restart poa-netstats on nodes
+  hosts: bootnode,moc,validator
+  become: True
+  tasks:
+    - name: restart poa-netstats
+      service:
+        name: poa-netstats
+        state: restarted
+        enabled: yes
+      ignore_errors: yes
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- name: Cleanup
+  hosts: localhost,moc
+  tasks:
+    - name: "Clear /tmp/{{ NETWORK_NAME }} dir"
+      file:
+        state: absent
+        path: "{{ item }}"
+      with_items:
+        - "/tmp/{{ NETWORK_NAME }}"
+        - "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/hosts"
+  tags:
+    - bootnode
+    - explorer
+    - moc
+    - netstat
+    - validator
+
+- name: Generating outputs
+  hosts: moc
+  roles:
+    - outputs
+  tags:
+    - outputs

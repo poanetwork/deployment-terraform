@@ -1,0 +1,6 @@
+---
+- name: restart poa-parity
+  service: name=poa-parity state=restarted
+
+- name: restart poa-pm2
+  service: name=poa-pm2 state=restarted

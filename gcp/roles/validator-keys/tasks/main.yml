@@ -1,0 +1,108 @@
+- name: Become user moc
+  become: true
+  become_user: moc
+  block:
+    - name: Set contracts.json
+      block:     
+        - slurp:
+            src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/contracts.json"
+          register:
+            contracts 
+        - set_fact:
+            contracts_json: "{{ contracts['content'] | b64decode }}"
+  
+    - name: Uncomment line at node.toml
+      lineinfile:
+        path: /home/moc/node.toml
+        regexp: '^.*unlock = .*'
+        line: 'unlock = ["{{ MOC_ADDRESS }}"]'
+      notify:
+        - restart poa-parity
+        - restart poa-pm2
+    
+    - name: Run handlers immediately
+      meta: flush_handlers
+         
+    - name: Clone production key generator from GitHub
+      git:
+        repo: "{{ PRODUCTION_KEY_GENERATOR_REPO }}"
+        dest: "/home/moc/deployment-terraform"
+        force: yes
+
+    - name: Check if initial keys were not already generated
+      find:
+        paths: /home/moc/poa-scripts-moc/generateInitialKey/output
+      register: initial
+        
+    - name: Adjust config files before generate initial keys
+      lineinfile:
+        path: /home/moc/poa-scripts-moc/config.json
+        regexp: '^.*\"addr\"\: .*'
+        line: '        "addr": "{{ contracts_json.KEYS_MANAGER_ADDRESS }}",'
+
+    - name: Generate initial keys
+      shell: "for i in {1..{{ (initial_key_count - initial.matched/2) | int }}}; do npm start; done"
+      args:
+        chdir: /home/moc/poa-scripts-moc/generateInitialKey
+        executable: /bin/bash
+      when: initial.matched/2 < initial_key_count
+    
+    - name: Select initial keys to copy
+      shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | head -n {{ initial_key_convert_count * 2 }}"
+      register: initial_keys
+      when: initial.matched/2 < initial_key_convert_count
+    
+    - name: Copy initial keys to the gen-prod-keys folder
+      delegate_to: "{{ inventory_hostname }}"
+      synchronize:
+        src: "/home/moc/poa-scripts-moc/generateInitialKey/output/{{ item }}"
+        dest: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/keystore/{{ item }}"
+      with_items: "{{ initial_keys.stdout_lines }}"
+      when: initial.matched/2 < initial_key_convert_count
+    
+    - name: Check if contracts were not already deployed
+      find:
+        paths: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys"
+        file_type: directory
+      register: folders
+    
+    - name: Install reqired NPM modules (workaround)
+      shell: "npm install"
+      args:
+        chdir: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/"
+      when: folders.matched < initial_key_convert_count 
+         
+    - name: Execute script
+      command: "node index.js {{ contracts_json.KEYS_MANAGER_ADDRESS }}"
+      args:
+        chdir: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/"
+      when: folders.matched < initial_key_convert_count 
+        
+    - name: Comment line at node.toml
+      lineinfile:
+          path: /home/moc/node.toml
+          regexp: '^.*unlock = .*'
+          line: '#unlock = ["{{ MOC_ADDRESS }}"]'
+      notify:
+        - restart poa-parity
+        - restart poa-pm2
+        
+- name: Copy production keys to the destination folder
+  delegate_to: "{{ inventory_hostname }}"
+  synchronize: 
+    src: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/"
+  when: folders.matched < initial_key_convert_count 
+  
+- name: List not converted keys
+  shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | tail -n {{ (initial_key_count - initial_key_convert_count) * 2 }}"
+  register: not_converted_keys
+  when: initial_key_count > initial_key_convert_count
+  
+- name: Copy not converted keys to the destination folder
+  delegate_to: "{{ inventory_hostname }}"
+  synchronize: 
+    src: "/home/moc/poa-scripts-moc/generateInitialKey/output/{{ item }}"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ item }}"
+  with_items: "{{ not_converted_keys.stdout_lines }}"
+  when: initial_key_count > initial_key_convert_count   
