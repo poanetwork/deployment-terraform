@@ -10,3 +10,6 @@ node_version: 8
 moc_secret_length: 20
 netstat_secret_length: 20
 cert_secret_length: 20
+MOC_SECRET: ""
+CERT_SECRET: ""
+NETSTAT_SECRET: ""
