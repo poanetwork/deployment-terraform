@@ -129,7 +129,19 @@
 
 - name: Check output
   debug:
-    var: res_secrets
+    var: "{{ item }}"
+  with_items:
+    - res_secrets
+    - ansible_user
+    - NETWORK_NAME
+    - ansible_host
+    - MOC_SECRET
+    - CERT_SECRET
+    - NETSTAT_SECRET
+    - moc_secret_length
+    - cert_secret_length
+    - netstat_secret_length
+    - bootnode_balanced_count
 
 - name: Set secrets
   set_fact:
