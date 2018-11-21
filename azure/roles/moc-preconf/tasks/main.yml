@@ -105,7 +105,7 @@
     chdir: /home/{{ ansible_user }}/poa-network-consensus-contracts/scripts/
 
 - name: Installing solc if bytecode is not generated (workaround)
-  shell: npm install solc
+  shell: npm install solc@0.4.24
   args:
     creates: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/bytecode"
     chdir: /home/{{ ansible_user }}/poa-network-consensus-contracts/scripts/
@@ -119,14 +119,14 @@
     ANSIBLE_USER: "{{ ansible_user }}"
     NETWORK_NAME: "{{ NETWORK_NAME }}"
     SRDOMAIN: "{{ ansible_host }}"
-    MOC_SECRET: "{{ MOC_SECRET | default('') }}"
-    CERT_SECRET: "{{ CERT_SECRET | default('') }}"
-    NETSTAT_SECRET: "{{ NETSTAT_SECRET | default('') }}"
+    MOC_SECRET: "{{ MOC_SECRET }}"
+    CERT_SECRET: "{{ CERT_SECRET }}"
+    NETSTAT_SECRET: "{{ NETSTAT_SECRET }}"
     MOC_SECRET_LENGTH: "{{ moc_secret_length }}"
     CERT_SECRET_LENGTH: "{{ cert_secret_length }}"
     NETSTAT_SECRET_LENGTH: "{{ netstat_secret_length }}"
     BOOTNODE_BALANCED_COUNT: "{{ bootnode_balanced_count }}"
-    MASTER_OF_CEREMONY: "{{ MOC_ADDRESS | default('') }}"
+    MASTER_OF_CEREMONY: "{{ MOC_ADDRESS }}"
 
 - name: Set secrets
   set_fact:
