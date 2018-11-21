@@ -95,8 +95,8 @@
         bootnodes_txt: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
         install_firewall: false
         MOC_ADDRESS: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/moc') }}"
-        NETSTATS_SERVER: "http://{{ groups['netstat']|first }}:3000"
-        NETSTATS_SECRET: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/netstat_secret') }}"
+        NETSTAT_SERVER: "http://{{ groups['netstat']|first }}:3000"
+        NETSTAT_SECRET: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/netstat_secret') }}"
         NODE_FULLNAME: "{{ ansible_hostname }}"
   tags: 
     - bootnode

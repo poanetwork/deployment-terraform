@@ -12,9 +12,11 @@ NETWORK_ID: 76
 SPEC_ADDRESS: ""
 
 #Netstats secret (optional). Will be generated automatically if set to ""
-NETSTATS_SECRET: ""
+NETSTAT_SECRET: ""
 #MOC secret (optional). Will be generated automatically if set to ""
 MOC_SECRET: ""
+#Secret for the self-signed certificates. Self-signed certificates will be generated automatically:
+CERT_SECRET: ""
 
 #That usually should be unchanged. However, sometimes it should be set to /usr/bin/python if system will not be able to find python3 installed
 ansible_python_interpreter: "/usr/bin/python3"
