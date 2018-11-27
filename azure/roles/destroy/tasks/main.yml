@@ -90,7 +90,7 @@
 - name: Delete storage account
   azure_rm_storageaccount:
     resource_group: "{{ resource_group_name }}"
-    name: "{{ tf_prefix | replace('_', '') | lower }}{{ NETWORK_NAME | lower }}account"
+    name: "{{ tf_prefix | replace('_', '') | replace('-','') | lower }}{{ NETWORK_NAME | lower }}account"
     state: absent
     auth_source: "{{ 'cli' if lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') == '' else lookup ('env', 'ANSIBLE_AZURE_AUTH_SOURCE') }}"
   environment:

@@ -125,6 +125,8 @@ Notes about some configuration parameters:
 
 * `terraform_location` - path to the `terraform` binary. Default value is for typical linux installation. To find correct path on your system, run `which terraform`.
 
+* `tf_prefix` - all resources created by terraform will be prefixed with the value of this variable. Can contain uppercase and lowercase letters, numbers, dashes and underscores. No other symbols allowed!
+
 * `PUB_KEY_STORE` - path to your public key. This key will be copied to all created nodes of the network
 
 * `resource_group_name` - the value of this variable represents the name of the Azure resource group where deployment should be located. If group with this name already exists - scripts will not recreate it, nor delete any resources inside. If variable is empty or not set, resource group will be created with the default name following the next template: `{{ NETWORK_NAME }}rg`, where `{{ NETWORK_NAME }}` is the `NETWORK_NAME` variable set at the config file.

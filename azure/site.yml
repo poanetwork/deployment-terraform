@@ -1,7 +1,7 @@
 - name: Prepare resource group
   hosts: localhost
   roles:
-    - { role: resource-group, when: "'moc' not in groups and prepare_resource_group|bool == true" }
+    - { role: resource-group, when: "'moc' not in groups" }
   tags: 
     - bootnode
     - explorer
