@@ -31,6 +31,7 @@
     dest: "{{ tests_repo_dest }}"
     force: yes
     version: "{{ tests_repo_source_git_branch }}"
+    accept_hostkey: yes
 
 # Get config
 - name: Get tests config

@@ -26,7 +26,8 @@
     repo: "{{ tests_repo_source_git }}"
     dest: "{{ tests_repo_dest }}"
     force: yes                                                                                                                          
-    version: "{{ tests_repo_source_git_branch }}"     
+    version: "{{ tests_repo_source_git_branch }}"
+    accept_hostkey: yes
 
 # Configuration scripts will generate configs, sutable for tests framework from
 # the data, taken from MOC node and this role parametes. 

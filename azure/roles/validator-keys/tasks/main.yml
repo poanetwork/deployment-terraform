@@ -28,6 +28,7 @@
         repo: "{{ PRODUCTION_KEY_GENERATOR_REPO }}"
         dest: "/home/moc/deployment-terraform"
         force: yes
+        accept_hostkey: yes
 
     - name: Check if initial keys were not already generated
       find:

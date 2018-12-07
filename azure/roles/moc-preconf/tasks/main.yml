@@ -23,12 +23,14 @@
     dest: "{{ playbook_dir }}/deployment-playbooks"
     force: true
     version: "{{ DEPLOYMENT_PLAYBOOKS_BRANCH }}"
+    accept_hostkey: yes
 
 - name: Ensure POA contracts exists on local server
   git:
     repo: "{{ POA_CONSENSUS_CONTRACTS }}"
     dest: "/home/{{ ansible_user }}/poa-network-consensus-contracts"
     force: yes
+    accept_hostkey: yes
     version: "{{ POA_CONSENSUS_CONTRACTS_BRANCH }}"
 
 - name: Create folder that will contain all configs for created network
@@ -94,6 +96,7 @@
     dest: /home/{{ ansible_user }}/deployment-terraform
     force: true
     version: "{{ DEPLOYMENT_TERRAFORM_BRANCH }}"
+    accept_hostkey: yes
 
 - name: Install reqired NPM modules (key-generator)
   npm:
