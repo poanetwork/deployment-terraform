@@ -56,6 +56,7 @@
         dest: "/home/moc/poa-network-consensus-contracts"
         force: yes
         version: "{{ POA_CONSENSUS_CONTRACTS_BRANCH }}"
+        accept_hostkey: yes
 
     - name: Install required NPM modules
       shell: npm install
