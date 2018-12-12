@@ -1,3 +1,10 @@
+- name: Save file
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
+  synchronize: 
+    src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/validator-*"
+    dest: "/tmp/{{ NETWORK_NAME }}/production-keys/"
+    mode: pull
+
 - name: gather validator address
   become: false
   delegate_to: "localhost"

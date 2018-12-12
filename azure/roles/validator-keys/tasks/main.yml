@@ -1,4 +1,5 @@
 - name: Become user moc
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   become: true
   become_user: moc
   block:
@@ -47,21 +48,26 @@
         chdir: /home/moc/poa-scripts-moc/generateInitialKey
         executable: /bin/bash
       when: initial.matched/2 < initial_key_count
-    
-    - name: Select initial keys to copy
-      shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | head -n {{ initial_key_convert_count * 2 }}"
+      
+    - name: Select initial keys to copy to gen-prod-keys folder
+      shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | head -n 2"
       register: initial_keys
       when: initial.matched/2 < initial_key_convert_count
-    
+      
     - name: Copy initial keys to the gen-prod-keys folder
-      delegate_to: "{{ inventory_hostname }}"
       synchronize:
         src: "/home/moc/poa-scripts-moc/generateInitialKey/output/{{ item }}"
         dest: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/keystore/{{ item }}"
       with_items: "{{ initial_keys.stdout_lines }}"
       when: initial.matched/2 < initial_key_convert_count
+      
+    - name: Remove initial keys
+      file:
+        path: "{{ item }}"
+        state: absent
+      with_items: "{{ initial_keys.stdout_lines }}"
     
-    - name: Check if contracts were not already deployed
+    - name: Check if keys were not already deployed
       find:
         paths: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys"
         file_type: directory
@@ -89,7 +95,7 @@
         - restart poa-pm2
         
 - name: Copy production keys to the destination folder
-  delegate_to: "{{ inventory_hostname }}"
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   synchronize: 
     src: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/"
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/"
@@ -97,11 +103,12 @@
   
 - name: List not converted keys
   shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | tail -n {{ (initial_key_count - initial_key_convert_count) * 2 }}"
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   register: not_converted_keys
   when: initial_key_count > initial_key_convert_count
   
 - name: Copy not converted keys to the destination folder
-  delegate_to: "{{ inventory_hostname }}"
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   synchronize: 
     src: "/home/moc/poa-scripts-moc/generateInitialKey/output/{{ item }}"
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ item }}"
