@@ -1,6 +1,8 @@
 ---
 - name: restart poa-parity
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   service: name=poa-parity state=restarted
 
 - name: restart poa-pm2
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   service: name=poa-pm2 state=restarted
