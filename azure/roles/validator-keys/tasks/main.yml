@@ -63,9 +63,10 @@
       
     - name: Copy initial keys to the gen-prod-keys folder
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-      synchronize:
+      copy:
         src: "/home/moc/poa-scripts-moc/generateInitialKey/output/{{ item }}"
         dest: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/keystore/{{ item }}"
+        remote_src: true
       with_items: "{{ initial_keys.stdout_lines }}"
       when: initial.matched/2 < initial_key_convert_count
       
@@ -109,7 +110,8 @@
         
 - name: Copy production keys to the destination folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-  synchronize: 
+  copy:
+    remote_src: true
     src: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/"
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/"
   when: folders.matched < initial_key_convert_count 
@@ -122,7 +124,8 @@
   
 - name: Copy not converted keys to the destination folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-  synchronize: 
+  copy: 
+    remote_src: true
     src: "/home/moc/poa-scripts-moc/generateInitialKey/output/{{ item }}"
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ item }}"
   with_items: "{{ not_converted_keys.stdout_lines }}"

@@ -1,14 +1,14 @@
 - name: Save file
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-  synchronize: 
+  fetch: 
     src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/validator-*"
     dest: "/tmp/{{ NETWORK_NAME }}/production-keys/"
-    mode: pull
+    flat: yes
 
 - name: gather validator address
   become: false
   delegate_to: "localhost"
-  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/ | sed '1q;d'"
+  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/ | tail -n 1"
   register: validator
 
 - name: gather list of addresses
