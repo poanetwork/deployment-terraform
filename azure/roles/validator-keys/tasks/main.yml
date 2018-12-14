@@ -108,12 +108,18 @@
         - restart poa-parity
         - restart poa-pm2
         
+- name: Select initial keys to copy to gen-prod-keys folder
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
+  shell: "ls -1 /home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/"
+  register: production_keys
+
 - name: Copy production keys to the destination folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   copy:
     remote_src: true
-    src: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/"
+    src: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/{{ item }}"
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/"
+  with_items: "{{ production_keys.stdout_lines }}"
   when: folders.matched < initial_key_convert_count 
   
 - name: List not converted keys
