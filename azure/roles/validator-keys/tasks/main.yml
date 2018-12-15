@@ -110,14 +110,14 @@
         
 - name: Select production keys to copy to gen-prod-keys folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-  shell: "find /home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/ -follow"
+  shell: "find /home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/ -follow -type f | tail -n +2"
   register: production_keys
 
 - name: Copy production keys to the destination folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   copy:
     remote_src: true
-    src: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/{{ item }}"
+    src: "{{ item }}"
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/"
   with_items: "{{ production_keys.stdout_lines }}"
   when: folders.matched < initial_key_convert_count 
