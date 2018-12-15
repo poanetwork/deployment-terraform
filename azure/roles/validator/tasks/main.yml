@@ -1,9 +1,15 @@
+- name: Select production keys to copy to gen-prod-keys folder
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
+  shell: "find /home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/ -follow -type f | tail -n +2"
+  register: production_keys
+
 - name: Save file
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   fetch: 
-    src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/validator-*"
+    src: "{{ item }}"
     dest: "/tmp/{{ NETWORK_NAME }}/production-keys/"
     flat: yes
+  with_items: "{{ production_keys.stdout_lines }}"
 
 - name: gather validator address
   become: false
@@ -51,7 +57,7 @@
   
 - name: Adjust RewardTransfer configs
   lineinfile:
-    path: /home/validator/poa-scripts-validator/config.json
+    path: /home/validator/poa-scrpts-validator/config.json
     regexp: '^.*\"addr\"\: .*'
     line: '        "addr": "{{ contracts_json.KEYS_MANAGER_ADDRESS }}",'
     
@@ -60,8 +66,3 @@
     path: "/home/validator/poa-scripts-validator/transferRewardToPayoutKey"
   become: true
   become_user: "validator"
-    
-- name: iterate
-  delegate_to: "localhost"
-  become: false
-  file: "state=absent path=/tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}"
