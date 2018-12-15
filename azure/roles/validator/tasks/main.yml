@@ -11,28 +11,22 @@
     flat: yes
   with_items: "{{ production_keys.stdout_lines }}"
 
-- name: gather validator address
-  become: false
-  delegate_to: "localhost"
-  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/ | tail -n 1"
-  register: validator
-
 - name: gather list of addresses
   become: false
   delegate_to: "localhost"
-  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }} | egrep .*mining_.*.json | sed '1q;d' | sed -e 's/^mining_//' -e 's/.json//'"
+  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 1 | sed -e 's/^mining_//' -e 's/.json//'"
   register: addresses
     
 - name: gather list of keyfiles
   become: false
   delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.json | sed '1q;d'"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 1"
   register: keyfiles
   
 - name: gather list of keys
   become: false
   delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.key | sed '1q;d'"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.key | tail -n 1"
   register: keys
 
 - include_role:
