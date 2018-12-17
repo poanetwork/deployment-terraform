@@ -69,13 +69,6 @@
         remote_src: true
       with_items: "{{ initial_keys.stdout_lines }}"
       when: initial.matched/2 < initial_key_convert_count
-      
-    - name: Remove initial keys
-      delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-      file:
-        path: "{{ item }}"
-        state: absent
-      with_items: "{{ initial_keys.stdout_lines }}"
     
     - name: Check if keys were not already deployed
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
