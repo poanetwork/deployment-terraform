@@ -51,7 +51,7 @@
   
 - name: Adjust RewardTransfer configs
   lineinfile:
-    path: /home/validator/poa-scrpts-validator/config.json
+    path: /home/validator/poa-scripts-validator/config.json
     regexp: '^.*\"addr\"\: .*'
     line: '        "addr": "{{ contracts_json.KEYS_MANAGER_ADDRESS }}",'
     
