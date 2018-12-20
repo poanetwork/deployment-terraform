@@ -14,7 +14,7 @@
 - name: gather list of addresses
   become: false
   delegate_to: "localhost"
-  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 1 | sed -e 's/^mining_//' -e 's/.json//'"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ egrep .*mining_.*.json | tail -n 1 | sed -e 's/^\.\/mining_//' -e 's/.json//'"
   register: addresses
     
 - name: gather list of keyfiles
