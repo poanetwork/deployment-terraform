@@ -59,7 +59,7 @@
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
       shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | head -n {{ (groups['validator'].index(ansible_play_batch|first)+1) * 2 }}"
       register: initial_keys
-      when: initial.matched/2 < initial_key_convert_count
+      when: groups['validator'].index(ansible_play_batch|first) < initial_key_convert_count
       
     - name: Copy initial keys to the gen-prod-keys folder
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
@@ -68,7 +68,7 @@
         dest: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/keystore/{{ item }}"
         remote_src: true
       with_items: "{{ initial_keys.stdout_lines }}"
-      when: initial.matched/2 < initial_key_convert_count
+      when: groups['validator'].index(ansible_play_batch|first) < initial_key_convert_count
     
     - name: Check if keys were not already deployed
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
@@ -82,14 +82,14 @@
       shell: "npm install"
       args:
         chdir: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/"
-      when: folders.matched < initial_key_convert_count 
+      when: folders.matched <= initial_key_convert_count 
          
     - name: Execute script
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
       command: "node index.js {{ contracts_json.KEYS_MANAGER_ADDRESS }}"
       args:
         chdir: "/home/moc/deployment-terraform/helper-scripts/gen-prod-keys/"
-      when: folders.matched < initial_key_convert_count 
+      when: folders.matched <= initial_key_convert_count 
         
     - name: Comment line at node.toml
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
@@ -113,7 +113,7 @@
     src: "{{ item }}"
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/"
   with_items: "{{ production_keys.stdout_lines }}"
-  when: folders.matched < initial_key_convert_count 
+  when: folders.matched <= initial_key_convert_count 
   
 - name: List initial keys
   shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | tail -n {{ (initial_key_count - initial_key_convert_count) * 2 }}"
@@ -121,7 +121,7 @@
   register: not_converted_keys
   when: initial_key_count > initial_key_convert_count
   
-- name: Copy initial keys to the destination folder
+- name: Copy initial keys to the output folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   copy: 
     remote_src: true
