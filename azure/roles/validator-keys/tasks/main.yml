@@ -57,7 +57,7 @@
       
     - name: Select initial keys to copy to gen-prod-keys folder
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-      shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | head -n 2"
+      shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | head -n {{ groups['validator'].index(ansible_play_batch|first) * 2 }}"
       register: initial_keys
       when: initial.matched/2 < initial_key_convert_count
       
