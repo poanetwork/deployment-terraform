@@ -38,16 +38,6 @@
     MINING_KEYPASS: "{{ lookup ('file', keys.stdout) }}"
     MINING_KEYFILE: "{{ lookup ('file', keyfiles.stdout) }}"
 
-- name: Stop service httpd, if started
-  service:
-    name: "{{ item }}"
-    state: restarted
-    enabled: yes
-  with_items:
-    - poa-parity
-    - poa-pm2
-    - poa-netstats
-
 - name: Register bytecode variable
   block:    
     - name: get contracts.json content
@@ -70,3 +60,13 @@
     path: "/home/validator/poa-scripts-validator/transferRewardToPayoutKey"
   become: true
   become_user: "validator"
+  
+- name: Start all POA services
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items:
+    - poa-parity
+    - poa-pm2
+    - poa-netstats
