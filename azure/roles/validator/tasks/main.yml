@@ -17,17 +17,18 @@
   shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 1 | sed -e 's/.*mining_\\(.*\\).json/\\1/'"
   register: addresses
     
-- name: gather list of keyfiles
-  become: false
-  delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 1"
-  register: keyfiles
-  
 - name: gather list of keys
   become: false
   delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.key | tail -n 1"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 2"
   register: keys
+  
+- name: Show keys
+  debug:
+    var: "{{ item }}"
+  with_items:
+    - keys
+    - addresses
 
 - include_role:
     name: '{{ playbook_dir }}/deployment-playbooks/roles/validator'
@@ -35,8 +36,8 @@
     username: "validator"
     GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
     MINING_ADDRESS: "0x{{ addresses.stdout }}"
-    MINING_KEYPASS: "{{ lookup ('file', keys.stdout) }}"
-    MINING_KEYFILE: "{{ lookup ('file', keyfiles.stdout) }}"
+    MINING_KEYPASS: "{{ lookup ('file', keys.stdout_lines[0]) }}"
+    MINING_KEYFILE: "{{ lookup ('file', keys.stdout_lines[1]) }}"
 
 - name: Register bytecode variable
   block:    
