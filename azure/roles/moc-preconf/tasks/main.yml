@@ -94,7 +94,7 @@
   file:
     path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ index+1 }}"
     state: directory
-  loop: groups['validator']
+  loop: "{{ groups['validator'] }}"
   loop_control:
     index_var: index
 
