@@ -1,6 +1,6 @@
 - name: Select production keys to copy to gen-prod-keys folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-  shell: "find /home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }} -follow -type f | egrep .*mining_.*"
+  shell: "find /home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }} -type f | egrep .*mining_.*"
   register: production_keys
 
 - name: "Clear /tmp/{{ NETWORK_NAME }}/production-keys/ dir"

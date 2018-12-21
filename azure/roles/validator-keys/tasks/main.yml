@@ -111,7 +111,7 @@
   copy:
     remote_src: true
     src: "{{ item }}"
-    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}"
+    dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}/"
   with_items: "{{ production_keys.stdout_lines }}"
   when: folders.matched <= initial_key_convert_count 
   
