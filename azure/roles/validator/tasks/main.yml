@@ -20,7 +20,7 @@
 - name: gather list of keys
   become: false
   delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 2"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.* | tail -n 2"
   register: keys
   
 - name: Show keys
