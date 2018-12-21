@@ -17,11 +17,17 @@
   shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 1 | sed -e 's/.*mining_\\(.*\\).json/\\1/'"
   register: addresses
     
-- name: Gather key and JSON
+- name: Gather JSON
   become: false
   delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_{{ addresses.stdout }}.* | tail -n 1"
-  register: keys
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_{{ addresses.stdout }}.json | tail -n 1"
+  register: json_keystore
+  
+- name: Gather key
+  become: false
+  delegate_to: "localhost"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_{{ addresses.stdout }}.key | tail -n 1"
+  register: key
   
 - name: Show keys
   debug:
@@ -36,8 +42,8 @@
     username: "validator"
     GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
     MINING_ADDRESS: "0x{{ addresses.stdout }}"
-    MINING_KEYPASS: "{{ lookup ('file', keys.stdout_lines[0]) }}"
-    MINING_KEYFILE: "{{ lookup ('file', keys.stdout_lines[1]) }}"
+    MINING_KEYPASS: "{{ lookup ('file', key.stdout) }}"
+    MINING_KEYFILE: "{{ lookup ('file', json_keystore.stdout) }}"
 
 - name: Register bytecode variable
   block:    
