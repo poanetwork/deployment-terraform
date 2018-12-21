@@ -1,7 +1,13 @@
 - name: Select production keys to copy to gen-prod-keys folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-  shell: "find /home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/ -follow -type f | tail -n +2"
+  shell: "find /home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }} -follow -type f | egrep .*mining_.*"
   register: production_keys
+
+- name: "Clear /tmp/{{ NETWORK_NAME }}/production-keys/ dir"
+  delegate_to: localhost
+  file:
+    state: absent
+    path: "/tmp/{{ NETWORK_NAME }}/production-keys"
 
 - name: Save file
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
@@ -33,7 +39,8 @@
   debug:
     var: "{{ item }}"
   with_items:
-    - keys
+    - key
+    - json_keystore
     - addresses
 
 - include_role:
