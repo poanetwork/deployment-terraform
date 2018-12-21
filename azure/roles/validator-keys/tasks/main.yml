@@ -76,11 +76,6 @@
         paths: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys"
         file_type: directory
       register: folders
-      
-    - name: Make folder for keeping network output variables
-      file:
-        path: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}"
-        state: directory
     
     - name: Install reqired NPM modules (workaround)
       delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
