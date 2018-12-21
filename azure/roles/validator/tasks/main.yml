@@ -11,16 +11,16 @@
     flat: yes
   with_items: "{{ production_keys.stdout_lines }}"
 
-- name: gather list of addresses
+- name: Gather validator address
   become: false
   delegate_to: "localhost"
   shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.*.json | tail -n 1 | sed -e 's/.*mining_\\(.*\\).json/\\1/'"
   register: addresses
     
-- name: gather list of keys
+- name: Gather key and JSON
   become: false
   delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_.* | tail -n 2"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/ | egrep .*mining_{{ addresses.stdout }}.* | tail -n 1"
   register: keys
   
 - name: Show keys
