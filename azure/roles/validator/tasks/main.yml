@@ -7,7 +7,7 @@
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   fetch: 
     src: "{{ item }}"
-    dest: "/tmp/{{ NETWORK_NAME }}/production-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}"
+    dest: "/tmp/{{ NETWORK_NAME }}/production-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}/"
     flat: yes
   with_items: "{{ production_keys.stdout_lines }}"
 
