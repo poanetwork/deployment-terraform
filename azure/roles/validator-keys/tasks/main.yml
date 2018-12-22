@@ -115,12 +115,12 @@
   with_items: "{{ production_keys.stdout_lines }}"
   when: folders.matched <= initial_key_convert_count 
   
-- name: Select production keys to copy to gen-prod-keys folder
+- name: Remove old keys
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
   file: 
     state: absent
     path: "{{ item }}"
-  with_items: "{{ production_keys }}"
+  with_items: "{{ production_keys.stdout_lines }}"
   
 - name: List initial keys
   shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | tail -n {{ (initial_key_count - initial_key_convert_count) * 2 }}"
