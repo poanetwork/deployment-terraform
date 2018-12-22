@@ -103,7 +103,7 @@
         
 - name: Select production keys to copy to gen-prod-keys folder
   delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
-  shell: "find /home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/ -follow -type f | tail -n +2"
+  shell: "find /home/moc/deployment-terraform/helper-scripts/gen-prod-keys/production-keys/ -type f"
   register: production_keys
 
 - name: Copy production keys to the output folder
@@ -114,6 +114,13 @@
     dest: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}/"
   with_items: "{{ production_keys.stdout_lines }}"
   when: folders.matched <= initial_key_convert_count 
+  
+- name: Select production keys to copy to gen-prod-keys folder
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
+  file: 
+    state: absent
+    path: "{{ item }}"
+  with_items: "{{ production_keys }}"
   
 - name: List initial keys
   shell: "ls -1 /home/moc/poa-scripts-moc/generateInitialKey/output/ | tail -n {{ (initial_key_count - initial_key_convert_count) * 2 }}"
