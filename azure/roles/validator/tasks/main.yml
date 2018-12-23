@@ -1,26 +1,41 @@
-- name: gather validator address
-  become: false
-  delegate_to: "localhost"
-  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/ | sed '1q;d'"
-  register: validator
+- name: Select production keys to save locally
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
+  shell: "find /home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }} -type f | egrep .*mining_.*"
+  register: production_keys
 
-- name: gather list of addresses
+- name: Save file
+  delegate_to: "{{ hostvars[groups['moc']|first]['inventory_hostname'] }}"
+  fetch: 
+    src: "{{ item }}"
+    dest: "/tmp/{{ NETWORK_NAME }}/production-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}/"
+    flat: yes
+  with_items: "{{ production_keys.stdout_lines }}"
+
+- name: Gather validator address
   become: false
   delegate_to: "localhost"
-  shell: "ls /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }} | egrep .*mining_.*.json | sed '1q;d' | sed -e 's/^mining_//' -e 's/.json//'"
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}/ | egrep .*mining_.*.json | tail -n 1 | sed -e 's/.*mining_\\(.*\\).json/\\1/'"
   register: addresses
     
-- name: gather list of keyfiles
+- name: Gather JSON
   become: false
   delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.json | sed '1q;d'"
-  register: keyfiles
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}/ | egrep .*mining_{{ addresses.stdout }}.json | tail -n 1"
+  register: json_keystore
   
-- name: gather list of keys
+- name: Gather key
   become: false
   delegate_to: "localhost"
-  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}/ | egrep .*mining_.*.key | sed '1q;d'"
-  register: keys
+  shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}/ | egrep .*mining_{{ addresses.stdout }}.key | tail -n 1"
+  register: key
+  
+- name: Show keys
+  debug:
+    var: "{{ item }}"
+  with_items:
+    - key
+    - json_keystore
+    - addresses
 
 - include_role:
     name: '{{ playbook_dir }}/deployment-playbooks/roles/validator'
@@ -28,8 +43,8 @@
     username: "validator"
     GENESIS_NETWORK_NAME: "{{ NETWORK_NAME }}"
     MINING_ADDRESS: "0x{{ addresses.stdout }}"
-    MINING_KEYPASS: "{{ lookup ('file', keys.stdout) }}"
-    MINING_KEYFILE: "{{ lookup ('file', keyfiles.stdout) }}"
+    MINING_KEYPASS: "{{ lookup ('file', key.stdout) }}"
+    MINING_KEYFILE: "{{ lookup ('file', json_keystore.stdout) }}"
 
 - name: Register bytecode variable
   block:    
@@ -53,8 +68,19 @@
     path: "/home/validator/poa-scripts-validator/transferRewardToPayoutKey"
   become: true
   become_user: "validator"
+  
+- name: Start all POA services
+  service:
+    name: "{{ item }}"
+    state: restarted
+    enabled: yes
+  with_items:
+    - poa-parity
+    - poa-pm2
+    - poa-netstats
     
-- name: iterate
-  delegate_to: "localhost"
-  become: false
-  file: "state=absent path=/tmp/{{ NETWORK_NAME }}/production-keys/{{ validator.stdout }}"
+- name: "Clear /tmp/{{ NETWORK_NAME }}/production-keys/ dir"
+  delegate_to: localhost
+  file:
+    state: absent
+    path: "/tmp/{{ NETWORK_NAME }}/production-keys/"

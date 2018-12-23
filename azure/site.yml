@@ -95,8 +95,8 @@
         bootnodes_txt: "/tmp/{{ NETWORK_NAME }}/bootnodes.txt"
         install_firewall: false
         MOC_ADDRESS: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/moc') }}"
-        NETSTAT_SERVER: "http://{{ groups['netstat']|first }}:3000"
-        NETSTAT_SECRET: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/netstat_secret') }}"
+        NETSTATS_SERVER: "http://{{ groups['netstat']|first }}:3000"
+        NETSTATS_SECRET: "{{ lookup ('file', '/tmp/' + NETWORK_NAME + '/netstat_secret') }}"
         NODE_FULLNAME: "{{ ansible_hostname }}"
   tags: 
     - bootnode
@@ -188,24 +188,6 @@
     - netstat
     - validator
     
-- name: Generate validator keys
-  hosts: moc
-  become: True
-  roles:
-    - validator-keys
-  tags: 
-    - validator
-
-- name: Prepare prod keys for deployment
-  hosts: moc
-  tasks:
-    - synchronize: 
-        src: "/home/{{ ansible_user }}/{{ NETWORK_NAME }}/validator-keys/validator-*"
-        dest: "/tmp/{{ NETWORK_NAME }}/production-keys/"
-        mode: pull
-  tags:
-    - validator
-
 - name: Configure validators node
   hosts: validator
   become: True
