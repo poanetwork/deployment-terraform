@@ -81,6 +81,7 @@ resource "azurerm_application_gateway" "node" {
     unhealthy_threshold = 3
     match {
       status_code       = ["200-399","405"]
+      body              = ""
     }
   }
   
@@ -94,6 +95,7 @@ resource "azurerm_application_gateway" "node" {
     unhealthy_threshold = 3
     match {
       status_code       = ["200-399","405"]
+      body              = ""
     }
   }
 
