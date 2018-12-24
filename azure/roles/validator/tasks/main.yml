@@ -28,14 +28,6 @@
   delegate_to: "localhost"
   shell: "find /tmp/{{ NETWORK_NAME }}/production-keys/{{ groups['validator'].index(ansible_play_batch|first)+1 }}/ | egrep .*mining_{{ addresses.stdout }}.key | tail -n 1"
   register: key
-  
-- name: Show keys
-  debug:
-    var: "{{ item }}"
-  with_items:
-    - key
-    - json_keystore
-    - addresses
 
 - include_role:
     name: '{{ playbook_dir }}/deployment-playbooks/roles/validator'

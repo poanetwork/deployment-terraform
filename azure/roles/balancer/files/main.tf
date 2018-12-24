@@ -1,6 +1,6 @@
 # Configure the Azure Provider
 provider "azurerm" {
-  version = "1.6.0"
+  version = "1.20.0"
 }
 
 resource "azurerm_subnet" "gw" {
@@ -79,6 +79,9 @@ resource "azurerm_application_gateway" "node" {
     host                = "127.0.0.1"
     timeout             = 4
     unhealthy_threshold = 3
+    match {
+      status_code       = ["200-399","405"]
+    }
   }
   
  probe {
@@ -89,6 +92,9 @@ resource "azurerm_application_gateway" "node" {
     host                = "127.0.0.1"
     timeout             = 4
     unhealthy_threshold = 3
+    match {
+      status_code       = ["200-399","405"]
+    }
   }
 
   backend_http_settings {

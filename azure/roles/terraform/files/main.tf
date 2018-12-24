@@ -1,6 +1,6 @@
 # Configure the Azure Provider
 provider "azurerm" {
-  version = "1.6.0"
+  version = "1.20.0"
 }
 
 # Create virtual network
