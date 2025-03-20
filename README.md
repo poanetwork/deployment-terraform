@@ -40,3 +40,6 @@ Most of the work is done by `ansible`, but to bring up the infrastructure, ansib
 Currently, only deployment to Azure is supported:
 [Azure deployment README](azure/README.md)
 
+
+
+Minor update to documentation.
